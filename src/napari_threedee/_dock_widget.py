@@ -6,28 +6,41 @@ see: https://napari.org/docs/dev/plugins/hook_specifications.html
 
 Replace code below according to your needs.
 """
+import napari
 from napari_plugin_engine import napari_hook_implementation
 from qtpy.QtWidgets import QWidget, QHBoxLayout, QPushButton
 from magicgui import magic_factory
+from functools import partial
+
+from .mouse_callbacks import add_point_on_plane, shift_plane_along_normal
 
 
-class ExampleQWidget(QWidget):
-    # your QWidget.__init__ can optionally request the napari viewer instance
-    # in one of two ways:
-    # 1. use a parameter called `napari_viewer`, as done here
-    # 2. use a type annotation of 'napari.viewer.Viewer' for any parameter
-    def __init__(self, napari_viewer):
+class QtPlaneControls(QWidget):
+    def __init__(self, viewer: napari.viewer.Viewer):
         super().__init__()
-        self.viewer = napari_viewer
+        self.viewer = viewer
+        self.viewer.mouse_drag_callbacks.append(
+            partial(
+                add_point_on_plane,
+                points_layer=viewer.layers[1],
+                plane_layer=viewer.layers[0],
+            )
+        )
+        self.viewer.mouse_drag_callbacks.append(
+            partial(
+                shift_plane_along_normal,
+                layer=viewer.layers[0]
+            )
+        )
 
-        btn = QPushButton("Click me!")
+        btn = QPushButton("Useless button!")
         btn.clicked.connect(self._on_click)
 
         self.setLayout(QHBoxLayout())
         self.layout().addWidget(btn)
 
     def _on_click(self):
-        print("napari has", len(self.viewer.layers), "layers")
+        print("lols")
 
 
 @magic_factory
@@ -38,4 +51,4 @@ def example_magic_widget(img_layer: "napari.layers.Image"):
 @napari_hook_implementation
 def napari_experimental_provide_dock_widget():
     # you can return either a single widget, or a sequence of widgets
-    return [ExampleQWidget, example_magic_widget]
+    return QtPlaneControls
