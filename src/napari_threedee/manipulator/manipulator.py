@@ -1,3 +1,6 @@
+from abc import ABC, abstractmethod
+from typing import Tuple
+
 import numpy as np
 from vispy.scene.visuals import Compound, Line, Mesh, Text
 from vispy.visuals.transforms import STTransform
@@ -62,6 +65,12 @@ def make_arrow_head(num_segments, axis):
 
 
 def color_lines(colors):
+    if len(colors) == 1:
+        return np.concatenate(
+            [[colors[0]] * 2],
+            axis=0,
+        )
+
     if len(colors) == 2:
         return np.concatenate(
             [[colors[0]] * 2, [colors[1]] * 2],
@@ -75,7 +84,7 @@ def color_lines(colors):
     else:
         return ValueError(
             trans._(
-                'Either 2 or 3 colors must be provided, got {number}.',
+                'Either 1, 2 or 3 colors must be provided, got {number}.',
                 deferred=True,
                 number=len(colors),
             )
@@ -142,14 +151,20 @@ def distance_between_point_and_line_segment_2d(p, p1, p2):
 
     return numerator / denominator
 
+def create_arrowhead_meshes(ndim: int, num_segments: int) -> Tuple[np.ndarray, np.ndarray]:
+    vertices = np.empty((0, 3))
+    faces = np.empty((0, 3))
+    for axis in range(ndim):
+        v, f = make_arrow_head(num_segments, axis)
+        faces = np.concatenate([faces, f + len(vertices)], axis=0)
+        vertices = np.concatenate([vertices, v], axis=0)
+    return vertices, faces
 
 
-class VispyAxesOverlay:
-    """Axes indicating world coordinate origin and orientation."""
-
+class BaseManipulator(ABC):
     _NUM_SEGMENTS_ARROWHEAD = 100
-
     def __init__(self, viewer, layer=None, order=0):
+        super().__init__()
         self._viewer = viewer
         self._layer = layer
 
@@ -161,9 +176,9 @@ class VispyAxesOverlay:
         self._target_length = 200
         # CMYRGB for 6 axes data in x, y, z, ... ordering
         self._default_color = [
-            [0, 1, 1, 1],
-            [1, 0, 1, 1],
             [1, 1, 0, 1],
+            [1, 0, 1, 1],
+            [0, 1, 1, 1],
             [1, 0, 0, 1],
             [0, 1, 0, 1],
             [0, 0, 1, 1],
@@ -171,46 +186,9 @@ class VispyAxesOverlay:
         # Text offset from line end position
         self._text_offsets = 0.1 * np.array([1, 1, 1])
 
-        # note order is x, y, z for VisPy
-        self._line_data2D = np.array(
-            [[0, 0, 0], [1, 0, 0], [0, 0, 0], [0, 1, 0]]
-        )
-        self._line_data3D = np.array(
-            [[0, 0, 0], [1, 0, 0], [0, 0, 0], [0, 1, 0], [0, 0, 0], [0, 0, 1]]
-        )
-
-        # note order is x, y, z for VisPy
-        self._dashed_line_data2D = np.concatenate(
-            [[[1, 0, 0], [0, 0, 0]], make_dashed_line(4, axis=1)],
-            axis=0,
-        )
-        self._dashed_line_data3D = np.concatenate(
-            [
-                [[1, 0, 0], [0, 0, 0]],
-                make_dashed_line(4, axis=1),
-                make_dashed_line(8, axis=2),
-            ],
-            axis=0,
-        )
-
-        # note order is x, y, z for VisPy
-        vertices = np.empty((0, 3))
-        faces = np.empty((0, 3))
-        for axis in range(2):
-            v, f = make_arrow_head(self._NUM_SEGMENTS_ARROWHEAD, axis)
-            faces = np.concatenate([faces, f + len(vertices)], axis=0)
-            vertices = np.concatenate([vertices, v], axis=0)
-        self._default_arrow_vertices2D = vertices
-        self._default_arrow_faces2D = faces.astype(int)
-
-        vertices = np.empty((0, 3))
-        faces = np.empty((0, 3))
-        for axis in range(3):
-            v, f = make_arrow_head(self._NUM_SEGMENTS_ARROWHEAD, axis)
-            faces = np.concatenate([faces, f + len(vertices)], axis=0)
-            vertices = np.concatenate([vertices, v], axis=0)
-        self._default_arrow_vertices3D = vertices
-        self._default_arrow_faces3D = faces.astype(int)
+        # initialize the arrow lines
+        self._init_arrow_lines()
+        self._init_arrow_heads()
 
         # get the layer node to pass as the parent to the visual
         visual = viewer.window.qt_viewer.layer_to_visual[layer]
@@ -220,7 +198,7 @@ class VispyAxesOverlay:
             parent=parent,
         )
 
-        self.node.transform = STTransform(translate=(0, 50, 50), scale=(50, 50, 50, 1))
+        self.node.transform = STTransform(translate=(0, 0, 0), scale=(1, 1, 1, 1))
         self.node.order = order
 
         # Add a text node to display axes labels
@@ -234,23 +212,37 @@ class VispyAxesOverlay:
         # self.line_node.set_data(width=50)
 
         self.node.canvas._backend.destroyed.connect(self._set_canvas_none)
-        # End Note
 
-        # self._viewer.events.theme.connect(self._on_data_change)
-        # self._viewer.axes.events.visible.connect(self._on_visible_change)
-        # self._viewer.axes.events.colored.connect(self._on_data_change)
-        # self._viewer.axes.events.dashed.connect(self._on_data_change)
-        # self._viewer.axes.events.labels.connect(self._on_data_change)
-        # self._viewer.axes.events.arrows.connect(self._on_data_change)
-        # self._viewer.dims.events.order.connect(self._on_data_change)
-        # self._viewer.dims.events.range.connect(self._on_data_change)
-        # self._viewer.dims.events.ndisplay.connect(self._on_data_change)
-        # self._viewer.dims.events.axis_labels.connect(self._on_data_change)
         self._viewer.camera.events.zoom.connect(self._on_zoom_change)
 
         # self._on_visible_change()
         self._on_data_change()
         self.node.visible = True
+
+    def _init_arrow_lines(self):
+        # note order is x, y, z for VisPy
+        self._line_data2D = np.array(
+            [[0, 0, 0], [1, 0, 0], [0, 0, 0], [0, 1, 0]]
+        )
+        self._line_data3D = np.array(
+            [[0, 0, 0], [0, 0, 1], [0, 0, 0], [0, 1, 0], [0, 0, 0], [1, 0, 0]]
+        )
+
+    def _init_arrow_heads(self):
+        # note order is x, y, z for VisPy
+        vertices_2D, faces_2D = create_arrowhead_meshes(
+            ndim=2,
+            num_segments=self._NUM_SEGMENTS_ARROWHEAD
+        )
+        self._default_arrow_vertices2D = vertices_2D
+        self._default_arrow_faces2D = faces_2D.astype(int)
+
+        vertices_3D, faces_3D = create_arrowhead_meshes(
+            ndim=3,
+            num_segments=self._NUM_SEGMENTS_ARROWHEAD
+        )
+        self._default_arrow_vertices3D = vertices_3D
+        self._default_arrow_faces3D = faces_3D.astype(int)
 
     def on_click(self, layer, event):
         """Mouse call back for selecting and dragging an axis"""
@@ -266,7 +258,8 @@ class VispyAxesOverlay:
         plane_normal = plane_normal[::-1]
 
         # project the in view points onto the plane
-        line_segment_points = (50 * self._line_data3D) + np.array([0, 50, 50])
+        # line_segment_points = (50 * self._line_data3D) + np.array([0, 50, 50])
+        line_segment_points = self._line_data3D
         projected_points, projection_distances = project_points_onto_plane(
             points=line_segment_points,
             plane_point=plane_point,
@@ -286,7 +279,8 @@ class VispyAxesOverlay:
 
         # get distance between click and projected axes
         distances = []
-        for i in range(3):
+        n_axes = int(len(rotated_points_2d) / 2)
+        for i in range(n_axes):
             p_0 = rotated_points_2d[i * 2]
             p_1 = rotated_points_2d[i * 2 + 1]
             dist = distance_between_point_and_line_segment_2d(rotated_click_point_2d, p_0, p_1)
@@ -298,19 +292,19 @@ class VispyAxesOverlay:
         if len(potential_matches) == 1:
             layer.interactive = False
             match = potential_matches[0]
-            if match == 0:
-                match = 2
-            elif match == 2:
-                match = 0
-            match_vector = line_segment_points[2 * match + 1, ::-1]
+
+            match_vector = line_segment_points[2 * match + 1, ::-1] - line_segment_points[2 * match, ::-1]
+            print(line_segment_points, match_vector)
             match_vector = match_vector / np.linalg.norm(match_vector)
         else:
             match = None
             match_vector = None
-        last_position = event.position
+        initial_position = event.position
         yield
 
         if match is not None:
+            # set up for the mouse drag
+            self._pre_drag()
 
             while event.type == 'mouse_move':
                 # click position
@@ -318,32 +312,34 @@ class VispyAxesOverlay:
 
                 # get
                 projected_distance = layer.projected_distance_from_mouse_drag(
-                    start_position=last_position,
+                    start_position=initial_position,
                     end_position=event.position,
                     view_direction=event.view_direction,
                     vector=match_vector,
                     dims_displayed=event.dims_displayed
                 )
-                current_translation = layer.translate
-                translation_increment = np.zeros((3,))
-                translation_increment[match] = projected_distance
-                new_translation = current_translation + translation_increment
-                layer.translate = new_translation
 
-                # update the last click position
-                last_position = event.position
+                translation_vector = projected_distance * match_vector
+                self._while_drag(translation_vector)
+
                 yield
 
         layer.interactive = True
 
-    # @property
-    # def thickness(self):
-    #     return self._thickness
-    #
-    # @thickness.setter
-    # def thickness(self, value: float):
-    #     self._thickness = value
-    #     # self.node.
+        # Call a function to clean up after the mouse event
+        self._on_click_cleanup()
+
+    @abstractmethod
+    def _pre_drag(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def _while_drag(self, translation_vector):
+        raise NotImplementedError
+
+    @abstractmethod
+    def _on_click_cleanup(self):
+        raise NotImplementedError
 
     def _set_canvas_none(self):
         self.node._set_canvas(None)
@@ -364,7 +360,7 @@ class VispyAxesOverlay:
         axes = self._viewer.dims.displayed
 
         # Actual number of displayed dims
-        ndisplay = len(self._viewer.dims.displayed)
+        ndisplay = self._viewer.dims.ndisplay
 
         # Determine the labels of those axes
         axes_labels = [self._viewer.dims.axis_labels[a] for a in axes[::-1]]
@@ -390,63 +386,47 @@ class VispyAxesOverlay:
             color[-1] = background_color[-1]
             axes_colors = [color] * ndisplay
 
-        # Determine data based on number of displayed dimensions and
-        # axes visualization parameters
-        if self._viewer.axes.dashed and ndisplay == 2:
-            data = self._dashed_line_data2D
-            color = color_dashed_lines(axes_colors)
-            text_data = self._line_data2D[1::2]
-        elif self._viewer.axes.dashed and ndisplay == 3:
-            data = self._dashed_line_data3D
-            color = color_dashed_lines(axes_colors)
-            text_data = self._line_data3D[1::2]
-        elif not self._viewer.axes.dashed and ndisplay == 2:
-            data = self._line_data2D
-            color = color_lines(axes_colors)
-            text_data = self._line_data2D[1::2]
-        elif not self._viewer.axes.dashed and ndisplay == 3:
-            data = self._line_data3D
-            color = color_lines(axes_colors)
-            text_data = self._line_data3D[1::2]
-        else:
-            raise ValueError(
-                trans._(
-                    'Axes dash status and ndisplay combination not supported',
-                    deferred=True,
-                )
-            )
-
-        if self._viewer.axes.arrows and ndisplay == 2:
+        # Determine data based the number of displayed dimensions
+        if ndisplay == 2:
+            # make the arrow heads
             arrow_vertices = self._default_arrow_vertices2D
             arrow_faces = self._default_arrow_faces2D
             arrow_color = color_arrowheads(
                 axes_colors, self._NUM_SEGMENTS_ARROWHEAD
             )
-        elif self._viewer.axes.arrows and ndisplay == 3:
+
+            # make the arrow lines
+            data = self._line_data2D
+            color = color_lines(axes_colors)
+        elif ndisplay == 3:
+            # make the arrow heads
             arrow_vertices = self._default_arrow_vertices3D
             arrow_faces = self._default_arrow_faces3D
             arrow_color = color_arrowheads(
                 axes_colors, self._NUM_SEGMENTS_ARROWHEAD
             )
-        else:
-            arrow_vertices = np.zeros((3, 3))
-            arrow_faces = np.array([[0, 1, 2]])
-            arrow_color = [[0, 0, 0, 0]]
 
+            # make the arrow lines
+            data = self._line_data3D
+            n_axes = int(data.shape[0] / 2)
+            color = color_lines(axes_colors[:n_axes])
+        else:
+            raise ValueError(
+                trans._(
+                    'Invalid ndisplay value',
+                    deferred=True,
+                )
+            )
+
+        # set the lines data
         self.node._subvisuals[0].set_data(data, color)
+
+        # set the arrow heads data
         self.node._subvisuals[1].set_data(
             vertices=arrow_vertices,
             faces=arrow_faces,
             face_colors=arrow_color,
         )
-
-        # Set visibility status of text
-        self.text_node.visible = (
-            self._viewer.axes.visible and self._viewer.axes.labels
-        )
-        self.text_node.text = axes_labels
-        self.text_node.color = axes_colors
-        self.text_node.pos = text_data + self._text_offsets
 
     def _on_zoom_change(self):
         """Update axes length based on zoom scale."""
@@ -464,3 +444,87 @@ class VispyAxesOverlay:
         scale = target_canvas_pixels * scale_canvas2world
         # Update axes scale
         self.node.transform.scale = [scale, scale, scale, 1]
+
+
+class LayerTranslator(BaseManipulator):
+
+    def __init__(self, viewer, layer, line_length=50, order=0):
+        self._line_length = line_length
+        self._initial_translate = None
+
+        super().__init__(viewer, layer, order)
+
+    @property
+    def line_length(self):
+        return self._line_length
+
+    @line_length.setter
+    def line_length(self, line_length):
+        self._line_length = line_length
+        self._on_data_change()
+
+
+    def _init_arrow_lines(self):
+        # note order is x, y, z for VisPy
+        centroid = np.mean(self._layer._extent_data, axis=0)
+        self._line_data2D = np.array(
+            [[0, 0, 0], [1, 0, 0], [0, 0, 0], [0, 1, 0]]
+        )
+        line_data3D = self.line_length * np.array(
+            [[0, 0, 0], [0, 0, 1], [0, 0, 0], [0, 1, 0], [0, 0, 0], [1, 0, 0]]
+        )
+        self._line_data3D = line_data3D + centroid
+
+    def _pre_drag(self):
+        self._initial_translate = self._layer.translate
+
+    def _while_drag(self, translation_vector: np.ndarray):
+        new_translation = self._initial_translate + translation_vector
+        self._layer.translate = np.squeeze(new_translation)
+
+    def _on_click_cleanup(self):
+        self._initial_translate = None
+
+
+class RenderPlaneTranslator(BaseManipulator):
+
+    def __init__(self, viewer, layer, line_length=50, order=0):
+        self._line_length = line_length
+        self._initial_translate = None
+
+        super().__init__(viewer, layer, order)
+
+    @property
+    def line_length(self):
+        return self._line_length
+
+    @line_length.setter
+    def line_length(self, line_length):
+        self._line_length = line_length
+        self._on_data_change()
+
+
+    def _init_arrow_lines(self):
+        # note order is x, y, z for VisPy
+        centroid = self._layer.experimental_slicing_plane.position
+        normal = self._layer.experimental_slicing_plane.normal
+        self._line_data2D = np.array(
+            [[0, 0, 0], [1, 0, 0], [0, 0, 0], [0, 1, 0]]
+        )
+        line_data3D = self.line_length * np.array(
+            [[0, 0, 0], normal]
+        )
+        self._line_data3D = line_data3D + centroid
+
+    def _pre_drag(self):
+        self._initial_plane_pos = self._layer.experimental_slicing_plane.position
+
+    def _while_drag(self, translation_vector: np.ndarray):
+        new_translation = self._initial_plane_pos + translation_vector
+        self._layer.experimental_slicing_plane.position = np.squeeze(new_translation)
+
+        self._init_arrow_lines()
+        self._on_data_change()
+
+    def _on_click_cleanup(self):
+        self._initial_plane_pos = None
