@@ -1,7 +1,7 @@
 import napari
 import numpy as np
 
-from napari_threedee.manipulator.manipulator import LayerTranslator
+from napari_threedee.manipulators import LayerManipulator
 
 data = np.random.random((100, 100, 100))
 
@@ -10,6 +10,6 @@ image_layer = viewer.layers[0]
 
 viewer.dims.ndisplay = 3
 
-axis = LayerTranslator(viewer=viewer, layer=image_layer)
+axis = LayerManipulator(viewer=viewer, layer=image_layer)
 
 napari.run()
