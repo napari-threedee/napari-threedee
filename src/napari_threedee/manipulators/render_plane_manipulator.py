@@ -43,15 +43,15 @@ class RenderPlaneManipulator(BaseManipulator):
 
     def _init_arrow_lines(self):
         # note order is x, y, z for VisPy
-        self.centroid = self._layer.experimental_slicing_plane.position
-        self.normal = self._layer.experimental_slicing_plane.normal
+        centroid = self._layer.experimental_slicing_plane.position
+        normal = self._layer.experimental_slicing_plane.normal
         self._line_data2D = np.array(
             [[0, 0, 0], [1, 0, 0], [0, 0, 0], [0, 1, 0]]
         )
         line_data3D = self.line_length * np.array(
-            [[0, 0, 0], self.normal]
+            [[0, 0, 0], normal]
         )
-        self._line_data3D = line_data3D + self.centroid
+        self._line_data3D = line_data3D + centroid
 
     def _init_rotators(self):
         centroid = self._layer.experimental_slicing_plane.position
@@ -101,13 +101,14 @@ class RenderPlaneManipulator(BaseManipulator):
             elif (rotator_index == 1) or (rotator_index == 2):
                 normal = getattr(self, f'ortho_rotator_{rotator_index}_normal')
             # project the initial click point onto the rotation plane
+            centroid = self._layer.experimental_slicing_plane.position
             initial_click_point, _ = project_points_onto_plane(
                 points=click_point_data_displayed,
-                plane_point=self.centroid,
+                plane_point=centroid,
                 plane_normal=normal,
             )
 
-            self._initial_click_vector = np.squeeze(initial_click_point) - self.centroid
+            self._initial_click_vector = np.squeeze(initial_click_point) - centroid
             self._initial_normal = self._layer.experimental_slicing_plane.normal
             self._initial_ortho_rotator_1_normal = self.ortho_rotator_1_normal
             self._initial_ortho_rotator_2_normal = self.ortho_rotator_2_normal
@@ -125,12 +126,14 @@ class RenderPlaneManipulator(BaseManipulator):
 
     def _while_rotator_drag(self, click_position, rotation_drag_vector, rotator_index):
         if rotator_index == 0:
+            centroid = self._layer.experimental_slicing_plane.position
+            normal = self._layer.experimental_slicing_plane.normal
             projected_click_point, _ = project_points_onto_plane(
                 points=click_position,
-                plane_point=self.centroid,
-                plane_normal=self.normal,
+                plane_point=centroid,
+                plane_normal=normal,
             )
-            click_vector = np.squeeze(projected_click_point) - self.centroid
+            click_vector = np.squeeze(projected_click_point) - centroid
 
             rot_mat = rotation_matrix = rotation_matrix_from_vectors(
                 self._initial_click_vector, click_vector
@@ -149,12 +152,13 @@ class RenderPlaneManipulator(BaseManipulator):
 
     def _rotate_plane(self, click_position, rotator_index):
         plane_normal = getattr(self, f'ortho_rotator_{rotator_index}_normal')
+        centroid = self._layer.experimental_slicing_plane.position
         projected_click_point, _ = project_points_onto_plane(
             points=click_position,
-            plane_point=self.centroid,
+            plane_point=centroid,
             plane_normal=plane_normal,
         )
-        click_vector = np.squeeze(projected_click_point) - self.centroid
+        click_vector = np.squeeze(projected_click_point) - centroid
         rot_mat = rotation_matrix = rotation_matrix_from_vectors(
             self._initial_click_vector, click_vector
         )
