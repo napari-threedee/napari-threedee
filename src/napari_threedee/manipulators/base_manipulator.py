@@ -5,13 +5,13 @@ from napari.utils.colormaps.standardize_color import transform_color
 from napari.utils.theme import get_theme
 from napari.utils.translations import trans
 from napari_threedee.manipulators.manipulator_utils import select_rotator, color_lines
-from napari_threedee.utils.selection_utils import select_line_segment
-from vispy.scene import Compound, Line, Text
-from vispy.visuals.transforms import STTransform
+from napari_threedee.utils.selection_utils import select_line_segment, select_mesh_from_click
+from vispy.scene import Compound, Line, Mesh, Text
+from vispy.visuals.transforms import MatrixTransform
 
 
 class BaseManipulator(ABC):
-    _N_SEGMENTS_ROTATOR = 100
+    _N_SEGMENTS_ROTATOR = 15
     def __init__(self, viewer, layer=None, order=0):
         super().__init__()
         self._viewer = viewer
@@ -20,14 +20,15 @@ class BaseManipulator(ABC):
         self._layer.mouse_drag_callbacks.append(self.on_click)
 
         self._scale = 1
+        self.rot_mat = np.eye(3)
 
         # Target axes length in canvas pixels
         self._target_length = 200
         # CMYRGB for 6 axes data in x, y, z, ... ordering
         self._default_color = [
             [1, 1, 0, 1],
-            [1, 0, 1, 1],
             [0, 1, 1, 1],
+            [1, 0, 1, 1],
             [1, 0, 0, 1],
             [0, 1, 0, 1],
             [0, 0, 1, 1],
@@ -44,39 +45,54 @@ class BaseManipulator(ABC):
         # get the layer node to pass as the parent to the visual
         visual = viewer.window.qt_viewer.layer_to_visual[layer]
         parent = visual._layer_node.get_node(3)
-        self.node = Compound(
-            [Line(connect='segments', method='gl', width=3), Line(connect='segments', method='gl', width=3), Text()],
-            parent=parent,
-        )
+        self.node = Mesh(mode='triangles', shading='smooth', parent=parent)
 
-        self.node.transform = STTransform(translate=(0, 0, 0), scale=(1, 1, 1, 1))
+        self.node.transform = MatrixTransform()
         self.node.order = order
-
-        # Add a text node to display axes labels
-        self.text_node = self.node._subvisuals[2]
-        self.text_node.font_size = 10
-        self.text_node.anchors = ('center', 'center')
-        self.text_node.text = f'{1}'
-
-        # Access the line ode
-        self.line_node = self.node._subvisuals[0]
 
         self.node.canvas._backend.destroyed.connect(self._set_canvas_none)
 
         self._viewer.camera.events.zoom.connect(self._on_zoom_change)
 
         # self._on_visible_change()
+        self._on_matrix_change()
         self._on_data_change()
         self.node.visible = True
 
     def _init_arrow_lines(self):
         self._line_data2D = None
         self._line_data3D = None
+        self.translator_vertices = None
+        self._initial_translator_normals = np.empty()
 
     def _init_rotators(self):
         self._rotator_data2D = None
         self._rotator_data3D = None
         self._rotator_connections = None
+        self.rotator_vertices = None
+        self._initial_rotator_normals = np.empty()
+
+    # @property
+    # def translator_normals(self) -> np.ndarray:
+    #     return (self._initial_translator_normals @ self.rot_mat.T)
+    # @property
+    # def rotator_normals(self) -> np.ndarray:
+    #     return (self._initial_rotator_normals @ self.rot_mat.T)
+
+
+    @property
+    def displayed_translator_vertices(self):
+        if self.translator_vertices is not None:
+            return (self.translator_vertices @ self.rot_mat.T) + self.centroid
+        else:
+            return None
+
+    @property
+    def displayed_rotator_vertices(self):
+        if self.rotator_vertices is not None:
+            return (self.rotator_vertices @ self.rot_mat.T) + self.centroid
+        else:
+            return None
 
     def on_click(self, layer, event):
         """Mouse call back for selecting and dragging an axis"""
@@ -92,81 +108,67 @@ class BaseManipulator(ABC):
         # plane_normal = plane_normal[::-1]
 
         # project the in view points onto the plane
-        if self._line_data3D is not None:
-            line_segment_points = self._line_data3D
-            potential_matches = select_line_segment(
-                line_segment_points=line_segment_points,
-                plane_normal=plane_normal,
-                plane_point=plane_point,
-                distance_threshold=3
+        if len(self.translator_normals) > 0:
+            translator_triangles = self.displayed_translator_vertices[self.translator_indices]
+            selected_translator = select_mesh_from_click(
+                click_point=plane_point,
+                view_direction=plane_normal,
+                triangles=translator_triangles,
+                triangle_indices=self.translator_triangle_indices
             )
-        else:
-            potential_matches = []
-
-        if self._rotator_data3D is not None:
-            rotator_selection = select_rotator(
-                click_position=point_data,
-                plane_normal=plane_normal,
-                rotator_data=self._rotator_data3D
-            )
-            if rotator_selection is not None:
-                rotator_index = self._rotator_vertex_axis[rotator_selection]
-                print(rotator_index)
+            if selected_translator is not None:
+                selected_translator_normal = self.translator_normals[selected_translator]
+                layer.interactive = False
             else:
-                rotator_index = None
-        else:
-            rotator_index = None
+                selected_translator_normal = None
 
-        if len(potential_matches) == 1:
-            layer.interactive = False
-            match = potential_matches[0]
+        if len(self.rotator_normals) > 0:
+            rotator_triangles = self.displayed_rotator_vertices[self.rotator_indices]
+            selected_rotator = select_mesh_from_click(
+                click_point=plane_point,
+                view_direction=plane_normal,
+                triangles=rotator_triangles,
+                triangle_indices=self.rotator_triangle_indices
+            )
+            if selected_rotator is not None:
+                layer.interactive = False
 
-            match_vector = line_segment_points[2 * match + 1, :] - line_segment_points[2 * match, :]
-            print(line_segment_points, match_vector)
-            match_vector = match_vector / np.linalg.norm(match_vector)
-        elif rotator_index is not None:
-            layer.interactive = False
-            match = None
-            match_vector = None
-        else:
-            match = None
-            match_vector = None
         initial_position_world = event.position
         yield
 
-        if match is not None or rotator_index is not None:
+        if selected_translator is not None or selected_rotator is not None:
             # set up for the mouse drag
-            self._pre_drag(plane_point, rotator_index)
-
+            self._pre_drag(plane_point, selected_rotator)
+        #
             while event.type == 'mouse_move':
                 # click position
                 coordinates = np.asarray(layer.world_to_data(event.position))[event.dims_displayed]
 
                 rotator_drag_vector = None
                 translator_drag_vector = None
-                if match is not None:
+                if selected_translator is not None:
                 # get
                     projected_distance = layer.projected_distance_from_mouse_drag(
                         start_position=initial_position_world,
                         end_position=event.position,
                         view_direction=event.view_direction,
-                        vector=match_vector,
+                        vector=selected_translator_normal,
                         dims_displayed=event.dims_displayed
                     )
-                    translator_drag_vector = projected_distance * match_vector
-                    self._while_translator_drag(translator_drag_vector, rotator_drag_vector, rotator_selection)
+                    translator_drag_vector = projected_distance * selected_translator_normal
+                    self._while_translator_drag(translator_drag_vector)
 
-                elif rotator_selection is not None:
+                elif selected_rotator is not None:
                     rotator_drag_vector = coordinates - initial_position_world
-                    self._while_rotator_drag(coordinates, rotator_drag_vector, rotator_index)
+                    self._while_rotator_drag(coordinates, rotator_drag_vector, selected_rotator)
 
 
                 yield
-
+        #
         layer.interactive = True
-
-        # Call a function to clean up after the mouse event
-        self._on_click_cleanup()
+        #
+        # # Call a function to clean up after the mouse event
+        # self._on_click_cleanup()
 
     @abstractmethod
     def _pre_drag(self, click_point_data_displayed, rotator_index):
@@ -185,7 +187,6 @@ class BaseManipulator(ABC):
 
     def _set_canvas_none(self):
         self.node._set_canvas(None)
-        self.text_node._set_canvas(None)
 
     def _on_visible_change(self):
         """Change visibiliy of axes."""
@@ -198,47 +199,20 @@ class BaseManipulator(ABC):
         # if not self._viewer.axes.visible:
         #     return
 
-        # Determine which axes are displayed
-        axes = self._viewer.dims.displayed
-
         # Actual number of displayed dims
         ndisplay = self._viewer.dims.ndisplay
-
-        # Determine the labels of those axes
-        axes_labels = [self._viewer.dims.axis_labels[a] for a in axes[::-1]]
-        # Counting backwards from total number of dimensions
-        # determine axes positions. This is done as by default
-        # the last NumPy axis corresponds to the first Vispy axis
-        reversed_axes = [self._viewer.dims.ndim - 1 - a for a in axes[::-1]]
-
-        # Determine colors of axes based on reverse position
-        if self._viewer.axes.colored:
-            axes_colors = [
-                self._default_color[ra % len(self._default_color)]
-                for ra in reversed_axes
-            ]
-        else:
-            # the reason for using the `as_hex` here is to avoid
-            # `UserWarning` which is emitted when RGB values are above 1
-            background_color = get_theme(
-                self._viewer.theme, False
-            ).canvas.as_hex()
-            background_color = transform_color(background_color)[0]
-            color = np.subtract(1, background_color)
-            color[-1] = background_color[-1]
-            axes_colors = [color] * ndisplay
 
         # Determine data based the number of displayed dimensions
         if ndisplay == 2:
 
             # make the arrow lines
             data = self._line_data2D
-            color = color_lines(axes_colors)
+            color = color_lines(self._default_color)
         elif ndisplay == 3:
-            # make the arrow lines
-            data = self._line_data3D[:, ::-1]
-            n_axes = int(data.shape[0] / 2)
-            color = color_lines(axes_colors[:n_axes])
+            # make the arrow lines, reverse axes for vispy display
+            translator_vertices = self.translator_vertices[:, ::-1]
+            translator_indices = self.translator_indices.copy()
+            translator_colors = self.translator_colors
         else:
             raise ValueError(
                 trans._(
@@ -247,20 +221,16 @@ class BaseManipulator(ABC):
                 )
             )
 
-        # set the lines data
-        self.node._subvisuals[0].set_data(data, color)
+        translator_indices += len(self.rotator_vertices)
+        vertices = np.concatenate([self.rotator_vertices[:, ::-1], translator_vertices])
+        faces = np.concatenate([self.rotator_indices, translator_indices])
+        colors = np.concatenate([self.rotator_colors, translator_colors])
 
-        if self._rotator_data3D is not None:
-            rotator_data = self._rotator_data3D[:, ::-1]
-            rotator_colors = np.concatenate(
-                [
-                    [axes_colors[0]] * self._N_SEGMENTS_ROTATOR,
-                    [axes_colors[1]] * self._N_SEGMENTS_ROTATOR,
-                    [axes_colors[2]] * self._N_SEGMENTS_ROTATOR
-                ],
-                axis=0,
-            )
-            self.node._subvisuals[1].set_data(rotator_data, rotator_colors, connect=self._rotator_connections)
+        self.node.set_data(
+            vertices=vertices,
+            faces=faces,
+            vertex_colors=colors
+        )
 
     def _on_zoom_change(self):
         """Update axes length based on zoom scale."""
@@ -278,3 +248,18 @@ class BaseManipulator(ABC):
         scale = target_canvas_pixels * scale_canvas2world
         # Update axes scale
         self.node.transform.scale = [scale, scale, scale, 1]
+
+
+    def _on_matrix_change(self):
+        # convert NumPy axis ordering to VisPy axis ordering
+        # by reversing the axes order and flipping the linear
+        # matrix
+        translate = self.centroid[::-1]
+        rot_matrix = self.rot_mat[::-1, ::-1].T
+
+        # Embed in the top left corner of a 4x4 affine matrix
+        affine_matrix = np.eye(4)
+        affine_matrix[: rot_matrix.shape[0], : rot_matrix.shape[1]] = rot_matrix
+        affine_matrix[-1, : len(translate)] = translate
+
+        self.node.transform.matrix = affine_matrix
