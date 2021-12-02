@@ -1,29 +1,36 @@
 from abc import ABC, abstractmethod
+from typing import Optional
 
 import numpy as np
-from napari.utils.colormaps.standardize_color import transform_color
-from napari.utils.theme import get_theme
+from napari.utils.geometry import project_points_onto_plane, rotation_matrix_from_vectors
 from napari.utils.translations import trans
-from napari_threedee.manipulators.manipulator_utils import select_rotator, color_lines
-from napari_threedee.utils.selection_utils import select_line_segment, select_mesh_from_click
-from vispy.scene import Compound, Line, Mesh, Text
+from vispy.scene import Mesh
 from vispy.visuals.transforms import MatrixTransform
 
 
+from .manipulator_utils import make_translator_meshes, select_rotator, color_lines, make_rotator_meshes
+from ..utils.selection_utils import select_line_segment, select_mesh_from_click
+
+
 class BaseManipulator(ABC):
-    _N_SEGMENTS_ROTATOR = 15
-    def __init__(self, viewer, layer=None, order=0):
+    _N_SEGMENTS_ROTATOR = 20
+    def __init__(self, viewer, layer=None, order=0, line_length=50, rotator_radius=5):
         super().__init__()
         self._viewer = viewer
         self._layer = layer
 
+        self._line_length = line_length
+        self._rotator_radius = rotator_radius
+
         self._layer.mouse_drag_callbacks.append(self.on_click)
 
-        self._scale = 1
-        self.rot_mat = np.eye(3)
+        # this is used to store the vector to the initial click
+        # on a rotator for calculating the rotation
+        self._initial_click_vector = None
 
-        # Target axes length in canvas pixels
-        self._target_length = 200
+        # Initialize the rotation matrix for the manipulator.
+        self._rot_mat = np.eye(3)
+
         # CMYRGB for 6 axes data in x, y, z, ... ordering
         self._default_color = [
             [1, 1, 0, 1],
@@ -33,11 +40,9 @@ class BaseManipulator(ABC):
             [0, 1, 0, 1],
             [0, 0, 1, 1],
         ]
-        # Text offset from line end position
-        self._text_offsets = 0.1 * np.array([1, 1, 1])
 
         # initialize the arrow lines
-        self._init_arrow_lines()
+        self._init_translators()
 
         # initialize the rotators
         self._init_rotators()
@@ -54,30 +59,88 @@ class BaseManipulator(ABC):
 
         self._viewer.camera.events.zoom.connect(self._on_zoom_change)
 
-        # self._on_visible_change()
         self._on_matrix_change()
         self._on_data_change()
         self.node.visible = True
 
-    def _init_arrow_lines(self):
-        self._line_data2D = None
-        self._line_data3D = None
-        self.translator_vertices = None
-        self._initial_translator_normals = np.empty()
+    def _init_translators(self):
+        translator_vertices, translator_indices, translator_colors, triangle_indices = make_translator_meshes(
+            centroids=np.asarray([0, 0, 0]),
+            normals=self._initial_translator_normals,
+            colors=self._default_color[:len(self._initial_translator_normals)],
+            translator_length=self.translator_length,
+            tube_radius=0.3,
+            tube_points=3,
+        )
+
+        self.translator_vertices = translator_vertices
+        self.translator_indices = translator_indices
+        self.translator_colors = translator_colors
+        self.translator_triangle_indices = triangle_indices
+
+        self._translator_normals = self._initial_translator_normals.copy()
 
     def _init_rotators(self):
-        self._rotator_data2D = None
-        self._rotator_data3D = None
-        self._rotator_connections = None
-        self.rotator_vertices = None
-        self._initial_rotator_normals = np.empty()
+        if len(self._initial_rotator_normals) > 0:
+            rotator_vertices, rotator_indices, rotator_colors, triangle_indices = make_rotator_meshes(
+                centroids=np.repeat([0, 0, 0], 3, axis=0),
+                normals=self._initial_rotator_normals,
+                colors=self._default_color[:len(self._initial_rotator_normals)],
+                rotator_radius=self.rotator_radius,
+                tube_radius=0.3,
+                tube_points=3,
+                n_segments=self._N_SEGMENTS_ROTATOR
+            )
 
-    # @property
-    # def translator_normals(self) -> np.ndarray:
-    #     return (self._initial_translator_normals @ self.rot_mat.T)
-    # @property
-    # def rotator_normals(self) -> np.ndarray:
-    #     return (self._initial_rotator_normals @ self.rot_mat.T)
+            self.rotator_vertices = rotator_vertices
+            self.rotator_indices = rotator_indices
+            self.rotator_colors = rotator_colors
+            self.rotator_triangle_indices = triangle_indices
+
+            self._rotator_normals = self._initial_rotator_normals.copy()
+
+    @property
+    def centroid(self) -> np.ndarray:
+        return self._centroid
+
+    @centroid.setter
+    def centroid(self, centroid: np.ndarray):
+        self._centroid = centroid
+        self._on_matrix_change()
+
+    @property
+    def rot_mat(self) -> np.ndarray:
+        return self._rot_mat
+
+    @rot_mat.setter
+    def rot_mat(self, rotation_matrix: np.ndarray):
+        self._rot_mat = rotation_matrix
+        self._on_matrix_change()
+
+    @property
+    def translator_length(self):
+        return self._line_length
+
+    @translator_length.setter
+    def translator_length(self, line_length) -> float:
+        self._line_length = line_length
+        self._on_data_change()
+
+    @property
+    def rotator_radius(self) -> float:
+        return self._rotator_radius
+
+    @rotator_radius.setter
+    def rotator_radius(self, rotator_radius):
+        self._rotator_radius = rotator_radius
+        self._on_data_change()
+
+    @property
+    def translator_normals(self) -> np.ndarray:
+        return (self._initial_translator_normals @ self.rot_mat.T)
+    @property
+    def rotator_normals(self) -> np.ndarray:
+        return (self._initial_rotator_normals @ self.rot_mat.T)
 
 
     @property
@@ -101,11 +164,9 @@ class BaseManipulator(ABC):
         point_world = event.position
         point_data = np.asarray(self._layer.world_to_data(point_world))
         plane_point = point_data[event.dims_displayed]
-        # plane_point = plane_point[::-1]
 
         view_dir_data = np.asarray(self._layer._world_to_data_ray(event.view_direction))
         plane_normal = view_dir_data[event.dims_displayed]
-        # plane_normal = plane_normal[::-1]
 
         # project the in view points onto the plane
         if len(self.translator_normals) > 0:
@@ -121,6 +182,8 @@ class BaseManipulator(ABC):
                 layer.interactive = False
             else:
                 selected_translator_normal = None
+        else:
+            selected_translator = None
 
         if len(self.rotator_normals) > 0:
             rotator_triangles = self.displayed_rotator_vertices[self.rotator_indices]
@@ -132,14 +195,25 @@ class BaseManipulator(ABC):
             )
             if selected_rotator is not None:
                 layer.interactive = False
+        else:
+            selected_rotator = None
 
         initial_position_world = event.position
         yield
 
         if selected_translator is not None or selected_rotator is not None:
             # set up for the mouse drag
-            self._pre_drag(plane_point, selected_rotator)
-        #
+            self._setup_rotator_drag(
+                click_point=plane_point, selected_rotator=selected_rotator
+            )
+
+            # call the _pre_drag callback
+            self._pre_drag(
+                click_point=plane_point,
+                selected_translator=selected_translator,
+                selected_rotator=selected_rotator
+            )
+
             while event.type == 'mouse_move':
                 # click position
                 coordinates = np.asarray(layer.world_to_data(event.position))[event.dims_displayed]
@@ -147,7 +221,7 @@ class BaseManipulator(ABC):
                 rotator_drag_vector = None
                 translator_drag_vector = None
                 if selected_translator is not None:
-                # get
+                    # get drag vector projected onto the translator axis
                     projected_distance = layer.projected_distance_from_mouse_drag(
                         start_position=initial_position_world,
                         end_position=event.position,
@@ -156,34 +230,110 @@ class BaseManipulator(ABC):
                         dims_displayed=event.dims_displayed
                     )
                     translator_drag_vector = projected_distance * selected_translator_normal
-                    self._while_translator_drag(translator_drag_vector)
+                    self._while_translator_drag(selected_translator=selected_translator,
+                                                translation_vector=translator_drag_vector)
 
                 elif selected_rotator is not None:
+                    # calculate the rotation matrix for the rotator drag
                     rotator_drag_vector = coordinates - initial_position_world
-                    self._while_rotator_drag(coordinates, rotator_drag_vector, selected_rotator)
+                    plane_normal = self.rotator_normals[selected_rotator]
+                    centroid = self._layer.experimental_slicing_plane.position
+                    projected_click_point, _ = project_points_onto_plane(
+                        points=coordinates,
+                        plane_point=centroid,
+                        plane_normal=plane_normal,
+                    )
+                    click_vector = np.squeeze(projected_click_point) - centroid
+                    rotation_matrix = rotation_matrix = rotation_matrix_from_vectors(
+                        self._initial_click_vector, click_vector
+                    )
 
+                    # call the _while_rotator_drag callback
+                    self._while_rotator_drag(
+                        selected_rotator=selected_rotator,
+                        rotation_matrix=rotation_matrix
+                    )
 
                 yield
-        #
+
         layer.interactive = True
-        #
-        # # Call a function to clean up after the mouse event
-        # self._on_click_cleanup()
+
+        # Call a function to clean up after the mouse event
+        self._initial_click_vector = None
+        self._on_click_cleanup()
+
+    def _setup_rotator_drag(self, click_point: np.ndarray, selected_rotator: Optional[int]):
+        if selected_rotator is not None:
+            normal = self.rotator_normals[selected_rotator]
+            # project the initial click point onto the rotation plane
+            centroid = self._layer.experimental_slicing_plane.position
+            initial_click_point, _ = project_points_onto_plane(
+                points=click_point,
+                plane_point=centroid,
+                plane_normal=normal,
+            )
+
+            self._initial_click_vector = np.squeeze(initial_click_point) - centroid
+
+    def _pre_drag(
+            self,
+            click_point: np.ndarray,
+            selected_translator: Optional[int],
+            selected_rotator: Optional[int]
+    ):
+        """This is called at the beginning of the drag event and is
+        typically used to save information that will be used during the
+        drag callbacks (e.g., initial positions).
+
+        Parameters
+        ----------
+        click_point : np.ndarray
+            The click point in data coordinates (displayed dims only).
+        selected_translator : Optional[int]
+            The index of the selected translator. The index corresponds
+            to self.translator_normals. This is None when
+            no translator has been selected.
+        selected_rotator : Optional[int]
+            The index of the selected rotator. The index corresponds
+            to self.rotator_normals. This is None when
+            no rotator has been selected.
+        """
+        pass
 
     @abstractmethod
-    def _pre_drag(self, click_point_data_displayed, rotator_index):
-        raise NotImplementedError
+    def _while_translator_drag(self, selected_translator: int, translation_vector: np.ndarray):
+        """This callback is called during translator drags events.
 
-    @abstractmethod
-    def _while_translator_drag(self, translation_vector):
-        raise NotImplementedError
+        Parameters
+        ----------
+        selected_translator : int
+            The index of the selected translator. This index corresponds to
+            the self.translator_normals.
+        translation_vector : np.ndarray
+            The vector describing the current dragposition from the initial position
+            projected onto the selected translator.
+        """
+        pass
 
-    def _while_rotator_drag(self, click_position, rotation_drag_vector, rotator_selection):
-        raise NotImplementedError
+    def _while_rotator_drag(self, selected_rotator: int, rotation_matrix: np.ndarray):
+        """This callback is called during rotator drag events.
 
-    @abstractmethod
+        Parameters
+        ----------
+        selected_rotator : int
+            The index of the selected rotator. This index corresponds to
+            the self.rotator_normals.
+        rotation_matrix : np.ndarray
+            The (3 x 3) rotation matrix for the rotation from the initial point
+            to the current point in the drag.
+        """
+        pass
+
     def _on_click_cleanup(self):
-        raise NotImplementedError
+        """This callback is called at the end of the drag event and should
+        be used to clean up any variables set during the click event.
+        """
+        pass
 
     def _set_canvas_none(self):
         self.node._set_canvas(None)
@@ -192,12 +342,9 @@ class BaseManipulator(ABC):
         """Change visibiliy of axes."""
         self.node.visible = True
         self._on_zoom_change()
-        self._on_data_change()
 
     def _on_data_change(self):
         """Change style of axes."""
-        # if not self._viewer.axes.visible:
-        #     return
 
         # Actual number of displayed dims
         ndisplay = self._viewer.dims.ndisplay
@@ -221,10 +368,15 @@ class BaseManipulator(ABC):
                 )
             )
 
-        translator_indices += len(self.rotator_vertices)
-        vertices = np.concatenate([self.rotator_vertices[:, ::-1], translator_vertices])
-        faces = np.concatenate([self.rotator_indices, translator_indices])
-        colors = np.concatenate([self.rotator_colors, translator_colors])
+        if len(self._initial_rotator_normals) > 0:
+            translator_indices += len(self.rotator_vertices)
+            vertices = np.concatenate([self.rotator_vertices[:, ::-1], translator_vertices])
+            faces = np.concatenate([self.rotator_indices, translator_indices])
+            colors = np.concatenate([self.rotator_colors, translator_colors])
+        else:
+            vertices = translator_vertices
+            faces = translator_indices
+            colors = translator_colors
 
         self.node.set_data(
             vertices=vertices,
