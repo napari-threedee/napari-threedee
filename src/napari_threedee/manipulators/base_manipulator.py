@@ -13,6 +13,18 @@ from ..utils.selection_utils import select_line_segment, select_mesh_from_click
 
 
 class BaseManipulator(ABC):
+    """Base class for manipulators.
+
+    To implement:
+        1. Define self._initial_translator_normals in the __init__. This a
+        (Nx3) numpy array containing the normal direction for each of the N
+        translators to be created defined in displayed data coordinates.
+        2. Define self._initial_rotator_normals in the __init__. This a
+        (Nx3) numpy array containing the normal direction for each of the N
+        rotators to be created defined in displayed data coordinates.
+        3. Call the super.__init__() last.
+        4. Implement the drag callback functions
+    """
     _N_SEGMENTS_ROTATOR = 20
     def __init__(self, viewer, layer=None, order=0, line_length=50, rotator_radius=5):
         super().__init__()
@@ -41,10 +53,16 @@ class BaseManipulator(ABC):
             [0, 0, 1, 1],
         ]
 
-        # initialize the arrow lines
+        # initialize the arrow lines. if they were defined by the super class,
+        # initialize them as empty.
+        if not hasattr(self, '_initial_translator_normals'):
+            self._initial_translator_normals = np.empty((0, 3))
         self._init_translators()
 
-        # initialize the rotators
+        # initialize the rotators. if they were defined by the super class,
+        # initialize them as empty.
+        if not hasattr(self, '_initial_rotator_normals'):
+            self._initial_rotator_normals = np.empty((0, 3))
         self._init_rotators()
 
         # get the layer node to pass as the parent to the visual

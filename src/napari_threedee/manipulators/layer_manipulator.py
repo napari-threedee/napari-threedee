@@ -19,7 +19,6 @@ class LayerManipulator(BaseManipulator):
                 [0, 0, 1]
             ]
         )
-        self._initial_rotator_normals = np.empty((0, 3))
 
         super().__init__(viewer, layer, order)
 
