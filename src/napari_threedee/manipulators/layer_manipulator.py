@@ -6,8 +6,8 @@ from napari_threedee.manipulators.base_manipulator import BaseManipulator
 
 class LayerManipulator(BaseManipulator):
 
-    def __init__(self, viewer, layer, line_length=50, order=0):
-        self._line_length = line_length
+    def __init__(self, viewer, layer, translator_length=50, order=0):
+        self._line_length = translator_length
         self._initial_translate = None
 
         self._centroid = np.array([0, 0, 0])

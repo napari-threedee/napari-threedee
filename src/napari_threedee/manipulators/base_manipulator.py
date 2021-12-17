@@ -10,6 +10,7 @@ from vispy.visuals.transforms import MatrixTransform
 
 from .manipulator_utils import make_translator_meshes, select_rotator, color_lines, make_rotator_meshes
 from ..utils.selection_utils import select_line_segment, select_mesh_from_click
+from ..utils.napari_utils import get_vispy_node, get_napari_visual
 
 
 class BaseManipulator(ABC):
@@ -25,14 +26,26 @@ class BaseManipulator(ABC):
         3. Call the super.__init__() last.
         4. Implement the drag callback functions
     """
-    _N_SEGMENTS_ROTATOR = 20
-    def __init__(self, viewer, layer=None, order=0, line_length=50, rotator_radius=5):
+    _N_SEGMENTS_ROTATOR = 50
+    _N_TUBE_POINTS = 15
+    def __init__(
+            self,
+            viewer,
+            layer=None,
+            order=0,
+            translator_length=50,
+            translator_width=1,
+            rotator_radius=5,
+            rotator_width=1,
+    ):
         super().__init__()
         self._viewer = viewer
         self._layer = layer
 
-        self._line_length = line_length
+        self._translator_length = translator_length
+        self._translator_width = translator_width
         self._rotator_radius = rotator_radius
+        self._rotator_width = rotator_width
 
         self._layer.mouse_drag_callbacks.append(self.on_click)
 
@@ -40,7 +53,7 @@ class BaseManipulator(ABC):
         # on a rotator for calculating the rotation
         self._initial_click_vector = None
 
-        # Initialize the rotation matrix for the manipulator.
+        # Initialize the rotation matrix describing the orientation of the manipulator.
         self._rot_mat = np.eye(3)
 
         # CMYRGB for 6 axes data in x, y, z, ... ordering
@@ -65,9 +78,8 @@ class BaseManipulator(ABC):
             self._initial_rotator_normals = np.empty((0, 3))
         self._init_rotators()
 
-        # get the layer node to pass as the parent to the visual
-        visual = viewer.window.qt_viewer.layer_to_visual[layer]
-        parent = visual._layer_node.get_node(3)
+        # get the layer node to pass as the parent of the manipulator
+        parent = get_vispy_node(viewer, layer)
         self.node = Mesh(mode='triangles', shading='smooth', parent=parent)
 
         self.node.transform = MatrixTransform()
@@ -87,8 +99,8 @@ class BaseManipulator(ABC):
             normals=self._initial_translator_normals,
             colors=self._default_color[:len(self._initial_translator_normals)],
             translator_length=self.translator_length,
-            tube_radius=0.3,
-            tube_points=3,
+            tube_radius=self._translator_width,
+            tube_points=self._N_TUBE_POINTS,
         )
 
         self.translator_vertices = translator_vertices
@@ -99,23 +111,24 @@ class BaseManipulator(ABC):
         self._translator_normals = self._initial_translator_normals.copy()
 
     def _init_rotators(self):
-        if len(self._initial_rotator_normals) > 0:
-            rotator_vertices, rotator_indices, rotator_colors, triangle_indices = make_rotator_meshes(
-                centroids=np.repeat([0, 0, 0], 3, axis=0),
-                normals=self._initial_rotator_normals,
-                colors=self._default_color[:len(self._initial_rotator_normals)],
-                rotator_radius=self.rotator_radius,
-                tube_radius=0.3,
-                tube_points=3,
-                n_segments=self._N_SEGMENTS_ROTATOR
-            )
+        if len(self._initial_rotator_normals) == 0:
+            return None
+        rotator_vertices, rotator_indices, rotator_colors, triangle_indices = make_rotator_meshes(
+            centroids=np.repeat([0, 0, 0], 3, axis=0),
+            normals=self._initial_rotator_normals,
+            colors=self._default_color[:len(self._initial_rotator_normals)],
+            rotator_radius=self.rotator_radius,
+            tube_radius=1,
+            tube_points=self._N_TUBE_POINTS,
+            n_segments=self._N_SEGMENTS_ROTATOR
+        )
 
-            self.rotator_vertices = rotator_vertices
-            self.rotator_indices = rotator_indices
-            self.rotator_colors = rotator_colors
-            self.rotator_triangle_indices = triangle_indices
+        self.rotator_vertices = rotator_vertices
+        self.rotator_indices = rotator_indices
+        self.rotator_colors = rotator_colors
+        self.rotator_triangle_indices = triangle_indices
 
-            self._rotator_normals = self._initial_rotator_normals.copy()
+        self._rotator_normals = self._initial_rotator_normals.copy()
 
     @property
     def centroid(self) -> np.ndarray:
@@ -136,13 +149,22 @@ class BaseManipulator(ABC):
         self._on_matrix_change()
 
     @property
-    def translator_length(self):
-        return self._line_length
+    def translator_length(self) -> float:
+        return self._translator_length
 
     @translator_length.setter
-    def translator_length(self, line_length) -> float:
-        self._line_length = line_length
+    def translator_length(self, line_length: float):
+        self._translator_length = line_length
         self._on_data_change()
+
+    @property
+    def translator_width(self) -> float:
+        return self._translator_width
+
+    @translator_width.setter
+    def translator_width(self, width: float):
+        self._translator_width = width
+        self._update_translator_mesh()
 
     @property
     def rotator_radius(self) -> float:
@@ -154,12 +176,21 @@ class BaseManipulator(ABC):
         self._on_data_change()
 
     @property
+    def rotator_width(self) -> float:
+        return self._rotator_width
+
+    @rotator_width.setter
+    def rotator_width(self, width: float):
+        self._rotator_width = width
+        self.update_rotator_mesh()
+
+    @property
     def translator_normals(self) -> np.ndarray:
         return (self._initial_translator_normals @ self.rot_mat.T)
+
     @property
     def rotator_normals(self) -> np.ndarray:
         return (self._initial_rotator_normals @ self.rot_mat.T)
-
 
     @property
     def displayed_translator_vertices(self):
@@ -220,6 +251,10 @@ class BaseManipulator(ABC):
         yield
 
         if selected_translator is not None or selected_rotator is not None:
+
+            self._setup_translator_drag(
+                click_point=plane_point, selected_translator=selected_translator
+            )
             # set up for the mouse drag
             self._setup_rotator_drag(
                 click_point=plane_point, selected_rotator=selected_rotator
@@ -248,6 +283,7 @@ class BaseManipulator(ABC):
                         dims_displayed=event.dims_displayed
                     )
                     translator_drag_vector = projected_distance * selected_translator_normal
+                    self.centroid = self._initial_centroid + translator_drag_vector
                     self._while_translator_drag(selected_translator=selected_translator,
                                                 translation_vector=translator_drag_vector)
 
@@ -266,7 +302,8 @@ class BaseManipulator(ABC):
                         self._initial_click_vector, click_vector
                     )
 
-                    # call the _while_rotator_drag callback
+                    # update the rotation matrix and call the _while_rotator_drag callback
+                    self.rot_mat = np.dot(rotation_matrix, self._initial_rot_mat)
                     self._while_rotator_drag(
                         selected_rotator=selected_rotator,
                         rotation_matrix=rotation_matrix
@@ -279,6 +316,10 @@ class BaseManipulator(ABC):
         # Call a function to clean up after the mouse event
         self._initial_click_vector = None
         self._on_click_cleanup()
+
+    def _setup_translator_drag(self, click_point: np.ndarray, selected_translator: Optional[int]):
+        if selected_translator is not None:
+            self._initial_centroid = self.centroid.copy()
 
     def _setup_rotator_drag(self, click_point: np.ndarray, selected_rotator: Optional[int]):
         if selected_rotator is not None:
@@ -360,6 +401,42 @@ class BaseManipulator(ABC):
         """Change visibiliy of axes."""
         self.node.visible = True
         self._on_zoom_change()
+
+    def _update_translator_mesh(self):
+        """Update the mesh for the translator"""
+        translator_vertices, translator_indices, translator_colors, triangle_indices = make_translator_meshes(
+            centroids=self.centroid,
+            normals=self.translator_normals,
+            colors=self._default_color[:len(self.translator_normals)],
+            translator_length=self.translator_length,
+            tube_radius=self._translator_width,
+            tube_points=self._N_TUBE_POINTS,
+        )
+        self.translator_vertices = translator_vertices
+        self.translator_indices = translator_indices
+        self.translator_colors = translator_colors
+        self.triangle_indices = triangle_indices
+        self._on_data_change()
+
+    def _update_rotator_mesh(self):
+        """Update rotator mesh"""
+        rotator_vertices, rotator_indices, rotator_colors, triangle_indices = make_rotator_meshes(
+            centroids=np.repeat([0, 0, 0], 3, axis=0),
+            normals=self._rotator_normals,
+            colors=self._default_color[:len(self._initial_rotator_normals)],
+            rotator_radius=self.rotator_radius,
+            tube_radius=self.rotator_width,
+            tube_points=self._N_TUBE_POINTS,
+            n_segments=self._N_SEGMENTS_ROTATOR
+        )
+
+        self.rotator_vertices = rotator_vertices
+        self.rotator_indices = rotator_indices
+        self.rotator_colors = rotator_colors
+        self.rotator_triangle_indices = triangle_indices
+
+        self._on_matrix_change()
+
 
     def _on_data_change(self):
         """Change style of axes."""

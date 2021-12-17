@@ -32,6 +32,6 @@ plane_layer = viewer.add_image(
     experimental_slicing_plane=plane_parameters
 )
 
-axis = RenderPlaneManipulator(viewer=viewer, layer=plane_layer, line_length=10)
+axis = RenderPlaneManipulator(viewer=viewer, layer=plane_layer, translator_length=10)
 
 napari.run()

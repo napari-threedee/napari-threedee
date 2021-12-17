@@ -7,7 +7,7 @@ from napari_threedee.manipulators.base_manipulator import BaseManipulator
 
 class RenderPlaneManipulator(BaseManipulator):
 
-    def __init__(self, viewer, layer, order=0, line_length=50, rotator_radius=5):
+    def __init__(self, viewer, layer, order=0, translator_length=50, rotator_radius=5):
 
         self._initial_plane_pos = None
 
@@ -29,7 +29,7 @@ class RenderPlaneManipulator(BaseManipulator):
             viewer,
             layer,
             order=order,
-            line_length=line_length,
+            translator_length=translator_length,
             rotator_radius=rotator_radius
         )
 
@@ -48,7 +48,6 @@ class RenderPlaneManipulator(BaseManipulator):
         self.centroid = self._layer.experimental_slicing_plane.position
 
     def _while_rotator_drag(self, selected_rotator: int, rotation_matrix: np.ndarray):
-        self.rot_mat = np.dot(rotation_matrix, self._initial_rot_mat)
         self._layer.experimental_slicing_plane.normal = self.rotator_normals[0]
 
     def _on_click_cleanup(self):
