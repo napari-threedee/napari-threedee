@@ -291,13 +291,12 @@ class BaseManipulator(ABC):
                     # calculate the rotation matrix for the rotator drag
                     rotator_drag_vector = coordinates - initial_position_world
                     plane_normal = self.rotator_normals[selected_rotator]
-                    centroid = self._layer.experimental_slicing_plane.position
                     projected_click_point, _ = project_points_onto_plane(
                         points=coordinates,
-                        plane_point=centroid,
+                        plane_point=self.centroid,
                         plane_normal=plane_normal,
                     )
-                    click_vector = np.squeeze(projected_click_point) - centroid
+                    click_vector = np.squeeze(projected_click_point) - self.centroid
                     rotation_matrix = rotation_matrix = rotation_matrix_from_vectors(
                         self._initial_click_vector, click_vector
                     )
@@ -324,15 +323,16 @@ class BaseManipulator(ABC):
     def _setup_rotator_drag(self, click_point: np.ndarray, selected_rotator: Optional[int]):
         if selected_rotator is not None:
             normal = self.rotator_normals[selected_rotator]
-            # project the initial click point onto the rotation plane
-            centroid = self._layer.experimental_slicing_plane.position
+
+            # project the click point on to the plane of the rotat
             initial_click_point, _ = project_points_onto_plane(
                 points=click_point,
-                plane_point=centroid,
+                plane_point=self.centroid,
                 plane_normal=normal,
             )
 
-            self._initial_click_vector = np.squeeze(initial_click_point) - centroid
+            self._initial_click_vector = np.squeeze(initial_click_point) - self.centroid
+            self._initial_rot_mat = self.rot_mat.copy()
 
     def _pre_drag(
             self,
@@ -446,7 +446,6 @@ class BaseManipulator(ABC):
 
         # Determine data based the number of displayed dimensions
         if ndisplay == 2:
-
             # make the arrow lines
             data = self._line_data2D
             color = color_lines(self._default_color)
