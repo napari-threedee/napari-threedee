@@ -56,6 +56,10 @@ class BaseManipulator(ABC):
         # Initialize the rotation matrix describing the orientation of the manipulator.
         self._rot_mat = np.eye(3)
 
+        # this is used to store the initial rotation matrix before
+        # starting a rotation
+        self._initial_rot_mat = None
+
         # CMYRGB for 6 axes data in x, y, z, ... ordering
         self._default_color = [
             [1, 1, 0, 1],
@@ -314,6 +318,7 @@ class BaseManipulator(ABC):
 
         # Call a function to clean up after the mouse event
         self._initial_click_vector = None
+        self._initial_rot_mat = None
         self._on_click_cleanup()
 
     def _setup_translator_drag(self, click_point: np.ndarray, selected_translator: Optional[int]):
@@ -331,7 +336,7 @@ class BaseManipulator(ABC):
                 plane_normal=normal,
             )
 
-            self._initial_click_vector = np.squeeze(initial_click_point) - self.centroid
+            self._initial_click_vector = np.squeeze(initial_click_point) - centroid
             self._initial_rot_mat = self.rot_mat.copy()
 
     def _pre_drag(

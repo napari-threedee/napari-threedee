@@ -11,7 +11,6 @@ class RenderPlaneManipulator(BaseManipulator):
 
         self._initial_plane_pos = None
 
-        self._rotator_angle_offset = 0
         self._centroid = layer.experimental_slicing_plane.position
         normal = layer.experimental_slicing_plane.normal
         self._initial_translator_normals = np.asarray([normal])
@@ -40,7 +39,6 @@ class RenderPlaneManipulator(BaseManipulator):
             selected_rotator: Optional[int]
     ):
         self._initial_plane_pos = self._layer.experimental_slicing_plane.position
-        self._initial_rot_mat = self.rot_mat.copy()
 
     def _while_translator_drag(self, selected_translator: int, translation_vector: np.ndarray):
         new_translation = self._initial_plane_pos + translation_vector
@@ -52,4 +50,3 @@ class RenderPlaneManipulator(BaseManipulator):
 
     def _on_click_cleanup(self):
         self._initial_plane_pos = None
-        self._initial_rot_mat = None
