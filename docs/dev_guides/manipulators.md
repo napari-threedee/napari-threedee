@@ -37,7 +37,12 @@ To add translators to a manipulator, the following must be implemented:
 - `_on_click_cleanup` may be implemented.
 
 ## Rotators
+Rotators are the UI element on the manipulator responsible for rotating the manipulator. When the user 
+clicks on a rotator and drags it, the manipulator is rotated around the normal vector of the rotator.
 
+Rotators are defined by unit vectors normal to the rotators. The unit vectors are stored in the 
+`_initial_rotators_normals` property as an (n x 3) numpy array for n translators. One rotator will be created 
+for each unit vector in `initial_rotator_normals`.
 
 ### Rotator drag callback
 When a rotator is dragged, the following callbacks are executed:
