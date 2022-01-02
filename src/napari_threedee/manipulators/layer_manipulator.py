@@ -5,6 +5,12 @@ from napari_threedee.manipulators.base_manipulator import BaseManipulator
 
 
 class LayerManipulator(BaseManipulator):
+    """LayerManipulator is a manipulator for translating a layer.
+
+    Parameters
+    ----------
+
+    """
 
     def __init__(self, viewer, layer, translator_length=50, order=0):
         self._line_length = translator_length
