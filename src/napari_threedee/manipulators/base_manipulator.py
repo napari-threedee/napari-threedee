@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 import numpy as np
-from napari.utils.geometry import project_points_onto_plane, rotation_matrix_from_vectors
+from napari.utils.geometry import project_points_onto_plane, rotation_matrix_from_vectors_3d
 from napari.utils.translations import trans
 from vispy.scene import Mesh
 from vispy.visuals.transforms import MatrixTransform
@@ -297,7 +297,7 @@ class BaseManipulator(ABC):
                         plane_normal=plane_normal,
                     )
                     click_vector = np.squeeze(projected_click_point) - self.centroid
-                    rotation_matrix = rotation_matrix = rotation_matrix_from_vectors(
+                    rotation_matrix = rotation_matrix = rotation_matrix_from_vectors_3d(
                         self._initial_click_vector, click_vector
                     )
 

@@ -1,2 +1,3 @@
 from .layer_manipulator import LayerManipulator
+from .point_manipulator import PointManipulator
 from .render_plane_manipulator import RenderPlaneManipulator
