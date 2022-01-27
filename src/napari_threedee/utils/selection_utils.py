@@ -1,4 +1,4 @@
-from napari.utils.geometry import inside_triangles, project_points_onto_plane, rotate_points, rotation_matrix_from_vectors
+from napari.utils.geometry import inside_triangles, project_points_onto_plane, rotate_points, rotation_matrix_from_vectors_3d
 import numpy as np
 
 def select_line_segment(
@@ -89,7 +89,7 @@ def select_triangle_from_click(
     )
 
     # rotate the plane to make the triangles 2D
-    rotation_matrix = rotation_matrix_from_vectors(view_direction, [0, 0, 1])
+    rotation_matrix = rotation_matrix_from_vectors_3d(view_direction, [0, 0, 1])
     rotated_vertices = vertices_plane @ rotation_matrix.T
 
     rotated_vertices_2d = rotated_vertices[:, :2]

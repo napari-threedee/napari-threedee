@@ -41,7 +41,7 @@ class PointManipulator(BaseManipulator):
 
     def ensure_point_selected(self):
         if len(self._layer.selected_data) == 0:
-            self._layer.selected_data == [0]
+            self._layer.selected_data = [0]
 
     def _pre_drag(
             self,
