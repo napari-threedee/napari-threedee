@@ -17,6 +17,7 @@ points_layer = viewer.add_points(points_data, size=5)
 shapes_layer = viewer.add_shapes(points_data, shape_type='path',  edge_color='magenta')
 viewer.layers.selection = [points_layer]
 
+
 def on_data_update(event):
     shapes_layer.selected_data = {0}
     shapes_layer.remove_selected()

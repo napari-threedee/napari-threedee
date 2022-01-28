@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Tuple
 
 import numpy as np
 from napari.utils.geometry import project_points_onto_plane, rotation_matrix_from_vectors_3d
@@ -7,10 +7,9 @@ from napari.utils.translations import trans
 from vispy.scene import Mesh
 from vispy.visuals.transforms import MatrixTransform
 
-
 from .manipulator_utils import make_translator_meshes, select_rotator, color_lines, make_rotator_meshes
 from ..utils.selection_utils import select_line_segment, select_mesh_from_click
-from ..utils.napari_utils import get_vispy_node, get_napari_visual
+from ..utils.napari_utils import get_vispy_node, get_napari_visual, add_mouse_callback_safe, remove_mouse_callback_safe
 
 
 class BaseManipulator(ABC):
@@ -32,11 +31,12 @@ class BaseManipulator(ABC):
             self,
             viewer,
             layer=None,
-            order=0,
-            translator_length=50,
-            translator_width=1,
-            rotator_radius=5,
-            rotator_width=1,
+            visible: bool = True,
+            order: int = 0,
+            translator_length: float = 50,
+            translator_width: float = 1,
+            rotator_radius: float = 5,
+            rotator_width: float = 1,
     ):
         super().__init__()
         self._viewer = viewer
@@ -46,8 +46,6 @@ class BaseManipulator(ABC):
         self._translator_width = translator_width
         self._rotator_radius = rotator_radius
         self._rotator_width = rotator_width
-
-        self._layer.mouse_drag_callbacks.append(self.on_click)
 
         # this is used to store the vector to the initial click
         # on a rotator for calculating the rotation
@@ -89,9 +87,10 @@ class BaseManipulator(ABC):
 
         self._viewer.camera.events.zoom.connect(self._on_zoom_change)
 
+        self.visible = visible
         self._on_matrix_change()
         self._on_data_change()
-        self.node.visible = True
+
 
     def _init_translators(self):
         translator_vertices, translator_indices, translator_colors, triangle_indices = make_translator_meshes(
@@ -129,6 +128,28 @@ class BaseManipulator(ABC):
         self.rotator_triangle_indices = triangle_indices
 
         self._rotator_normals = self._initial_rotator_normals.copy()
+
+    @property
+    def visible(self) -> bool:
+        return self._visible
+
+    @visible.setter
+    def visible(self, visible: bool):
+        # set visibility on visuals
+        self.node.visible = visible
+        if visible is True:
+            self.connect_callbacks()
+        else:
+            self.disconnect_callbacks()
+        self._visible = self.node.visible
+
+    def connect_callbacks(self):
+        if self.on_click not in self._layer.mouse_drag_callbacks:
+            add_mouse_callback_safe(self._layer, self.on_click, index=0)
+
+    def disconnect_callbacks(self):
+        if self.on_click in self._layer.mouse_drag_callbacks:
+            remove_mouse_callback_safe(self._layer, self.on_click)
 
     @property
     def centroid(self) -> np.ndarray:
@@ -208,44 +229,33 @@ class BaseManipulator(ABC):
 
     def on_click(self, layer, event):
         """Mouse call back for selecting and dragging an axis"""
-
-        # get the points and vectors in data coordinates
-        point_world = event.position
-        point_data = np.asarray(self._layer.world_to_data(point_world))
-        plane_point = point_data[event.dims_displayed]
-
-        view_dir_data = np.asarray(self._layer._world_to_data_ray(event.view_direction))
-        plane_normal = view_dir_data[event.dims_displayed]
-
-        # project the in view points onto the plane
-        if len(self.translator_normals) > 0:
-            translator_triangles = self.displayed_translator_vertices[self.translator_indices]
-            selected_translator = select_mesh_from_click(
-                click_point=plane_point,
-                view_direction=plane_normal,
-                triangles=translator_triangles,
-                triangle_indices=self.translator_triangle_indices
+        # get click position and direction in data coordinates
+        click_position_world = event.position
+        click_position_data_3d = np.asarray(
+            self._layer._world_to_displayed_data(
+                click_position_world,
+                event.dims_displayed
             )
-            if selected_translator is not None:
-                selected_translator_normal = self.translator_normals[selected_translator]
-                layer.interactive = False
-            else:
-                selected_translator_normal = None
-        else:
-            selected_translator = None
-
-        if len(self.rotator_normals) > 0:
-            rotator_triangles = self.displayed_rotator_vertices[self.rotator_indices]
-            selected_rotator = select_mesh_from_click(
-                click_point=plane_point,
-                view_direction=plane_normal,
-                triangles=rotator_triangles,
-                triangle_indices=self.rotator_triangle_indices
+        )
+        click_dir_data_3d = np.asarray(
+            self._layer._world_to_displayed_data_ray(
+                event.view_direction,
+                event.dims_displayed
             )
-            if selected_rotator is not None:
-                layer.interactive = False
+        )
+
+        # identify clicked rotator/translator
+        selected_translator, selected_rotator = self._check_if_manipulator_clicked(
+            plane_point=click_position_data_3d,
+            plane_normal=click_dir_data_3d,
+        )
+        if selected_translator is not None:
+            selected_translator_normal = self.translator_normals[selected_translator]
         else:
-            selected_rotator = None
+            selected_translator_normal = None
+        if (selected_rotator is not None) or (selected_translator is not None):
+            layer.interactive = False
+
 
         initial_position_world = event.position
         yield
@@ -253,16 +263,16 @@ class BaseManipulator(ABC):
         if selected_translator is not None or selected_rotator is not None:
 
             self._setup_translator_drag(
-                click_point=plane_point, selected_translator=selected_translator
+                click_point=click_position_data_3d, selected_translator=selected_translator
             )
             # set up for the mouse drag
             self._setup_rotator_drag(
-                click_point=plane_point, selected_rotator=selected_rotator
+                click_point=click_position_data_3d, selected_rotator=selected_rotator
             )
 
             # call the _pre_drag callback
             self._pre_drag(
-                click_point=plane_point,
+                click_point=click_position_data_3d,
                 selected_translator=selected_translator,
                 selected_rotator=selected_rotator
             )
@@ -274,6 +284,7 @@ class BaseManipulator(ABC):
                 rotator_drag_vector = None
                 translator_drag_vector = None
                 if selected_translator is not None:
+                    print('start' , self._layer._drag_start)
                     # get drag vector projected onto the translator axis
                     projected_distance = layer.projected_distance_from_mouse_drag(
                         start_position=initial_position_world,
@@ -282,11 +293,14 @@ class BaseManipulator(ABC):
                         vector=selected_translator_normal,
                         dims_displayed=event.dims_displayed
                     )
+                    print('mid0', self._layer._drag_start)
                     translator_drag_vector = projected_distance * selected_translator_normal
+                    print('mid', self._layer._drag_start)
                     self.centroid = self._initial_centroid + translator_drag_vector
+                    print('mid2', self._layer._drag_start)
                     self._while_translator_drag(selected_translator=selected_translator,
                                                 translation_vector=translator_drag_vector)
-
+                    print('end', self._layer._drag_start)
                 elif selected_rotator is not None:
                     # calculate the rotation matrix for the rotator drag
                     rotator_drag_vector = coordinates - initial_position_world
@@ -314,7 +328,56 @@ class BaseManipulator(ABC):
 
         # Call a function to clean up after the mouse event
         self._initial_click_vector = None
+        self._layer._drag_start = None
         self._on_click_cleanup()
+
+    def _check_if_manipulator_clicked(
+            self,
+            plane_point: np.ndarray,
+            plane_normal: np.ndarray
+    ) -> Tuple[Optional[int], Optional[int]]:
+        """Determine if a translator or rotator was clicked on.
+
+        Parameters
+        ----------
+        plane_point : np.ndarray
+            The click point in data coordinates
+        plane_normal : np.ndarray
+            The vector in the direction of the view (click).
+
+        Returns
+        -------
+        selected_translator : Optional[int]
+            If a translator was clicked, returns the index of the translator.
+            If no translator was clicked, returns None.
+        selected_rotator : Optional[int]
+            If a rotator was clicked, returns the index of the rotator.
+            If no rotator was clicked, returns None.
+        """
+        # project the in view points onto the plane
+        if len(self.translator_normals) > 0:
+            translator_triangles = self.displayed_translator_vertices[self.translator_indices]
+            selected_translator = select_mesh_from_click(
+                click_point=plane_point,
+                view_direction=plane_normal,
+                triangles=translator_triangles,
+                triangle_indices=self.translator_triangle_indices
+            )
+        else:
+            selected_translator = None
+
+        if len(self.rotator_normals) > 0:
+            rotator_triangles = self.displayed_rotator_vertices[self.rotator_indices]
+            selected_rotator = select_mesh_from_click(
+                click_point=plane_point,
+                view_direction=plane_normal,
+                triangles=rotator_triangles,
+                triangle_indices=self.rotator_triangle_indices
+            )
+        else:
+            selected_rotator = None
+
+        return selected_translator, selected_rotator
 
     def _setup_translator_drag(self, click_point: np.ndarray, selected_translator: Optional[int]):
         if selected_translator is not None:
