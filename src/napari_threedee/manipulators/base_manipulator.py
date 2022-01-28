@@ -284,7 +284,6 @@ class BaseManipulator(ABC):
                 rotator_drag_vector = None
                 translator_drag_vector = None
                 if selected_translator is not None:
-                    print('start' , self._layer._drag_start)
                     # get drag vector projected onto the translator axis
                     projected_distance = layer.projected_distance_from_mouse_drag(
                         start_position=initial_position_world,
@@ -293,14 +292,10 @@ class BaseManipulator(ABC):
                         vector=selected_translator_normal,
                         dims_displayed=event.dims_displayed
                     )
-                    print('mid0', self._layer._drag_start)
                     translator_drag_vector = projected_distance * selected_translator_normal
-                    print('mid', self._layer._drag_start)
                     self.centroid = self._initial_centroid + translator_drag_vector
-                    print('mid2', self._layer._drag_start)
                     self._while_translator_drag(selected_translator=selected_translator,
                                                 translation_vector=translator_drag_vector)
-                    print('end', self._layer._drag_start)
                 elif selected_rotator is not None:
                     # calculate the rotation matrix for the rotator drag
                     rotator_drag_vector = coordinates - initial_position_world
