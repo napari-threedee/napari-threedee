@@ -403,7 +403,7 @@ class BaseManipulator(ABC):
         """
         # project the in view points onto the plane
         if len(self.translator_normals) > 0:
-            translator_triangles = self.displayed_translator_vertices[self.translator_indices]
+            translator_triangles = self._displayed_translator_vertices[self.translator_indices]
             selected_translator = select_mesh_from_click(
                 click_point=plane_point,
                 view_direction=plane_normal,
@@ -414,7 +414,7 @@ class BaseManipulator(ABC):
             selected_translator = None
 
         if len(self.rotator_normals) > 0:
-            rotator_triangles = self.displayed_rotator_vertices[self.rotator_indices]
+            rotator_triangles = self._displayed_rotator_vertices[self.rotator_indices]
             selected_rotator = select_mesh_from_click(
                 click_point=plane_point,
                 view_direction=plane_normal,
