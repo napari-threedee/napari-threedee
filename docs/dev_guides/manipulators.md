@@ -1,6 +1,6 @@
 # Manipulators
 
-Manipulators are UI elements attached to napari layer data to aid in positioning and orienting layer data elements 
+Manipulators are UI elements attached to napari layers to aid with positioning and orienting layer data elements 
 being displayed on the canvas. Manipulators can translate and rotate along/around specified axes.
 
 ## Coordinate system
