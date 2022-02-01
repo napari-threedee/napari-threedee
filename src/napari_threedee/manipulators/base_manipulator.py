@@ -195,12 +195,12 @@ class BaseManipulator(ABC):
         self._visible = self.node.visible
 
     def connect_callbacks(self):
-        if self.on_click not in self._layer.mouse_drag_callbacks:
-            add_mouse_callback_safe(self._layer, self.on_click, index=0)
+        if self._on_click not in self._layer.mouse_drag_callbacks:
+            add_mouse_callback_safe(self._layer, self._on_click, index=0)
 
     def disconnect_callbacks(self):
-        if self.on_click in self._layer.mouse_drag_callbacks:
-            remove_mouse_callback_safe(self._layer, self.on_click)
+        if self._on_click in self._layer.mouse_drag_callbacks:
+            remove_mouse_callback_safe(self._layer, self._on_click)
 
     @property
     def centroid(self) -> np.ndarray:
@@ -279,7 +279,7 @@ class BaseManipulator(ABC):
             return None
 
     def _on_click(self, layer, event):
-        """Mouse call back for selecting and dragging an axis"""
+        """Mouse call back for selecting and dragging a manipulator."""
         # get click position and direction in data coordinates
         click_position_world = event.position
         click_position_data_3d = np.asarray(
