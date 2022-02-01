@@ -376,7 +376,7 @@ class BaseManipulator(ABC):
         self._initial_click_vector = None
         self._initial_rot_mat = None
         self._layer._drag_start = None
-        self._on_click_cleanup()
+        self._drag_callback_cleanup()
 
     def _check_if_manipulator_clicked(
             self,
@@ -497,7 +497,7 @@ class BaseManipulator(ABC):
         """
         pass
 
-    def _on_click_cleanup(self):
+    def _drag_callback_cleanup(self):
         """This callback is called at the end of the drag event and should
         be used to clean up any variables set during the click event.
         """

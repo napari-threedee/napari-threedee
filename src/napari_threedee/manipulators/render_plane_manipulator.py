@@ -97,5 +97,5 @@ class RenderPlaneManipulator(BaseManipulator):
     def _while_rotator_drag(self, selected_rotator: int, rotation_matrix: np.ndarray):
         self._layer.experimental_slicing_plane.normal = self.rotator_normals[0]
 
-    def _on_click_cleanup(self):
+    def _drag_callback_cleanup(self):
         self._initial_plane_pos = None

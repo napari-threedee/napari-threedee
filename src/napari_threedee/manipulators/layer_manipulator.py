@@ -40,5 +40,5 @@ class LayerManipulator(BaseManipulator):
         new_translation = self._initial_translate + translation_vector
         self._layer.translate = np.squeeze(new_translation)
 
-    def _on_click_cleanup(self):
+    def _drag_callback_cleanup(self):
         self._initial_translate = None

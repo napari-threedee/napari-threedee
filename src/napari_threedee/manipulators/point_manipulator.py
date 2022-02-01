@@ -87,7 +87,7 @@ class PointManipulator(BaseManipulator):
         # todo: store rotmat somewhere
         pass
 
-    def _on_click_cleanup(self):
+    def _drag_callback_cleanup(self):
         pass
 
     def napari_selection_callback_passthrough(self, layer, event):
