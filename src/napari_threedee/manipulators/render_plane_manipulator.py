@@ -28,7 +28,7 @@ class RenderPlaneManipulator(BaseManipulator):
     Attributes
     ----------
     centroid : np.ndarray
-        (3, 1) array containing the coordinates to the centroid of the manipulator.
+        (3, 1) array containing the coordinates to the translation of the manipulator.
     rot_mat : np.ndarray
         (3, 3) array containing the rotation matrix applied to the manipluator.
     translator_length : float
