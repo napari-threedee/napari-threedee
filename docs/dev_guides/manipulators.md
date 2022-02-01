@@ -53,6 +53,14 @@ When a rotator is dragged, the following callbacks are executed:
    attributes in response to the rotator drag. 
 3. `_on_click_cleanup`: This is called called after the drag has finished. This is generally used to clean up any 
    variables that were set during the drag or pre drag callbacks.
+   
+### Implementing rotators
+To add rotators to a manipulator, the following must be implemented:
+
+- `_initial_rotator_normals` must be defined in the `__init__()` method.
+- `_pre_drag()` callback may be implemented.
+- `_while_dragging_rotator()` must be implemented.
+- `_post_drag()` may be implemented.
 
 ## Notes on performance
 
