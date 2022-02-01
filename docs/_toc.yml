@@ -1,0 +1,12 @@
+# Table of content
+# Learn more at https://jupyterbook.org/customize/toc.html
+#
+format: jb-book
+root: index
+chapters:
+- file: tutorials/tutorials.md
+- file: how_to/how_to.md
+- file: dev_guides/dev_guides.md
+  sections:
+    - file: dev_guides/manipulators.md
+- file: api/api.rst

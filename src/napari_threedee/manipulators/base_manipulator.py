@@ -4,6 +4,7 @@ from typing import Optional, Tuple
 import numpy as np
 from napari.utils.geometry import project_points_onto_plane, rotation_matrix_from_vectors_3d
 from napari.utils.translations import trans
+from napari.viewer import Viewer
 from vispy.scene import Mesh
 from vispy.visuals.transforms import MatrixTransform
 
@@ -24,6 +25,52 @@ class BaseManipulator(ABC):
         rotators to be created defined in displayed data coordinates.
         3. Call the super.__init__() last.
         4. Implement the drag callback functions
+
+    Parameters
+    ----------
+    viewer : Viewer
+        The napari viewer containing the visuals.
+    layer : Optional[Layer]
+        The layer to attach the manipulator to.
+    order : int
+        The order to place the manipulator visuals in the vispy scene graph.
+    translator_length : float
+        The length of the translator arms in data units.
+    translator_width : float
+        The width of the translator arms in data units.
+    rotator_radius : float
+        The radius of the rotators in data units.
+    rotator_width : float
+        The width of the rotators in data units.
+
+    Attributes
+    ----------
+    centroid : np.ndarray
+        (3, 1) array containing the coordinates to the centroid of the manipulator.
+    rot_mat : np.ndarray
+        (3, 3) array containing the rotation matrix applied to the manipluator.
+    translator_length : float
+        The length of the translator arms in data units.
+    translator_width : float
+        The width of the translator arms in data units.
+    rotator_radius : float
+        The radius of the rotators in data units.
+    rotator_width : float
+        The width of the rotators in data units.
+    translator_normals : np.ndarray
+        (N x 3) array containing the normal vector for each of the N translators.
+    rotator_normals : np.ndarray
+        (N x 3) array containing the normal vector for each of the N rotators.
+
+    Notes
+    -----
+    _N_SEGMENTS_ROTATOR : float
+        The number of segments to discretize the rotator into. More segments
+        makes the rotator look more smooth, but will reduce rendering performance.
+    _N_TUBE_POINTS : float
+        The number of points to use to represent the circular crossection of the
+        manipulator objects. More points makes the manipulator appear more smooth, but
+        will reduce the rendering performance.
     """
     _N_SEGMENTS_ROTATOR = 50
     _N_TUBE_POINTS = 15
@@ -54,6 +101,10 @@ class BaseManipulator(ABC):
         # Initialize the rotation matrix describing the orientation of the manipulator.
         self._rot_mat = np.eye(3)
 
+        # this is used to store the initial rotation matrix before
+        # starting a rotation
+        self._initial_rot_mat = None
+
         # CMYRGB for 6 axes data in x, y, z, ... ordering
         self._default_color = [
             [1, 1, 0, 1],
@@ -64,13 +115,13 @@ class BaseManipulator(ABC):
             [0, 0, 1, 1],
         ]
 
-        # initialize the arrow lines. if they were defined by the super class,
+        # initialize the arrow lines. if they weren't defined by the super class,
         # initialize them as empty.
         if not hasattr(self, '_initial_translator_normals'):
             self._initial_translator_normals = np.empty((0, 3))
         self._init_translators()
 
-        # initialize the rotators. if they were defined by the super class,
+        # initialize the rotators. if they weren't defined by the super class,
         # initialize them as empty.
         if not hasattr(self, '_initial_rotator_normals'):
             self._initial_rotator_normals = np.empty((0, 3))
@@ -157,7 +208,7 @@ class BaseManipulator(ABC):
 
     @centroid.setter
     def centroid(self, centroid: np.ndarray):
-        self._centroid = centroid
+        self._centroid = np.asarray(centroid)
         self._on_matrix_change()
 
     @property
@@ -214,20 +265,20 @@ class BaseManipulator(ABC):
         return (self._initial_rotator_normals @ self.rot_mat.T)
 
     @property
-    def displayed_translator_vertices(self):
+    def _displayed_translator_vertices(self):
         if self.translator_vertices is not None:
             return (self.translator_vertices @ self.rot_mat.T) + self.centroid
         else:
             return None
 
     @property
-    def displayed_rotator_vertices(self):
+    def _displayed_rotator_vertices(self):
         if self.rotator_vertices is not None:
             return (self.rotator_vertices @ self.rot_mat.T) + self.centroid
         else:
             return None
 
-    def on_click(self, layer, event):
+    def _on_click(self, layer, event):
         """Mouse call back for selecting and dragging an axis"""
         # get click position and direction in data coordinates
         click_position_world = event.position
@@ -323,6 +374,7 @@ class BaseManipulator(ABC):
 
         # Call a function to clean up after the mouse event
         self._initial_click_vector = None
+        self._initial_rot_mat = None
         self._layer._drag_start = None
         self._on_click_cleanup()
 
@@ -417,7 +469,6 @@ class BaseManipulator(ABC):
         """
         pass
 
-    @abstractmethod
     def _while_translator_drag(self, selected_translator: int, translation_vector: np.ndarray):
         """This callback is called during translator drags events.
 
