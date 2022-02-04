@@ -36,9 +36,9 @@ class LayerManipulator(BaseManipulator):
     ):
         self._initial_translate = self._layer.translate
 
-    def _while_translator_drag(self, selected_translator: int, translation_vector: np.ndarray):
+    def _while_dragging_translator(self, selected_translator: int, translation_vector: np.ndarray):
         new_translation = self._initial_translate + translation_vector
         self._layer.translate = np.squeeze(new_translation)
 
-    def _on_click_cleanup(self):
+    def _post_drag(self):
         self._initial_translate = None

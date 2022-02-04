@@ -21,11 +21,11 @@ for each unit vector in `initial_translator_normals`.
 ### Translator drag callback
 When a translator is dragged, the following callbacks are executed:
 
-1. `_pre_drag()`:This is called after the translator or rotator is clicked. This is typically used to set up for the 
+1. `_pre_drag()`: This is called when the translator or rotator is clicked. This is typically used to set up for the 
    drag callback.
-2. `_while_translator_drag()`: This is called during the drag and is typically used to update layer or manipulator 
+2. `_while_dragging_translator()`: This is called during the drag and is typically used to update layer or manipulator 
    attributes in response to the translator drag. 
-3. `_on_click_cleanup`: This is called after the drag has finished. This is generally used to clean up any 
+3. `_post_drag()`: This is called after the drag has finished. This is generally used to clean up any 
    variables that were set during the drag or pre drag callbacks.
 
 ### Implementing translators
@@ -33,8 +33,8 @@ To add translators to a manipulator, the following must be implemented:
 
 - `_initial_translator_normals` must be defined in the `__init__()` method.
 - `_pre_drag()` callback may be implemented.
-- `_while_translator_drag()` must be implemented.
-- `_on_click_cleanup` may be implemented.
+- `_while_dragging_translator()` must be implemented.
+- `_post_drag()` may be implemented.
 
 ## Rotators
 Rotators are the UI element on the manipulator responsible for rotating the manipulator. When the user 
@@ -49,9 +49,9 @@ When a rotator is dragged, the following callbacks are executed:
 
 1. `_pre_drag()`:This is called after the translator or rotator is clicked. This is typically used to set up for the 
    drag callback.
-2. `_while_rotator_drag()`: This is called during the drag and is typically used to update layer or manipulator 
+2. `_while_dragging_rotator()`: This is called during the drag and is typically used to update layer or manipulator 
    attributes in response to the rotator drag. 
-3. `_on_click_cleanup`: This is called called after the drag has finished. This is generally used to clean up any 
+3. `_post_drag()`: This is called called after the drag has finished. This is generally used to clean up any 
    variables that were set during the drag or pre drag callbacks.
 
 ## Notes on performance
