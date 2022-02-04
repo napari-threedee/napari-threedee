@@ -1,6 +1,7 @@
-from napari.layers import Points, Image, Surface
-
 from typing import Optional
+
+from napari.layers import Points, Image
+
 
 def get_napari_visual(viewer, layer):
     """Get the visual class for a given layer
@@ -21,6 +22,7 @@ def get_napari_visual(viewer, layer):
 
     return visual
 
+
 def get_vispy_node(viewer, layer):
     """"""
     napari_visual = get_napari_visual(viewer, layer)
@@ -31,13 +33,14 @@ def get_vispy_node(viewer, layer):
         return napari_visual.node
 
 
-def remove_mouse_callback_safe(layer, callback):
-    if callback in layer.mouse_drag_callbacks:
-        layer.mouse_drag_callbacks.remove(callback)
+def remove_mouse_callback_safe(callback_list, callback):
+    if callback in callback_list:
+        callback_list.remove(callback)
 
-def add_mouse_callback_safe(layer, callback, index: Optional[int] = None):
-    if callback not in layer.mouse_drag_callbacks:
+
+def add_mouse_callback_safe(callback_list, callback, index: Optional[int] = None):
+    if callback not in callback_list:
         if index is not None:
-            layer.mouse_drag_callbacks.insert(index, callback)
+            callback_list.insert(index, callback)
         else:
-            layer.mouse_drag_callbacks.append(callback)
+            callback_list.append(callback)

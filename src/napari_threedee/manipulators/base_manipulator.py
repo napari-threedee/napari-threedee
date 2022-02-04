@@ -31,7 +31,7 @@ class BaseManipulator(ABC):
     viewer : Viewer
         The napari viewer containing the visuals.
     layer : Optional[Layer]
-        The layer to attach the manipulator to.
+        The callback_list to attach the manipulator to.
     order : int
         The order to place the manipulator visuals in the vispy scene graph.
     translator_length : float
@@ -127,7 +127,7 @@ class BaseManipulator(ABC):
             self._initial_rotator_normals = np.empty((0, 3))
         self._init_rotators()
 
-        # get the layer node to pass as the parent of the manipulator
+        # get the callback_list node to pass as the parent of the manipulator
         parent = get_vispy_node(viewer, layer)
         self.node = Mesh(mode='triangles', shading='smooth', parent=parent)
 
@@ -195,12 +195,17 @@ class BaseManipulator(ABC):
         self._visible = self.node.visible
 
     def connect_callbacks(self):
-        if self._on_click not in self._layer.mouse_drag_callbacks:
-            add_mouse_callback_safe(self._layer, self._on_click, index=0)
+        add_mouse_callback_safe(
+            self._layer.mouse_drag_callbacks,
+            self._on_click,
+            index=0
+        )
 
     def disconnect_callbacks(self):
-        if self._on_click in self._layer.mouse_drag_callbacks:
-            remove_mouse_callback_safe(self._layer, self._on_click)
+        remove_mouse_callback_safe(
+            self._layer.mouse_drag_callbacks,
+            self._on_click
+        )
 
     @property
     def centroid(self) -> np.ndarray:

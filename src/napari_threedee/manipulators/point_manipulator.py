@@ -57,17 +57,27 @@ class PointManipulator(BaseManipulator):
 
         selected_points = list(self._layer.selected_data)
         if len(selected_points) == 1:
-            if napari_selection_callback in self._layer.mouse_drag_callbacks:
-                remove_mouse_callback_safe(self._layer, napari_selection_callback)
-                add_mouse_callback_safe(self._layer, self.napari_selection_callback_passthrough)
+            remove_mouse_callback_safe(
+                self._layer.mouse_drag_callbacks,
+                napari_selection_callback
+            )
+            add_mouse_callback_safe(
+                self._layer.mouse_drag_callbacks,
+                self.napari_selection_callback_passthrough
+            )
             self.visible = True
             self.centroid = self.active_point_position
 
         else:
             self.visible = False
             if self._layer.mode == 'select':
-                remove_mouse_callback_safe(self._layer, self.napari_selection_callback_passthrough)
-                add_mouse_callback_safe(self._layer, napari_selection_callback)
+                remove_mouse_callback_safe(
+                    self._layer.mouse_drag_callbacks,
+                    self.napari_selection_callback_passthrough
+                )
+                add_mouse_callback_safe(
+                    self._layer.mouse_drag_callbacks, napari_selection_callback
+                )
 
 
 
