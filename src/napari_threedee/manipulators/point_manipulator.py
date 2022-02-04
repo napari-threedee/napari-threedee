@@ -79,15 +79,15 @@ class PointManipulator(BaseManipulator):
     ):
         pass
 
-    def _while_translator_drag(self, selected_translator: int, translation_vector: np.ndarray):
+    def _while_dragging_translator(self, selected_translator: int, translation_vector: np.ndarray):
         self._layer._move([self.active_point_index], self.translation)
         self._drag_start = None
 
-    def _while_rotator_drag(self, selected_rotator: int, rotation_matrix: np.ndarray):
+    def _while_dragging_rotator(self, selected_rotator: int, rotation_matrix: np.ndarray):
         # todo: store rotmat somewhere
         pass
 
-    def _on_click_cleanup(self):
+    def _post_drag(self):
         pass
 
     def napari_selection_callback_passthrough(self, layer, event):

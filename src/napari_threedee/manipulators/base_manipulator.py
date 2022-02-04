@@ -195,12 +195,12 @@ class BaseManipulator(ABC):
         self._visible = self.node.visible
 
     def connect_callbacks(self):
-        if self.on_click not in self._layer.mouse_drag_callbacks:
-            add_mouse_callback_safe(self._layer, self.on_click, index=0)
+        if self._mouse_callback not in self._layer.mouse_drag_callbacks:
+            add_mouse_callback_safe(self._layer, self._mouse_callback, index=0)
 
     def disconnect_callbacks(self):
-        if self.on_click in self._layer.mouse_drag_callbacks:
-            remove_mouse_callback_safe(self._layer, self.on_click)
+        if self._mouse_callback in self._layer.mouse_drag_callbacks:
+            remove_mouse_callback_safe(self._layer, self._mouse_callback)
 
     @property
     def translation(self) -> np.ndarray:
@@ -278,8 +278,8 @@ class BaseManipulator(ABC):
         else:
             return None
 
-    def _on_click(self, layer, event):
-        """Mouse call back for selecting and dragging an axis"""
+    def _mouse_callback(self, layer, event):
+        """Mouse call back for selecting and dragging a manipulator."""
         # get click position and direction in data coordinates
         click_position_world = event.position
         click_position_data_3d = np.asarray(
@@ -345,8 +345,8 @@ class BaseManipulator(ABC):
                     )
                     translator_drag_vector = projected_distance * selected_translator_normal
                     self.translation = self._initial_translation + translator_drag_vector
-                    self._while_translator_drag(selected_translator=selected_translator,
-                                                translation_vector=translator_drag_vector)
+                    self._while_dragging_translator(selected_translator=selected_translator,
+                                                    translation_vector=translator_drag_vector)
                 elif selected_rotator is not None:
                     # calculate the rotation matrix for the rotator drag
                     rotator_drag_vector = coordinates - initial_position_world
@@ -363,7 +363,7 @@ class BaseManipulator(ABC):
 
                     # update the rotation matrix and call the _while_rotator_drag callback
                     self.rot_mat = np.dot(rotation_matrix, self._initial_rot_mat)
-                    self._while_rotator_drag(
+                    self._while_dragging_rotator(
                         selected_rotator=selected_rotator,
                         rotation_matrix=rotation_matrix
                     )
@@ -376,7 +376,7 @@ class BaseManipulator(ABC):
         self._initial_click_vector = None
         self._initial_rot_mat = None
         self._layer._drag_start = None
-        self._on_click_cleanup()
+        self._post_drag()
 
     def _check_if_manipulator_clicked(
             self,
@@ -403,7 +403,7 @@ class BaseManipulator(ABC):
         """
         # project the in view points onto the plane
         if len(self.translator_normals) > 0:
-            translator_triangles = self.displayed_translator_vertices[self.translator_indices]
+            translator_triangles = self._displayed_translator_vertices[self.translator_indices]
             selected_translator = select_mesh_from_click(
                 click_point=plane_point,
                 view_direction=plane_normal,
@@ -414,7 +414,7 @@ class BaseManipulator(ABC):
             selected_translator = None
 
         if len(self.rotator_normals) > 0:
-            rotator_triangles = self.displayed_rotator_vertices[self.rotator_indices]
+            rotator_triangles = self._displayed_rotator_vertices[self.rotator_indices]
             selected_rotator = select_mesh_from_click(
                 click_point=plane_point,
                 view_direction=plane_normal,
@@ -469,7 +469,7 @@ class BaseManipulator(ABC):
         """
         pass
 
-    def _while_translator_drag(self, selected_translator: int, translation_vector: np.ndarray):
+    def _while_dragging_translator(self, selected_translator: int, translation_vector: np.ndarray):
         """This callback is called during translator drags events.
 
         Parameters
@@ -483,7 +483,7 @@ class BaseManipulator(ABC):
         """
         pass
 
-    def _while_rotator_drag(self, selected_rotator: int, rotation_matrix: np.ndarray):
+    def _while_dragging_rotator(self, selected_rotator: int, rotation_matrix: np.ndarray):
         """This callback is called during rotator drag events.
 
         Parameters
@@ -497,7 +497,7 @@ class BaseManipulator(ABC):
         """
         pass
 
-    def _on_click_cleanup(self):
+    def _post_drag(self):
         """This callback is called at the end of the drag event and should
         be used to clean up any variables set during the click event.
         """
