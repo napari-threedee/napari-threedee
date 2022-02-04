@@ -12,7 +12,7 @@ class PointManipulator(BaseManipulator):
     def __init__(self, viewer, layer, order=0, translator_length=50, rotator_radius=5):
         self._layer = layer
         self._connect_events(layer)
-        self._centroid = [0, 0, 0]
+        self._translation = [0, 0, 0]
         self._initial_translator_normals = np.asarray(
             [[1, 0, 0],
              [0, 1, 0],
@@ -61,7 +61,7 @@ class PointManipulator(BaseManipulator):
                 remove_mouse_callback_safe(self._layer, napari_selection_callback)
                 add_mouse_callback_safe(self._layer, self.napari_selection_callback_passthrough)
             self.visible = True
-            self.centroid = self.active_point_position
+            self.translation = self.active_point_position
 
         else:
             self.visible = False
@@ -80,7 +80,7 @@ class PointManipulator(BaseManipulator):
         pass
 
     def _while_dragging_translator(self, selected_translator: int, translation_vector: np.ndarray):
-        self._layer._move([self.active_point_index], self.centroid)
+        self._layer._move([self.active_point_index], self.translation)
         self._drag_start = None
 
     def _while_dragging_rotator(self, selected_rotator: int, rotation_matrix: np.ndarray):

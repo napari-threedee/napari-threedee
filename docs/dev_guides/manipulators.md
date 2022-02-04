@@ -6,7 +6,7 @@ being displayed on the canvas. Manipulators can translate and rotate along/aroun
 ## Coordinate system
 The manipulator coordinate system is defined with an affine transformation relative to the layer data coordinate system.
 The manipulator transformation is defined as a translation and a 3x3 transformation matrix (rotation and scale). The 
-translation is stored in the `manipulator.centroid` property and the transformation is stored in the `manipulator.
+translation is stored in the `manipulator.translation` property and the transformation is stored in the `manipulator.
 rot_mat` property. The rotation is applied before the translation. 
 
 ## Translators

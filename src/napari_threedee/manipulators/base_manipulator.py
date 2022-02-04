@@ -45,8 +45,8 @@ class BaseManipulator(ABC):
 
     Attributes
     ----------
-    centroid : np.ndarray
-        (3, 1) array containing the coordinates to the centroid of the manipulator.
+    translation : np.ndarray
+        (3, 1) array containing the coordinates to the translation of the manipulator.
     rot_mat : np.ndarray
         (3, 3) array containing the rotation matrix applied to the manipluator.
     translator_length : float
@@ -203,12 +203,12 @@ class BaseManipulator(ABC):
             remove_mouse_callback_safe(self._layer, self._mouse_callback)
 
     @property
-    def centroid(self) -> np.ndarray:
-        return self._centroid
+    def translation(self) -> np.ndarray:
+        return self._translation
 
-    @centroid.setter
-    def centroid(self, centroid: np.ndarray):
-        self._centroid = np.asarray(centroid)
+    @translation.setter
+    def translation(self, translation: np.ndarray):
+        self._translation = np.asarray(translation)
         self._on_matrix_change()
 
     @property
@@ -267,14 +267,14 @@ class BaseManipulator(ABC):
     @property
     def _displayed_translator_vertices(self):
         if self.translator_vertices is not None:
-            return (self.translator_vertices @ self.rot_mat.T) + self.centroid
+            return (self.translator_vertices @ self.rot_mat.T) + self.translation
         else:
             return None
 
     @property
     def _displayed_rotator_vertices(self):
         if self.rotator_vertices is not None:
-            return (self.rotator_vertices @ self.rot_mat.T) + self.centroid
+            return (self.rotator_vertices @ self.rot_mat.T) + self.translation
         else:
             return None
 
@@ -344,7 +344,7 @@ class BaseManipulator(ABC):
                         dims_displayed=event.dims_displayed
                     )
                     translator_drag_vector = projected_distance * selected_translator_normal
-                    self.centroid = self._initial_centroid + translator_drag_vector
+                    self.translation = self._initial_translation + translator_drag_vector
                     self._while_dragging_translator(selected_translator=selected_translator,
                                                     translation_vector=translator_drag_vector)
                 elif selected_rotator is not None:
@@ -353,10 +353,10 @@ class BaseManipulator(ABC):
                     plane_normal = self.rotator_normals[selected_rotator]
                     projected_click_point, _ = project_points_onto_plane(
                         points=coordinates,
-                        plane_point=self.centroid,
+                        plane_point=self.translation,
                         plane_normal=plane_normal,
                     )
-                    click_vector = np.squeeze(projected_click_point) - self.centroid
+                    click_vector = np.squeeze(projected_click_point) - self.translation
                     rotation_matrix = rotation_matrix = rotation_matrix_from_vectors_3d(
                         self._initial_click_vector, click_vector
                     )
@@ -428,7 +428,7 @@ class BaseManipulator(ABC):
 
     def _setup_translator_drag(self, click_point: np.ndarray, selected_translator: Optional[int]):
         if selected_translator is not None:
-            self._initial_centroid = self.centroid.copy()
+            self._initial_translation = self.translation.copy()
 
     def _setup_rotator_drag(self, click_point: np.ndarray, selected_rotator: Optional[int]):
         if selected_rotator is not None:
@@ -437,11 +437,11 @@ class BaseManipulator(ABC):
             # project the click point on to the plane of the rotat
             initial_click_point, _ = project_points_onto_plane(
                 points=click_point,
-                plane_point=self.centroid,
+                plane_point=self.translation,
                 plane_normal=normal,
             )
 
-            self._initial_click_vector = np.squeeze(initial_click_point) - self.centroid
+            self._initial_click_vector = np.squeeze(initial_click_point) - self.translation
             self._initial_rot_mat = self.rot_mat.copy()
 
     def _pre_drag(
@@ -514,7 +514,7 @@ class BaseManipulator(ABC):
     def _update_translator_mesh(self):
         """Update the mesh for the translator"""
         translator_vertices, translator_indices, translator_colors, triangle_indices = make_translator_meshes(
-            centroids=self.centroid,
+            centroids=self.translation,
             normals=self.translator_normals,
             colors=self._default_color[:len(self.translator_normals)],
             translator_length=self.translator_length,
@@ -609,7 +609,7 @@ class BaseManipulator(ABC):
         # convert NumPy axis ordering to VisPy axis ordering
         # by reversing the axes order and flipping the linear
         # matrix
-        translate = self.centroid[::-1]
+        translate = self.translation[::-1]
         rot_matrix = self.rot_mat[::-1, ::-1].T
 
         # Embed in the top left corner of a 4x4 affine matrix
