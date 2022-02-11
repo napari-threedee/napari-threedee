@@ -6,7 +6,7 @@ being displayed on the canvas. Manipulators can translate and rotate along/aroun
 ## Coordinate system
 The manipulator coordinate system is defined with an affine transformation relative to the layer data coordinate system.
 The manipulator transformation is defined as a translation and a 3x3 transformation matrix (rotation and scale). The 
-translation is stored in the `manipulator.centroid` property and the transformation is stored in the `manipulator.
+translation is stored in the `manipulator.translation` property and the transformation is stored in the `manipulator.
 rot_mat` property. The rotation is applied before the translation. 
 
 ## Translators
@@ -21,11 +21,11 @@ for each unit vector in `initial_translator_normals`.
 ### Translator drag callback
 When a translator is dragged, the following callbacks are executed:
 
-1. `_pre_drag()`:This is called after the translator or rotator is clicked. This is typically used to set up for the 
+1. `_pre_drag()`: This is called when the translator or rotator is clicked. This is typically used to set up for the 
    drag callback.
-2. `_while_translator_drag()`: This is called during the drag and is typically used to update layer or manipulator 
+2. `_while_dragging_translator()`: This is called during the drag and is typically used to update layer or manipulator 
    attributes in response to the translator drag. 
-3. `_on_click_cleanup`: This is called after the drag has finished. This is generally used to clean up any 
+3. `_post_drag()`: This is called after the drag has finished. This is generally used to clean up any 
    variables that were set during the drag or pre drag callbacks.
 
 ### Implementing translators
@@ -33,8 +33,8 @@ To add translators to a manipulator, the following must be implemented:
 
 - `_initial_translator_normals` must be defined in the `__init__()` method.
 - `_pre_drag()` callback may be implemented.
-- `_while_translator_drag()` must be implemented.
-- `_on_click_cleanup` may be implemented.
+- `_while_dragging_translator()` must be implemented.
+- `_post_drag()` may be implemented.
 
 ## Rotators
 Rotators are the UI element on the manipulator responsible for rotating the manipulator. When the user 
@@ -49,10 +49,18 @@ When a rotator is dragged, the following callbacks are executed:
 
 1. `_pre_drag()`:This is called after the translator or rotator is clicked. This is typically used to set up for the 
    drag callback.
-2. `_while_rotator_drag()`: This is called during the drag and is typically used to update layer or manipulator 
+2. `_while_dragging_rotator()`: This is called during the drag and is typically used to update layer or manipulator 
    attributes in response to the rotator drag. 
-3. `_on_click_cleanup`: This is called called after the drag has finished. This is generally used to clean up any 
+3. `_post_drag()`: This is called called after the drag has finished. This is generally used to clean up any 
    variables that were set during the drag or pre drag callbacks.
+   
+### Implementing rotators
+To add rotators to a manipulator, the following must be implemented:
+
+- `_initial_rotator_normals` must be defined in the `__init__()` method.
+- `_pre_drag()` callback may be implemented.
+- `_while_dragging_rotator()` must be implemented.
+- `_post_drag()` may be implemented.
 
 ## Notes on performance
 
