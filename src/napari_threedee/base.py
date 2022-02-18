@@ -1,5 +1,5 @@
-from abc import ABC, abstractmethod, abstractproperty
-from typing import Type, Dict
+from abc import ABC, abstractmethod
+from typing import Type
 
 import napari
 from napari.utils.events import Event
@@ -9,26 +9,24 @@ from .utils.napari_utils import generate_populated_layer_selection_widget
 
 
 class ThreeDeeModel(ABC):
+    """Base class for manipulators and annotators.
+
+    To implement:
+        - the __init__() should take the viewer as the first argument and all
+        keyword arguments should have default values.
+        - implement the set_layers() method
+        - implement the _on_enable() callback
+        - implement the _on_disable() callback
+    """
+
     @property
     def enabled(self):
         return self._enabled
 
     @enabled.setter
     def enabled(self, value: bool):
-        self.enable() if value is True else self.disable()
+        self._on_enable() if value is True else self._on_disable()
         self._enabled = value
-
-    def enable(self):
-        """This method should 'activate' the manipulator/annotator,
-        setting state and connecting callbacks.
-        """
-        raise NotImplementedError
-
-    def disable(self):
-        """This method should deactivate the manipulator/annotator,
-        updating state and disconnecting callbacks.
-        """
-        raise NotImplementedError
 
     @abstractmethod
     def set_layers(self, *args):
@@ -37,11 +35,26 @@ class ThreeDeeModel(ABC):
         """
         pass
 
+    @abstractmethod
+    def _on_enable(self):
+        """This method should 'activate' the manipulator/annotator,
+        setting state and connecting callbacks.
+        """
+        pass
+
+    @abstractmethod
+    def _on_disable(self):
+        """This method should 'deactivate' the manipulator/annotator,
+        updating state and disconnecting callbacks.
+        """
+        pass
+
 
 class QtThreeDeeWidgetBase(QWidget):
     """Base class for GUI elements in napari-threedee."""
 
-    def __init__(self, model: Type[ThreeDeeModel], viewer: napari.Viewer, flags=None, *args, **kwargs):
+    def __init__(self, model: Type[ThreeDeeModel], viewer: napari.Viewer, flags=None, *args,
+                 **kwargs):
         super().__init__(flags, *args, **kwargs)
         self.model = model(viewer)
         self.viewer = viewer
@@ -71,4 +84,3 @@ class QtThreeDeeWidgetBase(QWidget):
         else:
             self.model.enabled = False
             self.activate_button.setText('activate')
-

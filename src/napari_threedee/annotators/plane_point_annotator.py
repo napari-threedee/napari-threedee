@@ -39,12 +39,12 @@ class PlanePointAnnotator(ThreeDeeModel):
         self.image_layer = image_layer
         self.points_layer = points_layer
 
-    def enable(self):
+    def _on_enable(self):
         add_mouse_callback_safe(
             self.viewer.mouse_drag_callbacks, self._mouse_callback
         )
 
-    def disable(self):
+    def _on_disable(self):
         remove_mouse_callback_safe(
             self.viewer.mouse_drag_callbacks, self._mouse_callback
         )

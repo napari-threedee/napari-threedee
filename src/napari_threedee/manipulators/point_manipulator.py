@@ -32,7 +32,7 @@ class PointManipulator(BaseManipulator):
             order=order,
             translator_length=translator_length,
             rotator_radius=rotator_radius,
-            visible=False
+            enabled=False
         )
 
         self._on_selection_change()
