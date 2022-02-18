@@ -1,6 +1,21 @@
+import inspect
+from functools import partial
 from typing import Optional
 
+import magicgui
+import napari
+from magicgui.widgets import FunctionGui
 from napari.layers import Points, Image
+from qtpy.QtWidgets import QWidget
+
+NAPARI_LAYER_TYPES = (
+    napari.layers.Points,
+    napari.layers.Image,
+    napari.layers.Surface,
+    napari.layers.Shapes,
+    napari.layers.Vectors,
+    napari.layers.Tracks,
+)
 
 
 def get_napari_visual(viewer, layer):
@@ -44,3 +59,21 @@ def add_mouse_callback_safe(callback_list, callback, index: Optional[int] = None
             callback_list.insert(index, callback)
         else:
             callback_list.append(callback)
+
+
+def get_layers_of_type(*args, viewer: napari.Viewer, layer_type):
+    return [layer for layer in viewer.layers if isinstance(layer, layer_type)]
+
+
+def generate_populated_layer_selection_widget(func, viewer) -> FunctionGui:
+    parameters = inspect.signature(func).parameters
+    mgui_param_args = {
+        parameter_name: {
+            'choices': partial(get_layers_of_type, viewer=viewer, layer_type=parameter.annotation)
+        }
+        for parameter_name, parameter
+        in parameters.items()
+        if parameter.annotation in NAPARI_LAYER_TYPES
+    }
+    return magicgui.magicgui(func, **mgui_param_args, auto_call=True)
+
