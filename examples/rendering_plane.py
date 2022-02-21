@@ -17,7 +17,7 @@ volume_layer = viewer.add_image(
 # plane should be in 'additive' blending mode or depth looks all wrong
 plane_parameters = {
     'position': (32, 32, 32),
-    'normal': (1, 0, 0),
+    'normal': (1, 1, 1),
     'thickness': 10,
     'enabled': True
 }
