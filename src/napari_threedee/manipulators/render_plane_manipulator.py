@@ -36,7 +36,7 @@ class RenderPlaneManipulator(BaseManipulator):
 
     def _set_initial_rotator_normals(self):
         normals = np.eye(3)
-        random_vec3 = np.array([0.7, 0.8, 0.9]) / np.linalg.norm([0.7, 0.8, 0.9])
+        random_vec3 = np.array([0, 1, 0]) / np.linalg.norm([0, 1, 0])
         normals[0] = np.array([self.layer.experimental_slicing_plane.normal])
         normals[1] = np.cross(normals[0], random_vec3)
         normals[2] = np.cross(normals[0], normals[1])
