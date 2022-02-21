@@ -12,7 +12,7 @@ class RenderPlaneManipulator(BaseManipulator):
 
     def __init__(self, viewer, layer=None, order=0, translator_length=50, rotator_radius=5):
 
-        self.layer = layer
+        self._layer = layer
         if self.layer is not None:
             self._translation = np.array(self.layer.experimental_slicing_plane.position)
         else:
@@ -29,26 +29,18 @@ class RenderPlaneManipulator(BaseManipulator):
     def set_layers(self, layer: napari.layers.Image):
         super().set_layers(layer)
 
-    @cached_property
-    def _initial_translation_vectors(self):
-        if self.layer is not None:
-            return np.asarray([self.layer.experimental_slicing_plane.normal])
-        else:
-            return super()._initial_translation_vectors
+    def _set_initial_translation_vectors(self):
+        self._initial_translation_vectors = np.asarray(
+            [self.layer.experimental_slicing_plane.normal]
+        )
 
-    @cached_property
-    def _initial_rotator_normals(self):
-        # if self.layer is None:
-        #     return super()._initial_rotator_normals
-        normals = np.array(
-                [
-                    [1, 0, 0],
-                    [0, 0, 1],
-                    [0, 1, 0]
-                ]
-            )
-        normals[0] = self.layer.experimental_slicing_plane.normal
-        return normals
+    def _set_initial_rotator_normals(self):
+        normals = np.eye(3)
+        random_vec3 = np.array([0.7, 0.8, 0.9]) / np.linalg.norm([0.7, 0.8, 0.9])
+        normals[0] = np.array([self.layer.experimental_slicing_plane.normal])
+        normals[1] = np.cross(normals[0], random_vec3)
+        normals[2] = np.cross(normals[0], normals[1])
+        self._initial_rotator_normals = normals
 
     def _pre_drag(
             self,

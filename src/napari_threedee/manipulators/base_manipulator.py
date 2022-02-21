@@ -22,8 +22,8 @@ class BaseManipulator(ThreeDeeModel, ABC):
         - the __init__() should take the viewer as the first argument, the layer
             as the second argument followed by any keyword arguments.
             Keyword arguments should have default values.
-        - implement the self._initial_translation_vectors property.
-        - implement the self._initial_rotator_normals property.
+        - implement a self._set_initial_translation_vectors() method
+        - implement a self._set_initial_rotator_normals() method
         - implement the _pre_drag() callback.
         - implement the _while_dragging_translator() callback.
         - implement the _while_dragging_rotator() callback.
@@ -104,7 +104,7 @@ class BaseManipulator(ThreeDeeModel, ABC):
         self._initial_click_vector = None
 
         # Initialize the rotation matrix describing the orientation of the manipulator.
-        self._rot_mat = np.eye(3)
+        self._set_initial_rot_mat()
 
         # this is used to store the initial rotation matrix before
         # starting a rotation
@@ -120,16 +120,12 @@ class BaseManipulator(ThreeDeeModel, ABC):
             [0, 0, 1, 1],
         ]
 
-        # initialize the arrow lines. if they weren't defined by the super class,
-        # initialize them as empty.
-        if not hasattr(self, '_initial_translator_normals'):
-            self._initial_translator_normals = np.empty((0, 3))
+        # initialize the translators.
+        self._set_initial_translation_vectors()
         self._init_translators()
 
-        # initialize the rotators. if they weren't defined by the super class,
-        # initialize them as empty.
-        if not hasattr(self, '_initial_rotator_normals'):
-            self._initial_rotator_normals = np.empty((0, 3))
+        # initialize the rotators.
+        self._set_initial_rotator_normals()
         self._init_rotators()
 
         # get the callback_list node to pass as the parent of the manipulator
@@ -147,6 +143,7 @@ class BaseManipulator(ThreeDeeModel, ABC):
         self._on_matrix_change()
         self._on_data_change()
 
+
     @property
     def _initial_translation_vectors(self):
         """An (Nx3) numpy array containing the translation vector for each of the
@@ -154,7 +151,22 @@ class BaseManipulator(ThreeDeeModel, ABC):
 
         Translation vectors are defined in displayed data coordinates.
         """
-        return np.empty((0, 3))
+        return self._initial_translation_vectors_
+
+    @_initial_translation_vectors.setter
+    def _initial_translation_vectors(self, value: np.ndarray):
+        """An (Nx3) numpy array containing the translation vector for each of the
+        N translators to be created.
+
+        Translation vectors are defined in displayed data coordinates.
+        """
+        value = np.asarray(value)
+        self._initial_translation_vectors_ = value
+
+    def _set_initial_translation_vectors(self):
+        """Method to be overridden by subclasses for defining translation vectors.
+        """
+        self._initial_translation_vectors = np.empty((0, 3))
 
     def _init_translators(self):
         translator_vertices, translator_indices, translator_colors, triangle_indices = make_translator_meshes(
@@ -180,7 +192,22 @@ class BaseManipulator(ThreeDeeModel, ABC):
 
         Normal directions are defined in displayed data coordinates.
         """
-        return np.empty((0, 3))
+        return self._initial_rotator_normals_
+
+    @_initial_rotator_normals.setter
+    def _initial_rotator_normals(self, value: np.ndarray):
+        """An (Nx3) numpy array containing the normal direction for each of the
+        N rotators to be created.
+
+        Normal directions are defined in displayed data coordinates.
+        """
+        value = np.asarray(value)
+        self._initial_rotator_normals_ = value
+
+    def _set_initial_rotator_normals(self):
+        """Method to be overridden by subclasses for defining rotator normals.
+        """
+        self._initial_rotator_normals = np.empty((0, 3))
 
     def _init_rotators(self):
         if len(self._initial_rotator_normals) == 0:
@@ -209,6 +236,15 @@ class BaseManipulator(ThreeDeeModel, ABC):
     @layer.setter
     def layer(self, layer: Type[napari.layers.Layer]):
         self._layer = layer
+        self._set_initial_rot_mat()
+        self._set_initial_translation_vectors()
+        self._init_translators()
+        self._set_initial_rotator_normals()
+        self._init_rotators()
+        self._on_data_change()
+        self._on_zoom_change()
+        self._on_matrix_change()
+
 
     def set_layers(self, layer: Type[napari.layers.Layer]):
         """Override this in a subclass with the correct layer type for the manipulator"""
@@ -642,3 +678,8 @@ class BaseManipulator(ThreeDeeModel, ABC):
         affine_matrix[-1, : len(translate)] = translate
 
         self.node.transform.matrix = affine_matrix
+
+    def _set_initial_rot_mat(self):
+        self._rot_mat = np.eye(3)
+
+
