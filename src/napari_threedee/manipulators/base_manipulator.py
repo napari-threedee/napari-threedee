@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Type
 
+import napari
 import numpy as np
 from napari.utils.geometry import project_points_onto_plane, rotation_matrix_from_vectors_3d
 from napari.utils.translations import trans
@@ -8,23 +9,26 @@ from napari.viewer import Viewer
 from vispy.scene import Mesh
 from vispy.visuals.transforms import MatrixTransform
 
-from .manipulator_utils import make_translator_meshes, select_rotator, color_lines, make_rotator_meshes
-from ..utils.selection_utils import select_line_segment, select_mesh_from_click
-from ..utils.napari_utils import get_vispy_node, get_napari_visual, add_mouse_callback_safe, remove_mouse_callback_safe
+from .manipulator_utils import make_translator_meshes, color_lines, make_rotator_meshes
+from ..base import ThreeDeeModel
+from ..utils.napari_utils import get_vispy_node, add_mouse_callback_safe, remove_mouse_callback_safe
+from ..utils.selection_utils import select_mesh_from_click
 
 
-class BaseManipulator(ABC):
+class BaseManipulator(ThreeDeeModel, ABC):
     """Base class for manipulators.
 
     To implement:
-        1. Define self._initial_translator_normals in the __init__. This a
-        (Nx3) numpy array containing the normal direction for each of the N
-        translators to be created defined in displayed data coordinates.
-        2. Define self._initial_rotator_normals in the __init__. This a
-        (Nx3) numpy array containing the normal direction for each of the N
-        rotators to be created defined in displayed data coordinates.
-        3. Call the super.__init__() last.
-        4. Implement the drag callback functions
+        - the __init__() should take the viewer as the first argument, the layer
+            as the second argument followed by any keyword arguments.
+            Keyword arguments should have default values.
+        - implement a self._set_initial_translation_vectors() method
+        - implement a self._set_initial_rotator_normals() method
+        - implement the _pre_drag() callback.
+        - implement the _while_dragging_translator() callback.
+        - implement the _while_dragging_rotator() callback.
+        - implement the _post_drag() callback.
+        - Call the super.__init__().
 
     Parameters
     ----------
@@ -48,7 +52,7 @@ class BaseManipulator(ABC):
     translation : np.ndarray
         (3, 1) array containing the coordinates to the translation of the manipulator.
     rot_mat : np.ndarray
-        (3, 3) array containing the rotation matrix applied to the manipluator.
+        (3, 3) array containing the rotation matrix applied to the manipulator.
     translator_length : float
         The length of the translator arms in data units.
     translator_width : float
@@ -74,11 +78,12 @@ class BaseManipulator(ABC):
     """
     _N_SEGMENTS_ROTATOR = 50
     _N_TUBE_POINTS = 15
+
     def __init__(
             self,
             viewer,
             layer=None,
-            visible: bool = True,
+            enabled: bool = True,
             order: int = 0,
             translator_length: float = 50,
             translator_width: float = 1,
@@ -87,7 +92,6 @@ class BaseManipulator(ABC):
     ):
         super().__init__()
         self._viewer = viewer
-        self._layer = layer
 
         self._translator_length = translator_length
         self._translator_width = translator_width
@@ -97,9 +101,6 @@ class BaseManipulator(ABC):
         # this is used to store the vector to the initial click
         # on a rotator for calculating the rotation
         self._initial_click_vector = None
-
-        # Initialize the rotation matrix describing the orientation of the manipulator.
-        self._rot_mat = np.eye(3)
 
         # this is used to store the initial rotation matrix before
         # starting a rotation
@@ -115,39 +116,51 @@ class BaseManipulator(ABC):
             [0, 0, 1, 1],
         ]
 
-        # initialize the arrow lines. if they weren't defined by the super class,
-        # initialize them as empty.
-        if not hasattr(self, '_initial_translator_normals'):
-            self._initial_translator_normals = np.empty((0, 3))
-        self._init_translators()
+        # the order for the manipulator visual in the vispy scenegraph
+        self._vispy_visual_order = order
 
-        # initialize the rotators. if they weren't defined by the super class,
-        # initialize them as empty.
-        if not hasattr(self, '_initial_rotator_normals'):
-            self._initial_rotator_normals = np.empty((0, 3))
-        self._init_rotators()
-
-        # get the callback_list node to pass as the parent of the manipulator
-        parent = get_vispy_node(viewer, layer)
-        self.node = Mesh(mode='triangles', shading='smooth', parent=parent)
-
-        self.node.transform = MatrixTransform()
-        self.node.order = order
-
-        self.node.canvas._backend.destroyed.connect(self._set_canvas_none)
-
+        # connect events
         self._viewer.camera.events.zoom.connect(self._on_zoom_change)
 
-        self.visible = visible
-        self._on_matrix_change()
-        self._on_data_change()
+        # add the layer
+        self.layer = layer
 
+        self.enabled = enabled
+
+    @abstractmethod
+    def _initialize_transform(self):
+        """Should set the properties required to calculate the rotation matrix and translation"""
+        raise NotImplementedError
+
+    @property
+    def _initial_translation_vectors(self):
+        """An (Nx3) numpy array containing the translation vector for each of the
+        N translators to be created.
+
+        Translation vectors are defined in displayed data coordinates.
+        """
+        return self._initial_translation_vectors_
+
+    @_initial_translation_vectors.setter
+    def _initial_translation_vectors(self, value: np.ndarray):
+        """An (Nx3) numpy array containing the translation vector for each of the
+        N translators to be created.
+
+        Translation vectors are defined in displayed data coordinates.
+        """
+        value = np.asarray(value)
+        self._initial_translation_vectors_ = value
+
+    def _set_initial_translation_vectors(self):
+        """Method to be overridden by subclasses for defining translation vectors.
+        """
+        self._initial_translation_vectors = np.empty((0, 3))
 
     def _init_translators(self):
         translator_vertices, translator_indices, translator_colors, triangle_indices = make_translator_meshes(
             centroids=np.asarray([0, 0, 0]),
-            normals=self._initial_translator_normals,
-            colors=self._default_color[:len(self._initial_translator_normals)],
+            normals=self._initial_translation_vectors,
+            colors=self._default_color[:len(self._initial_translation_vectors)],
             translator_length=self.translator_length,
             tube_radius=self._translator_width,
             tube_points=self._N_TUBE_POINTS,
@@ -158,7 +171,31 @@ class BaseManipulator(ABC):
         self.translator_colors = translator_colors
         self.translator_triangle_indices = triangle_indices
 
-        self._translator_normals = self._initial_translator_normals.copy()
+        self._translator_normals = self._initial_translation_vectors.copy()
+
+    @property
+    def _initial_rotator_normals(self):
+        """An (Nx3) numpy array containing the normal direction for each of the
+        N rotators to be created.
+
+        Normal directions are defined in displayed data coordinates.
+        """
+        return self._initial_rotator_normals_
+
+    @_initial_rotator_normals.setter
+    def _initial_rotator_normals(self, value: np.ndarray):
+        """An (Nx3) numpy array containing the normal direction for each of the
+        N rotators to be created.
+
+        Normal directions are defined in displayed data coordinates.
+        """
+        value = np.asarray(value)
+        self._initial_rotator_normals_ = value
+
+    def _set_initial_rotator_normals(self):
+        """Method to be overridden by subclasses for defining rotator normals.
+        """
+        self._initial_rotator_normals = np.empty((0, 3))
 
     def _init_rotators(self):
         if len(self._initial_rotator_normals) == 0:
@@ -181,34 +218,69 @@ class BaseManipulator(ABC):
         self._rotator_normals = self._initial_rotator_normals.copy()
 
     @property
-    def visible(self) -> bool:
-        return self._visible
+    def layer(self):
+        return self._layer
 
-    @visible.setter
-    def visible(self, visible: bool):
-        # set visibility on visuals
-        self.node.visible = visible
-        if visible is True:
-            self.connect_callbacks()
+    @layer.setter
+    def layer(self, layer: Optional[Type[napari.layers.Layer]]):
+        if layer is not None:
+            if layer == self._layer:
+                return
+            if self.layer is not None:
+                # remove the current visual
+                self.node.parent = None
+            self._layer = layer
+            self._connect_vispy_visual(layer)
+            self._initialize_transform()
+            self._set_initial_translation_vectors()
+            self._init_translators()
+            self._set_initial_rotator_normals()
+            self._init_rotators()
+            self._on_data_change()
+            self._on_zoom_change()
+            self._on_matrix_change()
+
+            if self.enabled:
+                self._on_enable()
+            else:
+                self._on_disable()
         else:
-            self.disconnect_callbacks()
-        self._visible = self.node.visible
+            self._layer = layer
 
-    def connect_callbacks(self):
-        add_mouse_callback_safe(
-            self._layer.mouse_drag_callbacks,
-            self._on_click,
-            index=0
-        )
+    def _connect_vispy_visual(self, layer: Type[napari.layers.Layer]):
+        # get the callback_list node to pass as the parent of the manipulator
+        parent = get_vispy_node(self._viewer, layer)
+        self.node = Mesh(mode='triangles', shading='smooth', parent=parent)
 
-    def disconnect_callbacks(self):
-        remove_mouse_callback_safe(
-            self._layer.mouse_drag_callbacks,
-            self._on_click
-        )
+        self.node.transform = MatrixTransform()
+        self.node.order = self._vispy_visual_order
+        self.node.canvas._backend.destroyed.connect(self._set_canvas_none)
+
+
+    def set_layers(self, layer: Type[napari.layers.Layer]):
+        """Override this in a subclass with the correct layer type for the manipulator"""
+        self.layer = layer
+
+    def _on_enable(self):
+        if self.layer is not None:
+            self.node.visible = True
+            add_mouse_callback_safe(
+                self._layer.mouse_drag_callbacks,
+                self._mouse_callback,
+                index=0
+            )
+
+    def _on_disable(self):
+        if self.layer is not None:
+            self.node.visible = False
+            remove_mouse_callback_safe(
+                self._layer.mouse_drag_callbacks,
+                self._mouse_callback
+            )
 
     @property
     def translation(self) -> np.ndarray:
+        """Vector from the layer origin to the manipulator origin"""
         return self._translation
 
     @translation.setter
@@ -263,7 +335,7 @@ class BaseManipulator(ABC):
 
     @property
     def translator_normals(self) -> np.ndarray:
-        return (self._initial_translator_normals @ self.rot_mat.T)
+        return (self._initial_translation_vectors @ self.rot_mat.T)
 
     @property
     def rotator_normals(self) -> np.ndarray:
@@ -311,7 +383,6 @@ class BaseManipulator(ABC):
             selected_translator_normal = None
         if (selected_rotator is not None) or (selected_translator is not None):
             layer.interactive = False
-
 
         initial_position_world = event.position
         yield
@@ -551,9 +622,11 @@ class BaseManipulator(ABC):
 
         self._on_matrix_change()
 
-
     def _on_data_change(self):
         """Change style of axes."""
+        if self.layer is None:
+            # do not do anything if the layer has not been set
+            return
 
         # Actual number of displayed dims
         ndisplay = self._viewer.dims.ndisplay
@@ -594,7 +667,7 @@ class BaseManipulator(ABC):
 
     def _on_zoom_change(self):
         """Update axes length based on zoom scale."""
-        # if not self._viewer.axes.visible:
+        # if not self._viewer.axes.enabled:
         #     return
         return  # turn off temporarily
         scale = 1 / self._viewer.camera.zoom
@@ -609,8 +682,10 @@ class BaseManipulator(ABC):
         # Update axes scale
         self.node.transform.scale = [scale, scale, scale, 1]
 
-
     def _on_matrix_change(self):
+        if self.layer is None:
+            # do not do anything if the layer has not been set
+            return
         # convert NumPy axis ordering to VisPy axis ordering
         # by reversing the axes order and flipping the linear
         # matrix
