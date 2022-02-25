@@ -92,7 +92,6 @@ class BaseManipulator(ThreeDeeModel, ABC):
     ):
         super().__init__()
         self._viewer = viewer
-        self._layer = layer
 
         self._translator_length = translator_length
         self._translator_width = translator_width
@@ -102,9 +101,6 @@ class BaseManipulator(ThreeDeeModel, ABC):
         # this is used to store the vector to the initial click
         # on a rotator for calculating the rotation
         self._initial_click_vector = None
-
-        # Initialize the rotation matrix describing the orientation of the manipulator.
-        self._set_initial_rot_mat()
 
         # this is used to store the initial rotation matrix before
         # starting a rotation
@@ -120,29 +116,21 @@ class BaseManipulator(ThreeDeeModel, ABC):
             [0, 0, 1, 1],
         ]
 
-        # initialize the translators.
-        self._set_initial_translation_vectors()
-        self._init_translators()
+        # the order for the manipulator visual in the vispy scenegraph
+        self._vispy_visual_order = order
 
-        # initialize the rotators.
-        self._set_initial_rotator_normals()
-        self._init_rotators()
-
-        # get the callback_list node to pass as the parent of the manipulator
-        parent = get_vispy_node(viewer, layer)
-        self.node = Mesh(mode='triangles', shading='smooth', parent=parent)
-
-        self.node.transform = MatrixTransform()
-        self.node.order = order
-
-        self.node.canvas._backend.destroyed.connect(self._set_canvas_none)
-
+        # connect events
         self._viewer.camera.events.zoom.connect(self._on_zoom_change)
 
-        self.enabled = enabled
-        self._on_matrix_change()
-        self._on_data_change()
+        # add the layer
+        self.layer = layer
 
+        self.enabled = enabled
+
+    @abstractmethod
+    def _initialize_transform(self):
+        """Should set the properties required to calculate the rotation matrix and translation"""
+        raise NotImplementedError
 
     @property
     def _initial_translation_vectors(self):
@@ -234,16 +222,39 @@ class BaseManipulator(ThreeDeeModel, ABC):
         return self._layer
 
     @layer.setter
-    def layer(self, layer: Type[napari.layers.Layer]):
-        self._layer = layer
-        self._set_initial_rot_mat()
-        self._set_initial_translation_vectors()
-        self._init_translators()
-        self._set_initial_rotator_normals()
-        self._init_rotators()
-        self._on_data_change()
-        self._on_zoom_change()
-        self._on_matrix_change()
+    def layer(self, layer: Optional[Type[napari.layers.Layer]]):
+        if layer is not None:
+            if layer == self._layer:
+                return
+            if self.layer is not None:
+                # remove the current visual
+                self.node.parent = None
+            self._layer = layer
+            self._connect_vispy_visual(layer)
+            self._initialize_transform()
+            self._set_initial_translation_vectors()
+            self._init_translators()
+            self._set_initial_rotator_normals()
+            self._init_rotators()
+            self._on_data_change()
+            self._on_zoom_change()
+            self._on_matrix_change()
+
+            if self.enabled:
+                self._on_enable()
+            else:
+                self._on_disable()
+        else:
+            self._layer = layer
+
+    def _connect_vispy_visual(self, layer: Type[napari.layers.Layer]):
+        # get the callback_list node to pass as the parent of the manipulator
+        parent = get_vispy_node(self._viewer, layer)
+        self.node = Mesh(mode='triangles', shading='smooth', parent=parent)
+
+        self.node.transform = MatrixTransform()
+        self.node.order = self._vispy_visual_order
+        self.node.canvas._backend.destroyed.connect(self._set_canvas_none)
 
 
     def set_layers(self, layer: Type[napari.layers.Layer]):
@@ -251,22 +262,25 @@ class BaseManipulator(ThreeDeeModel, ABC):
         self.layer = layer
 
     def _on_enable(self):
-        self.node.visible = True
-        add_mouse_callback_safe(
-            self._layer.mouse_drag_callbacks,
-            self._mouse_callback,
-            index=0
-        )
+        if self.layer is not None:
+            self.node.visible = True
+            add_mouse_callback_safe(
+                self._layer.mouse_drag_callbacks,
+                self._mouse_callback,
+                index=0
+            )
 
     def _on_disable(self):
-        self.node.visible = False
-        remove_mouse_callback_safe(
-            self._layer.mouse_drag_callbacks,
-            self._mouse_callback
-        )
+        if self.layer is not None:
+            self.node.visible = False
+            remove_mouse_callback_safe(
+                self._layer.mouse_drag_callbacks,
+                self._mouse_callback
+            )
 
     @property
     def translation(self) -> np.ndarray:
+        """Vector from the layer origin to the manipulator origin"""
         return self._translation
 
     @translation.setter
@@ -610,6 +624,9 @@ class BaseManipulator(ThreeDeeModel, ABC):
 
     def _on_data_change(self):
         """Change style of axes."""
+        if self.layer is None:
+            # do not do anything if the layer has not been set
+            return
 
         # Actual number of displayed dims
         ndisplay = self._viewer.dims.ndisplay
@@ -666,6 +683,9 @@ class BaseManipulator(ThreeDeeModel, ABC):
         self.node.transform.scale = [scale, scale, scale, 1]
 
     def _on_matrix_change(self):
+        if self.layer is None:
+            # do not do anything if the layer has not been set
+            return
         # convert NumPy axis ordering to VisPy axis ordering
         # by reversing the axes order and flipping the linear
         # matrix
@@ -678,8 +698,3 @@ class BaseManipulator(ThreeDeeModel, ABC):
         affine_matrix[-1, : len(translate)] = translate
 
         self.node.transform.matrix = affine_matrix
-
-    def _set_initial_rot_mat(self):
-        self._rot_mat = np.eye(3)
-
-

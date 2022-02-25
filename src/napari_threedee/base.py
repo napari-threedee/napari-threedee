@@ -63,6 +63,9 @@ class QtThreeDeeWidgetBase(QWidget):
             func=self.model.set_layers, viewer=viewer
         )
         self._layer_selection_widget()
+
+        # start in the disabled state
+        self.model.enabled = False
         self.activate_button = QPushButton('activate')
         self.activate_button.setCheckable(True)
         self.activate_button.setChecked(False)

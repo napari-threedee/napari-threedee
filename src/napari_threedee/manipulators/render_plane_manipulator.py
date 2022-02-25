@@ -10,14 +10,7 @@ class RenderPlaneManipulator(BaseManipulator):
     """A manipulator for moving an image layer rendering plane.
     """
 
-    def __init__(self, viewer, layer=None, order=0, translator_length=50, rotator_radius=5):
-
-        self._layer = layer
-        if self.layer is not None:
-            self._translation = np.array(self.layer.experimental_slicing_plane.position)
-        else:
-            self._translation = np.array([0, 0, 0])
-
+    def __init__(self, viewer, layer=None, order=0, translator_length=10, rotator_radius=5):
         super().__init__(
             viewer,
             layer,
@@ -28,6 +21,24 @@ class RenderPlaneManipulator(BaseManipulator):
 
     def set_layers(self, layer: napari.layers.Image):
         super().set_layers(layer)
+
+    def _initialize_transform(self):
+        if self.layer is not None:
+            self._translation = np.array(self.layer.experimental_slicing_plane.position)
+
+            # plane_normal =  np.array(self.layer.experimental_slicing_plane.normal)
+            # if np.allclose(plane_normal, [0, 1, 0]):
+            #     random_vec3 = np.array([1, 0, 0])
+            # else:
+            #     random_vec3 = np.array([0, 1, 0])
+            # vector_0 = plane_normal
+            # vector_1 = np.cross(vector_0, random_vec3)
+            # vector_2 = np.cross(vector_0, vector_1)
+            # self._rot_mat = np.column_stack([vector_0, vector_1, vector_2])
+            self._rot_mat = np.eye(3)
+        else:
+            self._translation = np.array([0, 0, 0])
+            self._rot_mat = np.eye(3)
 
     def _set_initial_translation_vectors(self):
         self._initial_translation_vectors = np.asarray(
