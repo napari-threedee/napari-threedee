@@ -46,8 +46,28 @@ class PointManipulator(BaseManipulator):
     def _connect_events(self, layer):
         layer.events.highlight.connect(self._on_selection_change)
 
+        if self._layer is not None:
+            remove_mouse_callback_safe(
+                self._layer.mouse_drag_callbacks,
+                napari_selection_callback
+            )
+            if len(self._layer.selected_data) == 1:
+                add_mouse_callback_safe(
+                    self._layer.mouse_drag_callbacks,
+                    self.napari_selection_callback_passthrough
+                )
+
     def _disconnect_events(self, layer):
         layer.events.highlight.disconnect(self._on_selection_change)
+        if self._layer is not None:
+            remove_mouse_callback_safe(
+                self._layer.mouse_drag_callbacks,
+                self.napari_selection_callback_passthrough
+            )
+            if self._layer.mode == 'select':
+                add_mouse_callback_safe(
+                    self._layer.mouse_drag_callbacks, napari_selection_callback
+                )
 
     @property
     def active_point_index(self):

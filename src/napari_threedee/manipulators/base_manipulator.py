@@ -125,7 +125,7 @@ class BaseManipulator(ThreeDeeModel, ABC):
 
         # connect events
         self._viewer.camera.events.zoom.connect(self._on_zoom_change)
-
+        self._viewer.dims.events.ndisplay.connect(self._on_ndisplay_change)
         # add the layer
         self.layer = layer
 
@@ -236,14 +236,7 @@ class BaseManipulator(ThreeDeeModel, ABC):
                 self._disconnect_events(self.layer)
             self._layer = layer
             self._connect_vispy_visual(layer)
-            self._initialize_transform()
-            self._set_initial_translation_vectors()
-            self._init_translators()
-            self._set_initial_rotator_normals()
-            self._init_rotators()
-            self._on_data_change()
-            self._on_zoom_change()
-            self._on_matrix_change()
+            self._initialize_layer()
 
             if self.enabled:
                 self._on_enable()
@@ -252,6 +245,16 @@ class BaseManipulator(ThreeDeeModel, ABC):
             self._connect_events(self.layer)
         else:
             self._layer = layer
+
+    def _initialize_layer(self):
+        self._initialize_transform()
+        self._set_initial_translation_vectors()
+        self._init_translators()
+        self._set_initial_rotator_normals()
+        self._init_rotators()
+        self._on_data_change()
+        self._on_zoom_change()
+        self._on_matrix_change()
 
     def _connect_vispy_visual(self, layer: Type[napari.layers.Layer]):
         # get the callback_list node to pass as the parent of the manipulator
@@ -295,6 +298,14 @@ class BaseManipulator(ThreeDeeModel, ABC):
                 self._layer.mouse_drag_callbacks,
                 self._mouse_callback
             )
+
+    def _on_ndisplay_change(self, event=None):
+        if self._viewer.dims.ndisplay == 2:
+            self.enabled = False
+            self._disconnect_events(self.layer)
+        else:
+            self.enabled = True
+            self._connect_events(self.layer)
 
     @property
     def translation(self) -> np.ndarray:
@@ -464,7 +475,7 @@ class BaseManipulator(ThreeDeeModel, ABC):
 
                 yield
 
-        layer.interactive = True
+        layer.interactive = False
 
         # Call a function to clean up after the mouse event
         self._initial_click_vector = None
