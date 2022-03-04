@@ -12,7 +12,7 @@ from vispy.visuals.transforms import MatrixTransform
 from .manipulator_utils import make_translator_meshes, color_lines, make_rotator_meshes
 from ..base import ThreeDeeModel
 from ..utils.napari_utils import get_vispy_node, add_mouse_callback_safe, remove_mouse_callback_safe
-from ..utils.selection_utils import select_mesh_from_click
+from ..utils.selection_utils import select_mesh_from_click, select_triangle_from_click
 
 
 class BaseManipulator(ThreeDeeModel, ABC):
@@ -477,6 +477,12 @@ class BaseManipulator(ThreeDeeModel, ABC):
             If a rotator was clicked, returns the index of the rotator.
             If no rotator was clicked, returns None.
         """
+        # shift the click plane towards the camera
+        # plane_point = np.asarray(plane_point) - 30 * np.asarray(plane_normal)
+        if not hasattr(self, '_points_layer'):
+            self._points_layer = self._viewer.add_points([], ndim=3)
+            self._viewer.layers.selection.active = self.layer
+
         # project the in view points onto the plane
         if len(self.translator_normals) > 0:
             translator_triangles = self._displayed_translator_vertices[self.translator_indices]
@@ -486,6 +492,7 @@ class BaseManipulator(ThreeDeeModel, ABC):
                 triangles=translator_triangles,
                 triangle_indices=self.translator_triangle_indices
             )
+
         else:
             selected_translator = None
 
@@ -497,6 +504,18 @@ class BaseManipulator(ThreeDeeModel, ABC):
                 triangles=rotator_triangles,
                 triangle_indices=self.rotator_triangle_indices
             )
+            selected_triangle_index = select_triangle_from_click(
+                click_point=plane_point,
+                view_direction=plane_normal,
+                triangles=rotator_triangles
+            )
+            if selected_triangle_index is not None:
+                triangle = rotator_triangles[selected_triangle_index]
+                point = np.mean(np.squeeze(triangle), axis=0)
+                self._points_layer.add(point)
+                self._points_layer.add(plane_point)
+                plane_normal_point = np.array(plane_point) + 10 * np.array(plane_normal)
+                self._points_layer.add(plane_normal_point)
         else:
             selected_rotator = None
 

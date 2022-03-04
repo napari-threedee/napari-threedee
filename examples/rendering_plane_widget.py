@@ -20,7 +20,6 @@ plane_parameters = {
     'position': (32, 32, 32),
     'normal': (1, 0, 0),
     'thickness': 10,
-    'enabled': True
 }
 
 plane_layer = viewer.add_image(
@@ -30,7 +29,8 @@ plane_layer = viewer.add_image(
     colormap='bop orange',
     blending='additive',
     opacity=0.5,
-    experimental_slicing_plane=plane_parameters
+    depiction='plane',
+    plane=plane_parameters,
 )
 
 widget = QtRenderPlaneManipulatorWidget(viewer)

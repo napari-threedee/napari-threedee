@@ -115,14 +115,14 @@ def select_triangle_from_click(
 def select_mesh_from_click(
     click_point: np.ndarray, view_direction: np.ndarray, triangles: np.ndarray, triangle_indices: np.ndarray
 ):
-    selected_triangle = select_triangle_from_click(
+    selected_triangle_index = select_triangle_from_click(
         click_point=click_point,
         view_direction=view_direction,
         triangles=triangles
     )
-    if selected_triangle is not None:
-        selected_mesh = np.squeeze(triangle_indices[selected_triangle])
+
+    if selected_triangle_index is not None:
+        selected_mesh = np.squeeze(triangle_indices[selected_triangle_index])
     else:
         selected_mesh = None
-
     return selected_mesh
