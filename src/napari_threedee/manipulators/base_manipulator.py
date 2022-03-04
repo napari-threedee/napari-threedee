@@ -437,7 +437,7 @@ class BaseManipulator(ThreeDeeModel, ABC):
                         plane_normal=plane_normal,
                     )
                     click_vector = np.squeeze(projected_click_point) - self.translation
-                    rotation_matrix = rotation_matrix = rotation_matrix_from_vectors_3d(
+                    rotation_matrix = rotation_matrix_from_vectors_3d(
                         self._initial_click_vector, click_vector
                     )
 
