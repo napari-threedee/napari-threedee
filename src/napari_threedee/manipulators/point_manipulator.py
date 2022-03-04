@@ -10,22 +10,6 @@ from ..utils.napari_utils import remove_mouse_callback_safe, add_mouse_callback_
 class PointManipulator(BaseManipulator):
 
     def __init__(self, viewer, layer, order=0, translator_length=50, rotator_radius=5):
-        self._layer = layer
-        self._connect_events(layer)
-        self._translation = [0, 0, 0]
-        self._initial_translator_normals = np.asarray(
-            [[1, 0, 0],
-             [0, 1, 0],
-             [0, 0, 1]]
-        )
-
-        self._initial_rotator_normals = np.array(
-            [
-                [1, 0, 0],
-                [0, 0, 1],
-                [0, 1, 0]
-            ]
-        )
         super().__init__(
             viewer,
             layer,
@@ -35,7 +19,29 @@ class PointManipulator(BaseManipulator):
             enabled=False
         )
 
-        self._on_selection_change()
+    def _initialize_transform(self):
+        self._translation = np.array([0, 0, 0])
+        self._rot_mat = np.eye(3)
+
+        if self.layer is not None:
+            self._on_selection_change()
+
+
+    def _set_initial_translation_vectors(self):
+        self._initial_translation_vectors_ = np.asarray(
+            [[1, 0, 0],
+             [0, 1, 0],
+             [0, 0, 1]]
+        )
+
+    def _set_initial_rotator_normals(self):
+        self._initial_rotator_normals_ = np.array(
+            [
+                [1, 0, 0],
+                [0, 0, 1],
+                [0, 1, 0]
+            ]
+        )
 
     def _connect_events(self, layer):
         layer.events.highlight.connect(self._on_selection_change)
@@ -78,8 +84,6 @@ class PointManipulator(BaseManipulator):
                 add_mouse_callback_safe(
                     self._layer.mouse_drag_callbacks, napari_selection_callback
                 )
-
-
 
     def _pre_drag(
             self,

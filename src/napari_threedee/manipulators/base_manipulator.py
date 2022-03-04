@@ -93,6 +93,10 @@ class BaseManipulator(ThreeDeeModel, ABC):
         super().__init__()
         self._viewer = viewer
 
+        # this will be overriden by the input layer below
+        self._layer = None
+        self._enabled = False
+
         self._translator_length = translator_length
         self._translator_width = translator_width
         self._rotator_radius = rotator_radius

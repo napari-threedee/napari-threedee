@@ -25,16 +25,6 @@ class RenderPlaneManipulator(BaseManipulator):
     def _initialize_transform(self):
         if self.layer is not None:
             self._translation = np.array(self.layer.experimental_slicing_plane.position)
-
-            # plane_normal =  np.array(self.layer.experimental_slicing_plane.normal)
-            # if np.allclose(plane_normal, [0, 1, 0]):
-            #     random_vec3 = np.array([1, 0, 0])
-            # else:
-            #     random_vec3 = np.array([0, 1, 0])
-            # vector_0 = plane_normal
-            # vector_1 = np.cross(vector_0, random_vec3)
-            # vector_2 = np.cross(vector_0, vector_1)
-            # self._rot_mat = np.column_stack([vector_0, vector_1, vector_2])
             self._rot_mat = np.eye(3)
         else:
             self._translation = np.array([0, 0, 0])
