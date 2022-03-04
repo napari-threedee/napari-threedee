@@ -46,7 +46,7 @@ class PointManipulator(BaseManipulator):
     def _connect_events(self, layer):
         layer.events.highlight.connect(self._on_selection_change)
 
-    def _remove_events(self, layer):
+    def _disconnect_events(self, layer):
         layer.events.highlight.disconnect(self._on_selection_change)
 
     @property
@@ -71,11 +71,11 @@ class PointManipulator(BaseManipulator):
                 self._layer.mouse_drag_callbacks,
                 self.napari_selection_callback_passthrough
             )
-            self.visible = True
+            self.enabled = True
             self.translation = self.active_point_position
 
         else:
-            self.visible = False
+            self.enabled = False
             if self._layer.mode == 'select':
                 remove_mouse_callback_safe(
                     self._layer.mouse_drag_callbacks,

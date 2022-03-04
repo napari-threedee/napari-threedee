@@ -233,6 +233,7 @@ class BaseManipulator(ThreeDeeModel, ABC):
             if self.layer is not None:
                 # remove the current visual
                 self.node.parent = None
+                self._disconnect_events(self.layer)
             self._layer = layer
             self._connect_vispy_visual(layer)
             self._initialize_transform()
@@ -248,6 +249,7 @@ class BaseManipulator(ThreeDeeModel, ABC):
                 self._on_enable()
             else:
                 self._on_disable()
+            self._connect_events(self.layer)
         else:
             self._layer = layer
 
@@ -259,6 +261,18 @@ class BaseManipulator(ThreeDeeModel, ABC):
         self.node.transform = MatrixTransform()
         self.node.order = self._vispy_visual_order
         self.node.canvas._backend.destroyed.connect(self._set_canvas_none)
+
+    def _connect_events(self, layer: napari.layers.Layer):
+        """This method should be implemented on subclasses that
+        require events to be connected to the layer when self.layer
+        is set (other than the main mouse callback"""
+        pass
+
+    def _disconnect_events(self, layer: napari.layers.Layer):
+        """This method must be implemented on subclasses that
+        implement _connect_events(). This methood is to disconnect
+        the events that were connected in _connect_events()"""
+        pass
 
 
     def set_layers(self, layer: Type[napari.layers.Layer]):
