@@ -24,17 +24,7 @@ class RenderPlaneManipulator(BaseManipulator):
 
     def _initialize_transform(self):
         if self.layer is not None:
-            self._translation = np.array(self.layer.experimental_slicing_plane.position)
-
-            # plane_normal =  np.array(self.layer.experimental_slicing_plane.normal)
-            # if np.allclose(plane_normal, [0, 1, 0]):
-            #     random_vec3 = np.array([1, 0, 0])
-            # else:
-            #     random_vec3 = np.array([0, 1, 0])
-            # vector_0 = plane_normal
-            # vector_1 = np.cross(vector_0, random_vec3)
-            # vector_2 = np.cross(vector_0, vector_1)
-            # self._rot_mat = np.column_stack([vector_0, vector_1, vector_2])
+            self._translation = np.array(self.layer.plane.position)
             self._rot_mat = np.eye(3)
         else:
             self._translation = np.array([0, 0, 0])
@@ -42,13 +32,13 @@ class RenderPlaneManipulator(BaseManipulator):
 
     def _set_initial_translation_vectors(self):
         self._initial_translation_vectors = np.asarray(
-            [self.layer.experimental_slicing_plane.normal]
+            [self.layer.plane.normal]
         )
 
     def _set_initial_rotator_normals(self):
         normals = np.eye(3)
         random_vec3 = np.array([0, 1, 0]) / np.linalg.norm([0, 1, 0])
-        normals[0] = np.array([self.layer.experimental_slicing_plane.normal])
+        normals[0] = np.array([self.layer.plane.normal])
         normals[1] = np.cross(normals[0], random_vec3)
         normals[2] = np.cross(normals[0], normals[1])
         self._initial_rotator_normals = normals
@@ -59,16 +49,16 @@ class RenderPlaneManipulator(BaseManipulator):
             selected_translator: Optional[int],
             selected_rotator: Optional[int]
     ):
-        self._initial_plane_pos = np.asarray(self._layer.experimental_slicing_plane.position)
+        self._initial_plane_pos = np.asarray(self._layer.plane.position)
         self._initial_rot_mat = self.rot_mat.copy()
 
     def _while_dragging_translator(self, selected_translator: int, translation_vector: np.ndarray):
         new_translation = self._initial_plane_pos + translation_vector
-        self._layer.experimental_slicing_plane.position = np.squeeze(new_translation)
-        self.centroid = np.asarray(self._layer.experimental_slicing_plane.position)
+        self._layer.plane.position = np.squeeze(new_translation)
+        self.centroid = np.asarray(self._layer.plane.position)
 
     def _while_dragging_rotator(self, selected_rotator: int, rotation_matrix: np.ndarray):
-        self._layer.experimental_slicing_plane.normal = self.rotator_normals[0]
+        self._layer.plane.normal = self.rotator_normals[0]
 
     def _post_drag(self):
         self._initial_plane_pos = None
