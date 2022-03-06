@@ -4,7 +4,12 @@ import pytest
 # this is your plugin name declared in your napari.plugins entry point
 MY_PLUGIN_NAME = "napari-threedee"
 # the name of your widget(s)
-MY_WIDGET_NAMES = ["Example Q Widget", "example_magic_widget"]
+MY_WIDGET_NAMES = [
+    "Render plane manipulator",
+    "Point manipulator",
+    "Layer manipulator",
+    "Point on plane annotator"
+]
 
 
 @pytest.mark.parametrize("widget_name", MY_WIDGET_NAMES)
