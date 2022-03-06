@@ -386,6 +386,10 @@ class BaseManipulator(ThreeDeeModel, ABC):
 
     def _mouse_callback(self, layer, event):
         """Mouse call back for selecting and dragging a manipulator."""
+        # get the initial state for layer.interactive so we can return
+        # at the end of the callback
+        initial_layer_interactive = layer.interactive
+
         # get click position and direction in data coordinates
         click_position_world = event.position
         click_position_data_3d = np.asarray(
@@ -437,51 +441,82 @@ class BaseManipulator(ThreeDeeModel, ABC):
                 # click position
                 coordinates = np.asarray(layer.world_to_data(event.position))[event.dims_displayed]
 
-                rotator_drag_vector = None
-                translator_drag_vector = None
-                if selected_translator is not None:
-                    # get drag vector projected onto the translator axis
-                    projected_distance = layer.projected_distance_from_mouse_drag(
-                        start_position=initial_position_world,
-                        end_position=event.position,
-                        view_direction=event.view_direction,
-                        vector=selected_translator_normal,
-                        dims_displayed=event.dims_displayed
-                    )
-                    translator_drag_vector = projected_distance * selected_translator_normal
-                    self.translation = self._initial_translation + translator_drag_vector
-                    self._while_dragging_translator(selected_translator=selected_translator,
-                                                    translation_vector=translator_drag_vector)
-                elif selected_rotator is not None:
-                    # calculate the rotation matrix for the rotator drag
-                    rotator_drag_vector = coordinates - initial_position_world
-                    plane_normal = self.rotator_normals[selected_rotator]
-                    projected_click_point, _ = project_points_onto_plane(
-                        points=coordinates,
-                        plane_point=self.translation,
-                        plane_normal=plane_normal,
-                    )
-                    click_vector = np.squeeze(projected_click_point) - self.translation
-                    rotation_matrix = rotation_matrix_from_vectors_3d(
-                        self._initial_click_vector, click_vector
-                    )
-
-                    # update the rotation matrix and call the _while_rotator_drag callback
-                    self.rot_mat = np.dot(rotation_matrix, self._initial_rot_mat)
-                    self._while_dragging_rotator(
-                        selected_rotator=selected_rotator,
-                        rotation_matrix=rotation_matrix
-                    )
+                # rotator_drag_vector = None
+                # translator_drag_vector = None
+                self._process_translator_drag(
+                    event,
+                    selected_translator,
+                    initial_position_world,
+                    selected_translator_normal
+                )
+                self._process_rotator_drag(
+                    event,
+                    selected_rotator,
+                    coordinates,
+                    initial_position_world
+                )
 
                 yield
 
-        layer.interactive = False
-
         # Call a function to clean up after the mouse event
+        layer.interactive = initial_layer_interactive
         self._initial_click_vector = None
         self._initial_rot_mat = None
         self._layer._drag_start = None
         self._post_drag()
+
+    def _process_translator_drag(
+            self,
+            event,
+            selected_translator: int,
+            initial_position_world: np.ndarray,
+            selected_translator_normal: np.ndarray
+    ):
+        if selected_translator is None:
+            # no processing necessary if a translator was not selected
+            return
+        # get drag vector projected onto the translator axis
+        projected_distance = self.layer.projected_distance_from_mouse_drag(
+            start_position=initial_position_world,
+            end_position=event.position,
+            view_direction=event.view_direction,
+            vector=selected_translator_normal,
+            dims_displayed=event.dims_displayed
+        )
+        translator_drag_vector = projected_distance * selected_translator_normal
+        self.translation = self._initial_translation + translator_drag_vector
+        self._while_dragging_translator(selected_translator=selected_translator,
+                                        translation_vector=translator_drag_vector)
+
+    def _process_rotator_drag(
+            self,
+            event,
+            selected_rotator: int,
+            coordinates,
+            initial_position_world
+    ):
+        if selected_rotator is None:
+            # no processing necessary if a rotator was not selected
+            return
+        # calculate the rotation matrix for the rotator drag
+        rotator_drag_vector = coordinates - initial_position_world
+        plane_normal = self.rotator_normals[selected_rotator]
+        projected_click_point, _ = project_points_onto_plane(
+            points=coordinates,
+            plane_point=self.translation,
+            plane_normal=plane_normal,
+        )
+        click_vector = np.squeeze(projected_click_point) - self.translation
+        rotation_matrix = rotation_matrix_from_vectors_3d(
+            self._initial_click_vector, click_vector
+        )
+
+        # update the rotation matrix and call the _while_rotator_drag callback
+        self.rot_mat = np.dot(rotation_matrix, self._initial_rot_mat)
+        self._while_dragging_rotator(
+            selected_rotator=selected_rotator,
+            rotation_matrix=rotation_matrix
+        )
 
     def _check_if_manipulator_clicked(
             self,
