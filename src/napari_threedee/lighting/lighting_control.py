@@ -3,33 +3,29 @@ from typing import List
 import numpy as np
 import napari
 
+from ..base import ThreeDeeModel
 from ..utils.napari_utils import add_mouse_callback_safe, get_napari_visual, remove_mouse_callback_safe
 
 
-class LightingControl():
+class LightingControl(ThreeDeeModel):
     def __init__(self, viewer: napari.Viewer):
         self._viewer = viewer
         self._selected_layers = []
         self._selected_layer_visuals = []
-        self._enabled = False
+        self.enabled = False
 
-    @property
-    def enabled(self) -> bool:
-        return self._enabled
+    def set_layers(self, layers: List[napari.layers.Surface]):
+        self.selected_layers = layers
 
-    @enabled.setter
-    def enabled(self, enabled: bool):
-        if enabled == self._enabled:
-            return
-        elif enabled is True:
-            self._connect_events()
-            self._enabled = enabled
-            self._on_camera_change()
-            for layer in self.selected_layers:
-                layer.events.shading()
-        else:
-            self._disconnect_events()
-            self._enabled = enabled
+    def _on_enable(self):
+        self._connect_events()
+        self._enabled = True
+        self._on_camera_change()
+        for layer in self.selected_layers:
+            layer.events.shading()
+
+    def _on_disable(self):
+        self._disconnect_events()
 
     @property
     def selected_layers(self) -> List[napari.layers.Surface]:
@@ -43,7 +39,6 @@ class LightingControl():
             get_napari_visual(viewer=self._viewer, layer=layer) for layer in layers
         ]
         self._selected_layers = layers
-
 
     @property
     def selected_layer_visuals(self):
