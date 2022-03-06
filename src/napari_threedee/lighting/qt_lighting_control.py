@@ -18,8 +18,8 @@ class LightingControlWidget(QWidget):
 
         # create layer selection widget
         self._layer_selection_widget = magicgui(
-            self.model._set_layers,
-            selected_layers={
+            self.model.set_layers,
+            layers={
                 'widget_type': 'Select',
                 'choices': self._get_layers
             },

@@ -16,6 +16,7 @@ class LightingControl(ThreeDeeModel):
 
     def set_layers(self, layers: List[napari.layers.Surface]):
         self.selected_layers = layers
+        self._on_camera_change()
 
     def _on_enable(self):
         self._connect_events()
@@ -52,10 +53,6 @@ class LightingControl(ThreeDeeModel):
 
         for visual in self.selected_layer_visuals:
             visual.node.shading_filter.light_dir = view_direction[::-1]
-
-    def _set_layers(self, selected_layers: List[napari.layers.Surface]):
-        self.selected_layers = selected_layers
-        self._on_camera_change()
 
     def _connect_events(self):
         self._viewer.camera.events.angles.connect(self._on_camera_change)
