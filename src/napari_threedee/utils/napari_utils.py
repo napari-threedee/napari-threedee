@@ -9,6 +9,7 @@ from napari.layers import Points, Image
 from qtpy.QtWidgets import QWidget
 
 NAPARI_LAYER_TYPES = (
+    napari.layers.Layer,
     napari.layers.Points,
     napari.layers.Image,
     napari.layers.Surface,

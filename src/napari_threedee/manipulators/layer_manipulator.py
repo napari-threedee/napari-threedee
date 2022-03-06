@@ -1,5 +1,6 @@
-from typing import Optional
+from typing import Optional, Union
 
+import napari
 import numpy as np
 from napari_threedee.manipulators.base_manipulator import BaseManipulator
 
@@ -12,13 +13,16 @@ class LayerManipulator(BaseManipulator):
 
     """
 
-    def __init__(self, viewer, layer, translator_length=50, order=0):
+    def __init__(self, viewer, layer=None, translator_length=50, order=0):
         super().__init__(
             viewer=viewer,
             layer=layer,
             translator_length=translator_length,
             order=order
         )
+
+    def set_layers(self, layer: napari.layers.Layer):
+        super().set_layers(layer)
 
     def _initialize_transform(self):
         if self.layer is not None:
