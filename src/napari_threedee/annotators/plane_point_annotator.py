@@ -1,37 +1,25 @@
-from functools import partial
-from typing import Optional, TYPE_CHECKING
-
-from ..utils.napari_utils import add_mouse_callback_safe, remove_mouse_callback_safe
-from ..mouse_callbacks import add_point_on_plane
+from typing import Optional
 
 import napari
 from napari.layers import Image, Points
 
+from ..base import ThreeDeeModel
+from ..mouse_callbacks import add_point_on_plane
+from ..utils.napari_utils import add_mouse_callback_safe, remove_mouse_callback_safe
 
-class PlanePointAnnotator:
+
+class PlanePointAnnotator(ThreeDeeModel):
     def __init__(
             self,
             viewer: napari.Viewer,
             image_layer: Optional[Image] = None,
             points_layer: Optional[Points] = None,
-            annotating: bool = False
+            enabled: bool = False
     ):
         self.viewer = viewer
         self.image_layer = image_layer
         self.points_layer = points_layer
-        self.annotating = annotating
-
-    @property
-    def annotating(self) -> bool:
-        return self._annotating
-
-    @annotating.setter
-    def annotating(self, value: bool):
-        if value is True:
-            self.bind_callbacks()
-        else:
-            self.unbind_callbacks()
-        self._annotating = value
+        self.enabled = enabled
 
     def _mouse_callback(self, viewer, event):
         if (self.image_layer is None) and (self.points_layer is None):
@@ -43,12 +31,20 @@ class PlanePointAnnotator:
             plane_layer=self.image_layer
         )
 
-    def bind_callbacks(self):
+    def set_layers(
+            self,
+            image_layer: napari.layers.Image,
+            points_layer: napari.layers.Points
+    ):
+        self.image_layer = image_layer
+        self.points_layer = points_layer
+
+    def _on_enable(self):
         add_mouse_callback_safe(
             self.viewer.mouse_drag_callbacks, self._mouse_callback
         )
 
-    def unbind_callbacks(self):
+    def _on_disable(self):
         remove_mouse_callback_safe(
             self.viewer.mouse_drag_callbacks, self._mouse_callback
         )

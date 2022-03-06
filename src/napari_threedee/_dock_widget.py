@@ -14,7 +14,6 @@ from functools import partial
 
 from .mouse_callbacks import add_point_on_plane, shift_plane_along_normal
 
-
 class QtPlaneControls(QWidget):
     def __init__(self, viewer: napari.viewer.Viewer):
         super().__init__()
@@ -51,4 +50,4 @@ def example_magic_widget(img_layer: "napari.layers.Image"):
 @napari_hook_implementation
 def napari_experimental_provide_dock_widget():
     # you can return either a single widget, or a sequence of widgets
-    return QtPlaneControls
+    return QtPlaneControls,

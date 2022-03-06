@@ -1,77 +1,16 @@
+from functools import cached_property
 from typing import Optional
 
+import napari.layers
 import numpy as np
-from napari.utils.geometry import project_points_onto_plane, rotation_matrix_from_vectors_3d
 from napari_threedee.manipulators.base_manipulator import BaseManipulator
 
 
 class RenderPlaneManipulator(BaseManipulator):
     """A manipulator for moving an image layer rendering plane.
-
-    Parameters
-    ----------
-    viewer : "napari.viewer.Viewer"
-        The napari viewer containing the visuals.
-    layer : Optional[napari.layers.base.Base]
-        The layer to attach the manipulator to.
-    order : int
-        The order to place the manipulator visuals in the vispy scene graph.
-    translator_length : float
-        The length of the translator arms in data units.
-    translator_width : float
-        The width of the translator arms in data units.
-    rotator_radius : float
-        The radius of the rotators in data units.
-    rotator_width : float
-        The width of the rotators in data units.
-
-    Attributes
-    ----------
-    centroid : np.ndarray
-        (3, 1) array containing the coordinates to the translation of the manipulator.
-    rot_mat : np.ndarray
-        (3, 3) array containing the rotation matrix applied to the manipluator.
-    translator_length : float
-        The length of the translator arms in data units.
-    translator_width : float
-        The width of the translator arms in data units.
-    rotator_radius : float
-        The radius of the rotators in data units.
-    rotator_width : float
-        The width of the rotators in data units.
-    translator_normals : np.ndarray
-        (N x 3) array containing the normal vector for each of the N translators.
-    rotator_normals : np.ndarray
-        (N x 3) array containing the normal vector for each of the N rotators.
-
-    Notes
-    -----
-    _N_SEGMENTS_ROTATOR : float
-        The number of segments to discretize the rotator into. More segments
-        makes the rotator look more smooth, but will reduce rendering performance.
-    _N_TUBE_POINTS : float
-        The number of points to use to represent the circular crossection of the
-        manipulator objects. More points makes the manipulator appear more smooth, but
-        will reduce the rendering performance.
     """
 
-    def __init__(self, viewer, layer, order=0, translator_length=50, rotator_radius=5):
-
-        self._initial_plane_pos = None
-        self._rotator_angle_offset = 0
-        self._centroid = np.asarray(layer.experimental_slicing_plane.position)
-        normal = np.asarray(layer.experimental_slicing_plane.normal)
-        self._initial_translator_normals = np.asarray([normal])
-
-        self._initial_rotator_normals = np.array(
-            [
-                [1, 0, 0],
-                [0, 0, 1],
-                [0, 1, 0]
-            ]
-        )
-        self._initial_rotator_normals[0] = layer.experimental_slicing_plane.normal
-
+    def __init__(self, viewer, layer=None, order=0, translator_length=10, rotator_radius=5):
         super().__init__(
             viewer,
             layer,
@@ -79,6 +18,40 @@ class RenderPlaneManipulator(BaseManipulator):
             translator_length=translator_length,
             rotator_radius=rotator_radius
         )
+
+    def set_layers(self, layer: napari.layers.Image):
+        super().set_layers(layer)
+
+    def _initialize_transform(self):
+        if self.layer is not None:
+            self._translation = np.array(self.layer.experimental_slicing_plane.position)
+
+            # plane_normal =  np.array(self.layer.experimental_slicing_plane.normal)
+            # if np.allclose(plane_normal, [0, 1, 0]):
+            #     random_vec3 = np.array([1, 0, 0])
+            # else:
+            #     random_vec3 = np.array([0, 1, 0])
+            # vector_0 = plane_normal
+            # vector_1 = np.cross(vector_0, random_vec3)
+            # vector_2 = np.cross(vector_0, vector_1)
+            # self._rot_mat = np.column_stack([vector_0, vector_1, vector_2])
+            self._rot_mat = np.eye(3)
+        else:
+            self._translation = np.array([0, 0, 0])
+            self._rot_mat = np.eye(3)
+
+    def _set_initial_translation_vectors(self):
+        self._initial_translation_vectors = np.asarray(
+            [self.layer.experimental_slicing_plane.normal]
+        )
+
+    def _set_initial_rotator_normals(self):
+        normals = np.eye(3)
+        random_vec3 = np.array([0, 1, 0]) / np.linalg.norm([0, 1, 0])
+        normals[0] = np.array([self.layer.experimental_slicing_plane.normal])
+        normals[1] = np.cross(normals[0], random_vec3)
+        normals[2] = np.cross(normals[0], normals[1])
+        self._initial_rotator_normals = normals
 
     def _pre_drag(
             self,
