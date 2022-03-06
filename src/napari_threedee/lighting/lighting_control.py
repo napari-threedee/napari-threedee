@@ -44,7 +44,6 @@ class LightingControl(ThreeDeeModel):
     def selected_layer_visuals(self):
         return self._selected_layer_visuals
 
-
     def _on_camera_change(self, event=None):
         if self.enabled is False:
             # only update lighting direction if enabled
