@@ -4,6 +4,7 @@ see: https://napari.org/docs/dev/plugins/hook_specifications.html
 from napari_plugin_engine import napari_hook_implementation
 
 from .annotators.qt_plane_point_annotator import PlanePointAnnotatorWidget
+from .lighting.qt_lighting_control import LightingControlWidget
 from .manipulators.qt_manipulators import QtRenderPlaneManipulatorWidget, QtPointManipulatorWidget, QtLayerManipulatorWidget
 
 
@@ -14,5 +15,6 @@ def napari_experimental_provide_dock_widget():
         (QtRenderPlaneManipulatorWidget, {"name": "Render plane manipulator"}),
         (QtPointManipulatorWidget, {"name": "Point manipulator"}),
         (QtLayerManipulatorWidget, {"name": "Layer manipulator"}),
-        (PlanePointAnnotatorWidget, {"name": "Point on plane annotator"})
+        (PlanePointAnnotatorWidget, {"name": "Point on plane annotator"}),
+        (LightingControlWidget, {"name": "Mesh lighting control"})
     ]

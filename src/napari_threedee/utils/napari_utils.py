@@ -34,7 +34,7 @@ def get_napari_visual(viewer, layer):
     visual
         The napari visual class for the layer.
     """
-    visual = viewer.window.qt_viewer.layer_to_visual[layer]
+    visual = viewer.window._qt_window._qt_viewer.layer_to_visual[layer]
 
     return visual
 
