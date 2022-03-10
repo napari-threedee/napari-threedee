@@ -51,8 +51,9 @@ class LightingControl(ThreeDeeModel):
             return
         view_direction = np.asarray(self._viewer.camera.view_direction)
 
-        for visual in self.selected_layer_visuals:
-            layer_view_direction = layer._world_to_data_ray(view_direction)
+        for layer, visual in zip(self.selected_layers, self.selected_layer_visuals):
+            dims_displayed = layer._dims_displayed
+            layer_view_direction = np.asarray(layer._world_to_data_ray(view_direction))[dims_displayed]
             visual.node.shading_filter.light_dir = layer_view_direction[::-1]
 
     def _connect_events(self):
