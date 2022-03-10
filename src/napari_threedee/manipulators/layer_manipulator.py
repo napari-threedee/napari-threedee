@@ -25,12 +25,8 @@ class LayerManipulator(BaseManipulator):
         super().set_layers(layer)
 
     def _initialize_transform(self):
-        if self.layer is not None:
-            self._translation = np.array([0, 0, 0])
-            self._rot_mat = np.eye(3)
-        else:
-            self._translation = np.array([0, 0, 0])
-            self._rot_mat = np.eye(3)
+        self._translation = np.array([0, 0, 0])
+        self._rot_mat = np.eye(3)
 
     def _set_initial_translation_vectors(self):
         self._initial_translation_vectors_ = np.asarray(
