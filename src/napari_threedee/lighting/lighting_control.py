@@ -52,7 +52,8 @@ class LightingControl(ThreeDeeModel):
         view_direction = np.asarray(self._viewer.camera.view_direction)
 
         for visual in self.selected_layer_visuals:
-            visual.node.shading_filter.light_dir = view_direction[::-1]
+            layer_view_direction = layer._world_to_data_ray(view_direction)
+            visual.node.shading_filter.light_dir = layer_view_direction[::-1]
 
     def _connect_events(self):
         self._viewer.camera.events.angles.connect(self._on_camera_change)
