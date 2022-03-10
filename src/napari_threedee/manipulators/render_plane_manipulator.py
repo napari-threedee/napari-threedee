@@ -2,6 +2,7 @@ from functools import cached_property
 from typing import Optional
 
 import napari.layers
+from napari.utils.geometry import rotation_matrix_from_vectors_3d
 import numpy as np
 from napari_threedee.manipulators.base_manipulator import BaseManipulator
 
@@ -25,33 +26,34 @@ class RenderPlaneManipulator(BaseManipulator):
     def _initialize_transform(self):
         if self.layer is not None:
             self._translation = np.array(self.layer.experimental_slicing_plane.position)
-
-            # plane_normal =  np.array(self.layer.experimental_slicing_plane.normal)
-            # if np.allclose(plane_normal, [0, 1, 0]):
-            #     random_vec3 = np.array([1, 0, 0])
-            # else:
-            #     random_vec3 = np.array([0, 1, 0])
-            # vector_0 = plane_normal
-            # vector_1 = np.cross(vector_0, random_vec3)
-            # vector_2 = np.cross(vector_0, vector_1)
-            # self._rot_mat = np.column_stack([vector_0, vector_1, vector_2])
-            self._rot_mat = np.eye(3)
+            plane_normal = self.layer.experimental_slicing_plane.normal
+            if not np.allclose(plane_normal, [1, 0, 0]):
+                self.rot_mat = rotation_matrix_from_vectors_3d([1, 0, 0], plane_normal)
+            else:
+                self._rot_mat = np.eye(3)
         else:
             self._translation = np.array([0, 0, 0])
             self._rot_mat = np.eye(3)
 
     def _set_initial_translation_vectors(self):
-        self._initial_translation_vectors = np.asarray(
-            [self.layer.experimental_slicing_plane.normal]
+        self._initial_translation_vectors_ = np.asarray(
+            [[1, 0, 0]]
         )
 
     def _set_initial_rotator_normals(self):
-        normals = np.eye(3)
-        random_vec3 = np.array([0, 1, 0]) / np.linalg.norm([0, 1, 0])
-        normals[0] = np.array([self.layer.experimental_slicing_plane.normal])
-        normals[1] = np.cross(normals[0], random_vec3)
-        normals[2] = np.cross(normals[0], normals[1])
-        self._initial_rotator_normals = normals
+        # normals = np.eye(3)
+        # random_vec3 = np.array([0, 1, 0]) / np.linalg.norm([0, 1, 0])
+        # normals[0] = np.array([self.layer.experimental_slicing_plane.normal])
+        # normals[1] = np.cross(normals[0], random_vec3)
+        # normals[2] = np.cross(normals[0], normals[1])
+        normals = np.array(
+            [
+                [1, 0, 0],
+                [0, 0, 1],
+                [0, 1, 0]
+            ]
+        )
+        self._initial_rotator_normals_ = normals
 
     def _pre_drag(
             self,

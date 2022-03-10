@@ -1,5 +1,6 @@
 from typing import Optional
 
+import napari
 from napari.layers.points._points_mouse_bindings import select as napari_selection_callback
 import numpy as np
 
@@ -9,23 +10,8 @@ from ..utils.napari_utils import remove_mouse_callback_safe, add_mouse_callback_
 
 class PointManipulator(BaseManipulator):
 
-    def __init__(self, viewer, layer, order=0, translator_length=50, rotator_radius=5):
-        self._layer = layer
-        self._connect_events(layer)
-        self._translation = [0, 0, 0]
-        self._initial_translator_normals = np.asarray(
-            [[1, 0, 0],
-             [0, 1, 0],
-             [0, 0, 1]]
-        )
-
-        self._initial_rotator_normals = np.array(
-            [
-                [1, 0, 0],
-                [0, 0, 1],
-                [0, 1, 0]
-            ]
-        )
+    def __init__(self, viewer, layer=None, order=0, translator_length=50, rotator_radius=5):
+        self._visible = False
         super().__init__(
             viewer,
             layer,
@@ -35,13 +21,70 @@ class PointManipulator(BaseManipulator):
             enabled=False
         )
 
-        self._on_selection_change()
+    @property
+    def visible(self) -> bool:
+        return self._visible
+
+    @visible.setter
+    def visible(self, visible: bool):
+        # if visible == self._visible:
+        #     return
+        if self.node is not None:
+            self.node.visible = visible
+        self._visible = visible
+
+    def set_layers(self, layer: napari.layers.Points):
+        super().set_layers(layer)
+
+    def _initialize_transform(self):
+        self._translation = np.array([0, 0, 0])
+        self._rot_mat = np.eye(3)
+
+        if self.layer is not None:
+            self._on_selection_change()
+
+
+    def _set_initial_translation_vectors(self):
+        self._initial_translation_vectors_ = np.asarray(
+            [[1, 0, 0],
+             [0, 1, 0],
+             [0, 0, 1]]
+        )
+
+    def _set_initial_rotator_normals(self):
+        self._initial_rotator_normals_ = np.array(
+            [
+                [1, 0, 0],
+                [0, 0, 1],
+                [0, 1, 0]
+            ]
+        )
 
     def _connect_events(self, layer):
         layer.events.highlight.connect(self._on_selection_change)
 
-    def _remove_events(self, layer):
+        if self._layer is not None:
+            remove_mouse_callback_safe(
+                self._layer.mouse_drag_callbacks,
+                napari_selection_callback
+            )
+            if len(self._layer.selected_data) == 1:
+                add_mouse_callback_safe(
+                    self._layer.mouse_drag_callbacks,
+                    self.napari_selection_callback_passthrough
+                )
+
+    def _disconnect_events(self, layer):
         layer.events.highlight.disconnect(self._on_selection_change)
+        if self._layer is not None:
+            remove_mouse_callback_safe(
+                self._layer.mouse_drag_callbacks,
+                self.napari_selection_callback_passthrough
+            )
+            if self._layer.mode == 'select':
+                add_mouse_callback_safe(
+                    self._layer.mouse_drag_callbacks, napari_selection_callback
+                )
 
     @property
     def active_point_index(self):
@@ -52,7 +95,7 @@ class PointManipulator(BaseManipulator):
         return self._layer.data[self.active_point_index]
 
     def _on_selection_change(self, event=None):
-        if self._layer._is_selecting is True:
+        if self._layer._is_selecting is True or self.enabled is False:
             return
 
         selected_points = list(self._layer.selected_data)
@@ -78,8 +121,6 @@ class PointManipulator(BaseManipulator):
                 add_mouse_callback_safe(
                     self._layer.mouse_drag_callbacks, napari_selection_callback
                 )
-
-
 
     def _pre_drag(
             self,
@@ -140,3 +181,21 @@ class PointManipulator(BaseManipulator):
             layer.selected_data = {value}
         else:
             layer.selected_data = set()
+
+    def _on_enable(self):
+        if self.layer is not None:
+            add_mouse_callback_safe(
+                self._layer.mouse_drag_callbacks,
+                self._mouse_callback,
+                index=0
+            )
+            self._enabled = True
+            self._on_selection_change()
+
+    def _on_disable(self):
+        if self.layer is not None:
+            self.visible = False
+            remove_mouse_callback_safe(
+                self._layer.mouse_drag_callbacks,
+                self._mouse_callback
+            )
