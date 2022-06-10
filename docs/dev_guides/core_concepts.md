@@ -23,7 +23,7 @@ For those who want to integrate custom 3D interactivity into their application,
 They can be activated and deactivated as required.
 
 ### Manipulators
-A **Manipulator** is an object in the scene which allows us to manipulate something. 
+A **Manipulator** is an object in the scene which allows us to position something. 
 It is a combination of **translators** and **rotators**. 
 
 Clicking and dragging a **translator** will move the manipulator in the direction of the translator.
