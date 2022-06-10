@@ -8,7 +8,6 @@ When a point is selected, hold space to rotate the view without losing the selec
 import numpy as np
 
 import napari
-from napari_threedee.manipulators import PointManipulator
 
 
 points_data = np.array(

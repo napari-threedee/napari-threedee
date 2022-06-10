@@ -1,7 +1,6 @@
 import napari
 from skimage import data
 
-from napari_threedee.manipulators.qt_manipulators import QtRenderPlaneManipulatorWidget
 
 viewer = napari.Viewer(ndisplay=3)
 
