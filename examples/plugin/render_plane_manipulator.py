@@ -1,8 +1,7 @@
 import napari
 from skimage import data
 
-from napari_threedee.manipulators import RenderPlaneManipulator
-from napari_threedee.manipulators.qt_render_plane_manipulator import QtRenderPlaneManipulatorWidget
+from napari_threedee.manipulators.qt_manipulators import QtRenderPlaneManipulatorWidget
 
 viewer = napari.Viewer(ndisplay=3)
 
@@ -33,6 +32,8 @@ plane_layer = viewer.add_image(
     experimental_slicing_plane=plane_parameters
 )
 
-widget = QtRenderPlaneManipulatorWidget(viewer)
-viewer.window.add_dock_widget(widget)
+viewer.window.add_plugin_dock_widget(
+    plugin_name="napari-threedee", widget_name="render plane manipulator"
+)
+
 napari.run()
