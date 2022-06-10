@@ -3,7 +3,7 @@ from nilearn import surface
 
 import napari
 
-from napari_threedee.lighting.qt_lighting_control import LightingControlWidget
+from napari_threedee.lighting.qt_lighting_control import QtLightingControlWidget
 
 # Fetch datasets - this will download dataset if datasets are not found
 nki_dataset = datasets.fetch_surf_nki_enhanced(n_subjects=1)
@@ -27,7 +27,7 @@ viewer.add_surface((brain_vertices, brain_faces, timeseries),
                     colormap='turbo', opacity=0.9,
                     contrast_limits=[-1.5, 3.5], name='timeseries')
 
-lighting_control_widget = LightingControlWidget(viewer=viewer)
+lighting_control_widget = QtLightingControlWidget(viewer=viewer)
 viewer.window.add_dock_widget(widget=lighting_control_widget)
 
 napari.run()
