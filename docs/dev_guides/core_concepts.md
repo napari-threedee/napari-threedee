@@ -7,11 +7,17 @@ This package provides reusable components (*`threedee` objects*) which
 Broadly, *`threedee` objects* can be split into two categories, **manipulators** and **annotators**.
 
 ## Manipulators
-A ```Manipulator``` is an object in the scene which can be translated or rotated by clicking and dragging the appropriate handles.
+A ```Manipulator``` is an object in the scene which is composed of 
+**translators** and **rotators**. Clicking and dragging translators will translate the object,
+clicking and dragging a rotator will rotate the object.
 
-TODO: add image here
+<div style="text-align: center;"><img src="https://user-images.githubusercontent.com/7307488/173041374-aec20210-65a7-40a2-bb3d-59f542545b8a.png" alt="A napari-threedee manipulator"  width="30%"></div>
 
-Custom functionality can be added to a manipulator which will be run before, during and after an interaction with the manipulator. For more details see TODO: add ref to manipulator docs here
+
+Manipulators can be used to modify other objects by providing callbacks which will 
+be run before, during and after an interaction with the manipulator. 
+
+For more details see [**manipulators**](./manipulators.md)
 
 Manipulators can be activated and deactivated as required. 
 
