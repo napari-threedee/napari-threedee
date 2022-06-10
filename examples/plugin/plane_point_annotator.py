@@ -1,7 +1,6 @@
 import napari
 import skimage
 
-from napari_threedee.annotators.qt_plane_point_annotator import QtPlanePointAnnotatorWidget
 
 viewer = napari.Viewer(ndisplay=3)
 blobs = skimage.data.binary_blobs(

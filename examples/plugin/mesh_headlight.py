@@ -1,9 +1,15 @@
-from nilearn import datasets
-from nilearn import surface
+try:
+    from nilearn import datasets
+    from nilearn import surface
+
+except ImportError:
+    raise ImportError("this example requires nilearn. pip install nilearn")
+
 
 import napari
 
 from napari_threedee.lighting.qt_lighting_control import QtLightingControlWidget
+
 
 # Fetch datasets - this will download dataset if datasets are not found
 nki_dataset = datasets.fetch_surf_nki_enhanced(n_subjects=1)
