@@ -2,7 +2,7 @@
 
 This package provides reusable components (*`threedee` objects*) which 
 - enable the use of certain custom 3D interactive functionality
-- simplify the development of custom 3D interactive functionality
+- simplify the development of workflows with 3D interactivity
 
 Broadly, *`threedee` objects* can be split into two categories, **manipulators** and **annotators**.
 
