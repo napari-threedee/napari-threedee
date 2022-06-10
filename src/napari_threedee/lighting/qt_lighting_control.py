@@ -1,13 +1,11 @@
-from typing import List
-
 import napari
 from magicgui import magicgui
 from qtpy.QtWidgets import QPushButton, QWidget, QVBoxLayout
 
 from .lighting_control import LightingControl
 
-class LightingControlWidget(QWidget):
 
+class QtLightingControlWidget(QWidget):
     _ENABLE_TEXT = 'start following camera'
     _DISABLE_TEXT = 'stop following camera'
 
