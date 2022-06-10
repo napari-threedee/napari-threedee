@@ -1,0 +1,30 @@
+name: napari-threedee
+schema_version: 0.1.0
+contributions:
+  commands:
+  - id: napari-threedee.QtRenderPlaneManipulatorWidget
+    title: Create Render plane manipulator
+    python_name: napari_threedee._dock_widget:QtRenderPlaneManipulatorWidget
+  - id: napari-threedee.QtPointManipulatorWidget
+    title: Create Point manipulator
+    python_name: napari_threedee._dock_widget:QtPointManipulatorWidget
+  - id: napari-threedee.QtLayerManipulatorWidget
+    title: Create Layer manipulator
+    python_name: napari_threedee._dock_widget:QtLayerManipulatorWidget
+  - id: napari-threedee.PlanePointAnnotatorWidget
+    title: Create Point on plane annotator
+    python_name: napari_threedee._dock_widget:PlanePointAnnotatorWidget
+  - id: napari-threedee.LightingControlWidget
+    title: Create Mesh lighting control
+    python_name: napari_threedee._dock_widget:LightingControlWidget
+  widgets:
+  - command: napari-threedee.QtRenderPlaneManipulatorWidget
+    display_name: Render plane manipulator
+  - command: napari-threedee.QtPointManipulatorWidget
+    display_name: Point manipulator
+  - command: napari-threedee.QtLayerManipulatorWidget
+    display_name: Layer manipulator
+  - command: napari-threedee.PlanePointAnnotatorWidget
+    display_name: Point on plane annotator
+  - command: napari-threedee.LightingControlWidget
+    display_name: Mesh lighting control
