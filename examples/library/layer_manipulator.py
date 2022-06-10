@@ -1,7 +1,7 @@
 import napari
 import numpy as np
 
-from napari_threedee.manipulators import LayerManipulator
+from napari_threedee.manipulators.qt_manipulators import QtLayerManipulatorWidget
 
 data = np.random.random((100, 100, 100))
 
@@ -10,6 +10,7 @@ image_layer = viewer.layers[0]
 
 viewer.dims.ndisplay = 3
 
-axis = LayerManipulator(viewer=viewer, layer=image_layer)
+widget = QtLayerManipulatorWidget(viewer)
+viewer.window.add_dock_widget(widget)
 
 napari.run()

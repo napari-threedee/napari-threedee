@@ -44,8 +44,9 @@ viewer.add_image(
 
 viewer.add_points([], ndim=3, face_color='cornflowerblue')
 
-annotator_widget = QtPlanePointAnnotatorWidget(viewer=viewer)
-viewer.window.add_dock_widget(widget=annotator_widget)
+viewer.window.add_plugin_dock_widget(
+    plugin_name="napari-threedee", widget_name="point on plane annotator"
+)
 
 viewer.camera.angles = (60, 60, 60)
 napari.run()
