@@ -8,5 +8,6 @@ chapters:
 - file: how_to/how_to.md
 - file: dev_guides/dev_guides.md
   sections:
+    - file: dev_guides/core_concepts.md
     - file: dev_guides/manipulators.md
 - file: api/api.rst
