@@ -33,6 +33,57 @@ To install latest development version :
 
     pip install git+https://github.com/alisterburt/napari-threedee.git
 
+## Example applications
+<table border="0">
+<tr><td>
+
+
+<img src="https://user-images.githubusercontent.com/1120672/173021751-9206de7d-5675-4aac-aa9e-8585457a7799.gif"
+width="300"/>
+
+</td><td>
+
+[mesh lighting control](https://github.com/napari-threedee/napari-threedee/blob/main/examples/mesh_headlight.py)
+
+</td></tr><tr><td>
+
+<img src="https://user-images.githubusercontent.com/1120672/173022286-2473b6b2-a20e-4514-88a4-8295e001f099.gif"
+width="300"/>
+
+</td><td>
+
+[annotate points on planes](https://github.com/napari-threedee/napari-threedee/blob/main/examples/plane_point_annotator.py)
+
+</td></tr><tr><td>
+
+<img src="https://user-images.githubusercontent.com/1120672/173023185-b6936d1d-590c-4b9b-816a-3779dfe774da.gif"
+width="300"/>
+
+</td><td>
+
+[render plane manipulator](https://github.com/napari-threedee/napari-threedee/blob/main/examples/rendering_plane.py)
+
+</td></tr><tr><td>
+
+<img src="https://user-images.githubusercontent.com/1120672/173023795-7150d3c2-d3d1-4913-981d-1092c1b59f21.gif"
+width="300"/>
+
+</td><td>
+
+[layer manipulator](https://github.com/napari-threedee/napari-threedee/blob/main/examples/volume_manipulator.py)
+
+</td></tr><tr><td>
+
+<img src="https://user-images.githubusercontent.com/1120672/173024361-2f05c68b-e94d-4734-9f5e-1606391e6463.gif"
+width="300"/>
+
+</td><td>
+
+[point manipulator](https://github.com/napari-threedee/napari-threedee/blob/main/examples/points_manipulator.py)
+
+
+</td></tr></table>
+
 
 ## Contributing
 
