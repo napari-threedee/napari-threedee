@@ -1,6 +1,6 @@
 import numpy as np
 
-from ..mouse_callbacks import add_point_on_plane
+from napari_threedee.mouse_callbacks import add_point_on_plane
 
 
 def test_add_point_on_plane_3d(viewer_with_plane_and_points_3d):

@@ -1,3 +1,4 @@
+"""pytest fixtures which should be available throughout the package."""
 import numpy as np
 import pytest
 import skimage

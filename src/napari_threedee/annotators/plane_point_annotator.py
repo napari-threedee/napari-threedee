@@ -19,10 +19,12 @@ class PlanePointAnnotator(ThreeDeeModel):
         self.viewer = viewer
         self.image_layer = image_layer
         self.points_layer = points_layer
+        if points_layer is None and image_layer is not None:
+            self.points_layer = Points(data=[], ndim=image_layer.data.ndim)
         self.enabled = enabled
 
     def _mouse_callback(self, viewer, event):
-        if (self.image_layer is None) and (self.points_layer is None):
+        if (self.image_layer is None) or (self.points_layer is None):
             return
         add_point_on_plane(
             viewer=viewer,
