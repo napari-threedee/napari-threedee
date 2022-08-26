@@ -62,4 +62,4 @@ def viewer_with_plane_and_points_3d(make_napari_viewer, blobs_layer_3d_plane, po
     viewer = make_napari_viewer(ndisplay=3)
     viewer.add_layer(blobs_layer_3d_plane)
     viewer.add_layer(points_layer_3d)
-
+    return viewer

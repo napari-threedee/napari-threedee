@@ -29,10 +29,10 @@ def add_point_on_plane(
 
     # Calculate intersection of click with plane through data in displayed data (scene) coordinates
     displayed_dims = np.asarray(viewer.dims.displayed)[list(viewer.dims.displayed_order)]
-    cursor_position_3d = np.asarray(viewer.cursor.position)[displayed_dims]
+    cursor_position_3d = np.asarray(event.position)[displayed_dims]
     intersection_3d = plane_layer.plane.intersect_with_line(
         line_position=cursor_position_3d,
-        line_direction=viewer.cursor._view_direction[displayed_dims]
+        line_direction=event._view_direction[displayed_dims]
     )
     intersection_nd = np.asarray(viewer.dims.point)
     intersection_nd[displayed_dims] = intersection_3d
