@@ -3,8 +3,8 @@
 [![License](https://img.shields.io/pypi/l/napari-threedee.svg?color=green)](https://github.com/alisterburt/napari-threedee/raw/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/napari-threedee.svg?color=green)](https://pypi.org/project/napari-threedee)
 [![Python Version](https://img.shields.io/pypi/pyversions/napari-threedee.svg?color=green)](https://python.org)
-[![tests](https://github.com/alisterburt/napari-threedee/workflows/tests/badge.svg)](https://github.com/alisterburt/napari-threedee/actions)
-[![codecov](https://codecov.io/gh/alisterburt/napari-threedee/branch/main/graph/badge.svg)](https://codecov.io/gh/alisterburt/napari-threedee)
+[![tests](https://github.com/napari-threedee/napari-threedee/workflows/tests/badge.svg)](https://github.com/napari-threedee/napari-threedee/actions)
+[![codecov](https://codecov.io/gh/napari-threedee/napari-threedee/branch/main/graph/badge.svg)](https://codecov.io/gh/napari-threedee/napari-threedee)
 [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari-threedee)](https://napari-hub.org/plugins/napari-threedee)
 
 A suite of useful tools based on 3D interactivity in napari
