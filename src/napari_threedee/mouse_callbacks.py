@@ -1,7 +1,7 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Optional
+
+from typing import TYPE_CHECKING
 from napari.layers.utils.interactivity_utils import drag_data_to_projected_distance
-from napari.utils.geometry import clamp_point_to_bounding_box
 import numpy as np
 
 from .geometry_utils import point_in_bounding_box
@@ -31,7 +31,8 @@ def add_point_on_plane(
     displayed_dims = np.asarray(viewer.dims.displayed)[list(viewer.dims.displayed_order)]
     cursor_position_3d = np.asarray(viewer.cursor.position)[displayed_dims]
     intersection_3d = plane_layer.plane.intersect_with_line(
-        line_position=cursor_position_3d, line_direction=viewer.cursor._view_direction[displayed_dims]
+        line_position=cursor_position_3d,
+        line_direction=viewer.cursor._view_direction[displayed_dims]
     )
     intersection_nd = np.asarray(viewer.dims.point)
     intersection_nd[displayed_dims] = intersection_3d
