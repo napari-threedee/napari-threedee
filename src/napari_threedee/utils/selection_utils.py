@@ -1,5 +1,7 @@
-from napari.utils.geometry import inside_triangles, project_points_onto_plane, rotate_points, rotation_matrix_from_vectors_3d
+from napari.utils.geometry import inside_triangles, project_points_onto_plane, rotate_points, \
+    rotation_matrix_from_vectors_3d
 import numpy as np
+
 
 def select_line_segment(
         line_segment_points: np.ndarray,
@@ -36,7 +38,6 @@ def select_line_segment(
     # determine if any of the axes were clicked based on their width
     potential_matches = np.argwhere(distances < distance_threshold)
 
-
     return potential_matches
 
 
@@ -50,14 +51,14 @@ def distance_between_point_and_line_segment_2d(p, p1, p2):
     x2 = p2[0]
     y2 = p2[1]
 
-    numerator = np.linalg.norm((x2-x1)*(y1-y0)-(x1-x0)*(y2-y1))
-    denominator = np.sqrt((x2-x1)**2 + (y2-y1)**2)
+    numerator = np.linalg.norm((x2 - x1) * (y1 - y0) - (x1 - x0) * (y2 - y1))
+    denominator = np.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
     return numerator / denominator
 
 
 def select_triangle_from_click(
-    click_point: np.ndarray, view_direction: np.ndarray, triangles: np.ndarray
+        click_point: np.ndarray, view_direction: np.ndarray, triangles: np.ndarray
 ):
     """Determine if a line goes through any of a set of triangles.
 
@@ -113,7 +114,8 @@ def select_triangle_from_click(
 
 
 def select_mesh_from_click(
-    click_point: np.ndarray, view_direction: np.ndarray, triangles: np.ndarray, triangle_indices: np.ndarray
+        click_point: np.ndarray, view_direction: np.ndarray, triangles: np.ndarray,
+        triangle_indices: np.ndarray
 ):
     selected_triangle = select_triangle_from_click(
         click_point=click_point,
