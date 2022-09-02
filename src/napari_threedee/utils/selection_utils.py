@@ -1,3 +1,5 @@
+from typing import Tuple, Optional
+
 from napari.utils.geometry import inside_triangles, project_points_onto_plane, rotate_points, \
     rotation_matrix_from_vectors_3d
 import numpy as np
@@ -128,3 +130,66 @@ def select_mesh_from_click(
         selected_mesh = None
 
     return selected_mesh
+
+
+def select_sphere_from_click(
+    click_point: np.ndarray, view_direction: np.ndarray, sphere_centroids: np.ndarray, sphere_diameter: float
+) -> Tuple[Optional[int], Optional[np.ndarray]]:
+    """Determine which, if any spheres are intersected by a click ray.
+
+    If multiple spheres are intersected, the closest sphere to the click point
+    (ray start) will be returned.
+
+    Parameters
+    ----------
+    click_point : np.ndarray
+        The point where the click ray originates.
+    view_direction : np.ndarray
+        The unit vector pointing in the direction the viewer is looking.
+    sphere_centroids : np.ndarray
+        The (n, 3) array of center points for the n points.
+    sphere_diameter : float
+        The diameter of all spheres. Must the same diameter for all spheres.
+
+    Returns
+    -------
+    selection : Optional[int]
+        The index for the sphere that was intersected.
+        Returns None if no spheres are intersected.
+    """
+    # project the in view points onto the plane
+    projected_points, projection_distances = project_points_onto_plane(
+        points=sphere_centroids,
+        plane_point=click_point,
+        plane_normal=view_direction,
+    )
+
+    # rotate points and plane to be axis aligned with normal [0, 0, 1]
+    rotated_points, rotation_matrix = rotate_points(
+        points=projected_points,
+        current_plane_normal=view_direction,
+        new_plane_normal=[0, 0, 1],
+    )
+    rotated_click_point = np.dot(rotation_matrix, click_point)
+
+    # find the points the click intersects
+    n_spheres = len(sphere_centroids)
+    handle_sizes = np.tile(sphere_diameter, (n_spheres, 1))
+    distances = abs(rotated_points[:, :2] - rotated_click_point[:2])
+
+    # the -1 accounts for the edge width
+    in_slice_matches = np.all(
+        distances <= (handle_sizes - 1 / 2) - 1.5,
+        axis=1,
+    )
+    indices = np.where(in_slice_matches)[0]
+
+    if len(indices) > 0:
+        # find the point that is most in the foreground
+        candidate_point_distances = projection_distances[indices]
+        min_distance_index = np.argmin(candidate_point_distances)
+        selection = indices[min_distance_index]
+    else:
+        selection = None
+
+    return selection
