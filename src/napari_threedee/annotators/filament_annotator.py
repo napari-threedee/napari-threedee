@@ -32,6 +32,26 @@ class FilamentAnnotator(PlanePointAnnotator):
         self.points_layer = None
         self.enabled = enabled
 
+        self.current_filament_id: int = 0
+        self.viewer.bind_key('n', self.next_filament)
+
+    @property
+    def current_filament_id(self):
+        return self._current_filament_id
+
+    @current_filament_id.setter
+    def current_filament_id(self, id: int):
+        self._current_filament_id = id
+        if self.points_layer is not None:
+            self.points_layer.current_properties = {'filament_id': self.current_filament_id}
+        print(self.current_filament_id)
+
+    def next_filament(self, event=None):
+        self.current_filament_id += 1
+
+    def previous_filament(self, event=None):
+        self.current_filament_id -= 1
+
     def _mouse_callback(self, viewer, event):
         super()._mouse_callback(viewer, event)
 
@@ -41,13 +61,18 @@ class FilamentAnnotator(PlanePointAnnotator):
             ndim=self.image_layer.data.ndim,
             name='filaments',
             features={'filament_id': [0]},
-            face_color_cycle=self.COLOR_CYCLE,)
+            face_color='filament_id',
+            face_color_cycle=self.COLOR_CYCLE)
+        layer.selected_data = {0}
+        layer.remove_selected()
+        self.current_filament_id = self.current_filament_id
         return layer
 
     def set_layers(self, image_layer: napari.layers.Image):
         self.image_layer = image_layer
         if self.points_layer is None:
             self.points_layer = self._create_points_layer()
+            self.viewer.add_layer(self.points_layer)
 
     def _on_enable(self):
         add_mouse_callback_safe(

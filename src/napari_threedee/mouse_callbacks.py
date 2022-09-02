@@ -32,7 +32,7 @@ def add_point_on_plane(
     cursor_position_3d = np.asarray(event.position)[displayed_dims]
     intersection_3d = plane_layer.plane.intersect_with_line(
         line_position=cursor_position_3d,
-        line_direction=event._view_direction[displayed_dims]
+        line_direction=event.view_direction[displayed_dims]
     )
     intersection_nd = np.asarray(viewer.dims.point)
     intersection_nd[displayed_dims] = intersection_3d
