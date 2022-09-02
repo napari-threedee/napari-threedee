@@ -20,6 +20,7 @@ class FilamentAnnotator(PlanePointAnnotator):
         '#bcbd22',
         '#17becf',
     ]
+    FILAMENT_ID_LABEL = 'filament_id'
 
     def __init__(
             self,
@@ -35,6 +36,9 @@ class FilamentAnnotator(PlanePointAnnotator):
         self.current_filament_id: int = 0
         self.viewer.bind_key('n', self.next_filament)
 
+        if image_layer is not None:
+            self.set_layers(self.image_layer)
+
     @property
     def current_filament_id(self):
         return self._current_filament_id
@@ -43,8 +47,7 @@ class FilamentAnnotator(PlanePointAnnotator):
     def current_filament_id(self, id: int):
         self._current_filament_id = id
         if self.points_layer is not None:
-            self.points_layer.current_properties = {'filament_id': self.current_filament_id}
-        print(self.current_filament_id)
+            self.points_layer.current_properties = {self.FILAMENT_ID_LABEL: self.current_filament_id}
 
     def next_filament(self, event=None):
         self.current_filament_id += 1
@@ -60,8 +63,8 @@ class FilamentAnnotator(PlanePointAnnotator):
             data=[0] * self.image_layer.data.ndim,
             ndim=self.image_layer.data.ndim,
             name='filaments',
-            features={'filament_id': [0]},
-            face_color='filament_id',
+            features={self.FILAMENT_ID_LABEL: [0]},
+            face_color=self.FILAMENT_ID_LABEL,
             face_color_cycle=self.COLOR_CYCLE)
         layer.selected_data = {0}
         layer.remove_selected()
