@@ -47,7 +47,9 @@ class FilamentAnnotator(PlanePointAnnotator):
     def current_filament_id(self, id: int):
         self._current_filament_id = id
         if self.points_layer is not None:
-            self.points_layer.current_properties = {self.FILAMENT_ID_LABEL: self.current_filament_id}
+            self.points_layer.current_properties = {
+                self.FILAMENT_ID_LABEL: self.current_filament_id
+            }
 
     def next_filament(self, event=None):
         self.current_filament_id += 1
