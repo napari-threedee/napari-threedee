@@ -134,7 +134,7 @@ def select_mesh_from_click(
 
 def select_sphere_from_click(
     click_point: np.ndarray, view_direction: np.ndarray, sphere_centroids: np.ndarray, sphere_diameter: float
-) -> Tuple[Optional[int], Optional[np.ndarray]]:
+) -> Optional[int]:
     """Determine which, if any spheres are intersected by a click ray.
 
     If multiple spheres are intersected, the closest sphere to the click point

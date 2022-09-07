@@ -1,12 +1,13 @@
 import inspect
 from functools import partial
-from typing import Optional
+from typing import Optional, Tuple
 
 import magicgui
 import napari
 from magicgui.widgets import FunctionGui
 from napari.layers import Points, Image
 from qtpy.QtWidgets import QWidget
+from tests.test_image import np
 
 NAPARI_LAYER_TYPES = (
     napari.layers.Layer,
@@ -77,4 +78,38 @@ def generate_populated_layer_selection_widget(func, viewer) -> FunctionGui:
         if parameter.annotation in NAPARI_LAYER_TYPES
     }
     return magicgui.magicgui(func, **mgui_param_args, auto_call=True)
+
+
+def mouse_event_to_layer_data_displayed(layer, event) -> Tuple[np.ndarray, np.ndarray]:
+    """Get the mouse click position and direction in layer data displayed coordinates.
+
+    Parameters
+    ----------
+    layer : napari.layers.Layer
+        The layer to convert the coordinates to.
+    event
+        The mouse event.
+    Returns
+    -------
+    click_position_data_3d : np.ndarray
+        The click position in displayed data coordinates.
+    click_dir_data_3d : np.ndarray
+        The click direction in displayed data coordiantes
+    """
+    click_position_world = event.position
+    click_position_data_3d = np.asarray(
+        layer._world_to_displayed_data(
+            click_position_world,
+            event.dims_displayed
+        )
+    )
+    click_dir_data_3d = np.asarray(
+        layer._world_to_displayed_data_ray(
+            event.view_direction,
+            event.dims_displayed
+        )
+    )
+
+    return click_position_data_3d, click_dir_data_3d
+
 
