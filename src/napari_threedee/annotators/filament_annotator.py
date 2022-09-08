@@ -60,7 +60,9 @@ class FilamentAnnotator(PlanePointAnnotator):
     def _mouse_callback(self, viewer, event):
         super()._mouse_callback(viewer, event)
 
-    def _create_points_layer(self):
+    def _create_points_layer(self) -> Optional[Points]:
+        if self.image_layer is None:
+            return None
         layer = Points(
             data=[0] * self.image_layer.data.ndim,
             ndim=self.image_layer.data.ndim,
