@@ -370,7 +370,7 @@ def make_rotator_data(
         center_point: np.ndarray,
         radius: float,
         n_segments: int = 64
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Create the data for the vispy Line visual for the rotators.
 
     Parameters
@@ -400,6 +400,8 @@ def make_rotator_data(
     handle_points : np.ndarray
         (n_rotators, 3) array containing the coordinates of the handle for
         each rotator.
+    handle_colors : np.ndarray
+        (n_rotators, 4) RGBA array containing the color for each rotator handle.
     rotator_indices : np.ndarray
         The rotator index for each vertex.
     """
@@ -411,8 +413,9 @@ def make_rotator_data(
     rotator_connections = []
     colors = []
     handle_points = []
+    handle_colors = []
     rotator_indicies = []
-    for rotator_index, (normal_vector, color) in enumerate(zip(np.atleast_2d(rotator_normals), np.atleast_2d(rotator_colors))):
+    for rotator_index, (normal_vector, color) in enumerate(zip(rotator_normals, rotator_colors)):
         # get the vertices and connections
         vertices, connections = make_rotator_arc(
             center_point=center_point,
@@ -428,15 +431,16 @@ def make_rotator_data(
         assert color.shape == (4,)
         colors.append(np.tile(color, (n_segments, 1)))
 
-        # get the handle_point
+        # get the handle point and color
         handle_points.append(vertices[handle_index])
+        handle_colors.append(color)
 
         # add the rotator indices
         rotator_indicies.append([rotator_index] * n_segments)
 
         vertex_offset += n_segments
 
-    return np.concatenate(rotator_vertices), np.concatenate(rotator_connections), np.concatenate(colors), np.stack(handle_points), np.concatenate(rotator_indicies)
+    return np.concatenate(rotator_vertices), np.concatenate(rotator_connections), np.concatenate(colors), np.stack(handle_points), np.stack(handle_colors), np.concatenate(rotator_indicies)
 
 
 class RotatorDragManager:

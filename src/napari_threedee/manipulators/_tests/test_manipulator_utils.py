@@ -41,7 +41,7 @@ def test_make_rotator_data():
     n_segments = 50
     n_rotators = 3
 
-    vertices, connections, colors, handle_points = make_rotator_data(
+    vertices, connections, colors, handle_points, handle_colors, rotator_indices = make_rotator_data(
         rotator_normals=rotator_normals,
         rotator_colors=rotator_colors,
         center_point=center_point,
@@ -55,6 +55,7 @@ def test_make_rotator_data():
     assert connections.shape == (n_rotators * (n_segments - 1), 2)
     assert colors.shape == (n_expected_vertices, 4)
     assert handle_points.shape == (n_rotators, 3)
+    assert handle_colors.shape == (n_rotators, 4)
 
     # check that vertex offset was done correction
     assert connections[n_segments-1, 0] == n_segments

@@ -4,10 +4,10 @@ from typing import Optional, Tuple
 
 import magicgui
 import napari
+import numpy as np
 from magicgui.widgets import FunctionGui
 from napari.layers import Points, Image
-from qtpy.QtWidgets import QWidget
-from tests.test_image import np
+
 
 NAPARI_LAYER_TYPES = (
     napari.layers.Layer,
