@@ -5,16 +5,34 @@ from napari_threedee.manipulators.new_manipulator import Manipulator
 
 viewer = napari.Viewer()
 
-# im = np.random.random((50, 50, 50))
-im = np.zeros((50, 50, 50))
+# lines = 50 * np.array(
+#     [
+#         [
+#             [0, 0, 0],
+#             [1, 0, 0]
+#         ],
+#         [
+#             [0, 0, 0],
+#             [0, 1, 0]
+#         ],
+#         [
+#             [0, 0, 0],
+#             [0, 0, 1]
+#         ]
+#     ]
+# )
+#
+# layer = viewer.add_shapes(lines, shape_type="line")
 
-image_layer = viewer.add_image(im)
+layer = viewer.add_image(np.zeros((50, 50, 50)))
 
 viewer.dims.ndisplay = 3
 
 manipulator = Manipulator(
+    rotator_axis_indices=np.array([0, 1]),
+    translator_axis_indices=np.array([0]),
     viewer=viewer,
-    layer=image_layer
+    layer=layer
 )
 
 viewer.camera.center = (24.5, 24.5, 24.5)

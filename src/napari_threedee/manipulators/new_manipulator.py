@@ -1,12 +1,12 @@
 from types import MappingProxyType
-from typing import Dict, Optional, Type, List, Mapping
+from typing import Dict, Optional, Type, List, Mapping, Union
 
 import napari
 import numpy as np
 
 from vispy.visuals.transforms import MatrixTransform
 
-from ._drag_manager import RotatorDragManager
+from ._drag_manager import RotatorDragManager, TranslatorDragManager
 from ._manipulator_components import CentralAxesModel, TranslatorModel, RotatorModel
 from ._manipulator_visual import ManipulatorVisual
 from ..utils.napari_utils import get_vispy_node, add_mouse_callback_safe, mouse_event_to_layer_data_displayed
@@ -63,7 +63,9 @@ class Manipulator:
 
         # determine which central axes are required based on requested
         # translators and rotators
-        rotator_central_axis_indices = [ROTATOR_CENTRAL_AXIS_INDICES[index] for index in rotator_axis_indices]
+        rotator_central_axis_indices = []
+        for index in rotator_axis_indices:
+            rotator_central_axis_indices += ROTATOR_CENTRAL_AXIS_INDICES[index]
         central_axis_indices = list(set(np.concatenate([rotator_central_axis_indices, translator_axis_indices])))
 
         # set up the central axes
@@ -189,13 +191,17 @@ class Manipulator:
         yield
 
         # start the drag
-        self._initialize_drag(drag_manager, layer, event)
+        drag_manager.setup_drag(
+            layer=layer,
+            mouse_event=event,
+            translation=self.center_point,
+            rotation_matrix=self.rotation_matrix
+        )
 
         while event.type == 'mouse_move':
             # process the drag
-            click_point_data = np.asarray(layer.world_to_data(event.position))[event.dims_displayed]
             updated_center_point, updated_rotation_matrix = drag_manager.update_drag(
-                click_point=click_point_data
+                mouse_event=event
             )
 
             # update the transformation
@@ -241,8 +247,8 @@ class Manipulator:
                 self.central_axes.highlighted = ROTATOR_CENTRAL_AXIS_INDICES[drag_manager.axis_index]
             else:
                 self.rotators.highlighted_rotators = []
-                self.translators.highlighted_translators = [drag_manager]
-                self.central_axes.highlighted = [drag_manager]
+                self.translators.highlighted_translators = [drag_manager.axis_index]
+                self.central_axes.highlighted = [drag_manager.axis_index]
         else:
             self.rotators.highlighted_rotators = None
             self.central_axes.highlighted = None
@@ -250,20 +256,7 @@ class Manipulator:
 
         return drag_manager
 
-    def _initialize_drag(self, drag_manager: RotatorDragManager, layer: napari.layers.Layer, mouse_event) -> None:
-        """Prepare the drag manager to start the drag.
-
-        This step sets the initial click position. The drag is relative to this initial position.
-        """
-        click_point_data, click_dir_data_3d = mouse_event_to_layer_data_displayed(layer, mouse_event)
-        drag_manager.setup_drag(
-            click_point=click_point_data,
-            view_direction=click_dir_data_3d,
-            translation=self.center_point,
-            rotation_matrix=self.rotation_matrix
-        )
-
-    def _check_if_manipulator_clicked(self, click_point: np.ndarray, view_direction: np.ndarray) -> Optional[RotatorDragManager]:
+    def _check_if_manipulator_clicked(self, click_point: np.ndarray, view_direction: np.ndarray) -> Optional[Union[RotatorDragManager, TranslatorDragManager]]:
         """Determine if a translator or rotator was clicked on.
 
         Parameters
@@ -287,7 +280,7 @@ class Manipulator:
             [self.rotators.handle_points,
              self.translators.handle_points]
         )
-        current_handle_points = untransformed_handle_points @ self.rotation_matrix.T
+        current_handle_points = (untransformed_handle_points @ self.rotation_matrix.T) + self.center_point
         selection = select_sphere_from_click(
             click_point=click_point,
             view_direction=view_direction,
@@ -307,8 +300,9 @@ class Manipulator:
         else:
             # a translator was selected
             translator_index = selection - n_rotators
-            print(translator_index)
-            return translator_index
+            untransformed_normal_vector = self.translators.normal_vectors[translator_index]
+            normal_vector = self.rotation_matrix.dot(untransformed_normal_vector)
+            return TranslatorDragManager(normal_vector=normal_vector, axis_index=translator_index)
 
     def _on_transformation_changed(self) -> None:
         """Update the manipulator visual transformation based on the
