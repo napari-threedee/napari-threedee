@@ -61,8 +61,6 @@ class FilamentAnnotator(PlanePointAnnotator):
         super()._mouse_callback(viewer, event)
 
     def _create_points_layer(self) -> Optional[Points]:
-        if self.image_layer is None:
-            return None
         layer = Points(
             data=[0] * self.image_layer.data.ndim,
             ndim=self.image_layer.data.ndim,
@@ -77,7 +75,7 @@ class FilamentAnnotator(PlanePointAnnotator):
 
     def set_layers(self, image_layer: napari.layers.Image):
         self.image_layer = image_layer
-        if self.points_layer is None:
+        if self.points_layer is None and self.image_layer is not None:
             self.points_layer = self._create_points_layer()
             self.viewer.add_layer(self.points_layer)
 
