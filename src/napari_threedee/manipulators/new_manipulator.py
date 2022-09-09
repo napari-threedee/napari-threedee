@@ -244,6 +244,7 @@ class Manipulator:
         if drag_manager is not None:
             if isinstance(drag_manager, RotatorDragManager):
                 self.rotators.highlighted_rotators = [drag_manager.axis_index]
+                self.translators.highlighted_translators = []
                 self.central_axes.highlighted = ROTATOR_CENTRAL_AXIS_INDICES[drag_manager.axis_index]
             else:
                 self.rotators.highlighted_rotators = []
