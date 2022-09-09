@@ -1,1 +1,2 @@
 from .qt_plane_point_annotator import QtPlanePointAnnotatorWidget
+from .qt_filament_annotator import QtFilamentAnnotatorWidget

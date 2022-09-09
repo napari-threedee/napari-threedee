@@ -8,8 +8,9 @@ MY_WIDGET_NAMES = [
     "render plane manipulator",
     "point manipulator",
     "layer manipulator",
-    "point on plane annotator",
-    "mesh lighting controls"
+    "plane point annotator",
+    "filament annotator",
+    "mesh lighting controls",
 ]
 
 
