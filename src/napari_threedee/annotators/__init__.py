@@ -1,1 +1,2 @@
 from .plane_point_annotator import PlanePointAnnotator
+from .filament_annotator import FilamentAnnotator

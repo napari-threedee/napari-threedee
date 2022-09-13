@@ -10,7 +10,7 @@ def test_add_point_on_plane_3d(viewer_with_plane_and_points_3d):
 
     class DummyMouseEvent:
         position = (14, 14, 14)
-        _view_direction = np.array((1, 0, 0))
+        view_direction = np.array((1, 0, 0))
         modifiers = ['Alt']
 
     add_point_on_plane(
@@ -30,7 +30,7 @@ def test_add_point_on_plane_4d(viewer_with_plane_and_points_4d):
 
     class DummyMouseEvent:
         position = (0, 14, 14, 14)
-        _view_direction = np.array((0, 1, 0, 0))
+        view_direction = np.array((0, 1, 0, 0))
         modifiers = ['Alt']
 
     add_point_on_plane(

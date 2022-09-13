@@ -12,8 +12,11 @@ contributions:
     title: Create layer manipulator
     python_name: napari_threedee._dock_widgets:QtLayerManipulatorWidget
   - id: napari-threedee.QtPlanePointAnnotatorWidget
-    title: Create point on plane annotator
+    title: Create plane point annotator
     python_name: napari_threedee._dock_widgets:QtPlanePointAnnotatorWidget
+  - id: napari-threedee.QtFilamentAnnotatorWidget
+    title: Create filament annotator
+    python_name: napari_threedee._dock_widgets:QtFilamentAnnotatorWidget
   - id: napari-threedee.QtLightingControlWidget
     title: Create mesh lighting control
     python_name: napari_threedee._dock_widgets:QtLightingControlWidget
@@ -25,6 +28,8 @@ contributions:
   - command: napari-threedee.QtLayerManipulatorWidget
     display_name: layer manipulator
   - command: napari-threedee.QtPlanePointAnnotatorWidget
-    display_name: point on plane annotator
+    display_name: plane point annotator
+  - command: napari-threedee.QtFilamentAnnotatorWidget
+    display_name: filament annotator
   - command: napari-threedee.QtLightingControlWidget
     display_name: mesh lighting controls
