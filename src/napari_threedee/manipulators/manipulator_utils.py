@@ -1,7 +1,7 @@
 from typing import Tuple
 
 import numpy as np
-from napari.utils.geometry import project_points_onto_plane, rotate_points
+from napari.utils.geometry import project_points_onto_plane, rotate_points, rotation_matrix_from_vectors_3d
 from napari.utils.translations import trans
 from vispy.util.transforms import rotate
 
@@ -315,3 +315,145 @@ def make_translator_meshes(
         curr_base_index += len(translator_vert)
 
     return np.vstack(vertices), np.vstack(indices), np.vstack(vertex_colors), np.concatenate(triangle_translator_indices)
+
+
+def make_rotator_arc(
+        center_point: np.ndarray,
+        normal_vector: np.ndarray,
+        radius: float,
+        n_segments: int = 64
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Make the line data for a rotator arc.
+
+    Parameters
+    ----------
+    center_point : np.ndarray
+        (3,) array with the center point of the arc.
+    normal_vector : np.ndarray
+        (3,) array with the normal vector of the arc.
+    radius : float
+        The radius of the arc in data units.
+    n_segments : int
+        The number of segments to discretize the arc into.
+
+    Returns
+    -------
+    arc_vertices : np.ndarray
+        (n_segements, 3) array of the arc vertices
+    arc_connections : np.ndarray
+        (n_segments - 1, 2) array of the paairs connections between vertices.
+        For example, [0, 1] connects vertices 0 and 1.
+    """
+    # create vertices with normal [1, 0, 0] centered at [0, 0, 0]
+    t = np.linspace(0, np.pi / 2, n_segments)
+    vertices = np.stack([0 * t, radius * np.sin(t), radius * np.cos(t)], 1).astype(np.float32)
+
+    # transform the vertices
+    rotation_matrix = rotation_matrix_from_vectors_3d(
+        normal_vector,
+        np.array([1, 0, 0])
+    )
+    rotated_vertices = vertices @ rotation_matrix.T
+    arc_vertices = rotated_vertices + center_point
+
+    # create the arc connections
+    connections_start = np.arange(n_segments - 1)
+    connections_end = connections_start + 1
+    arc_connections = np.column_stack([connections_start, connections_end])
+
+    return arc_vertices, arc_connections
+
+
+def make_rotator_data(
+        rotator_normals: np.ndarray,
+        rotator_colors: np.ndarray,
+        center_point: np.ndarray,
+        radius: float,
+        n_segments: int = 64
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Create the data for the vispy Line visual for the rotators.
+
+    Parameters
+    ----------
+    rotator_normals : np.ndarray
+        (n, 3) array for the n rotators to be created.
+    rotator_colors : np.ndarray
+        (n, 4) array of RGBA colors for the n rotators to be created.
+    center_point : np.ndarray
+        (3,) array with the center point of the arc.
+    radius : float
+        The radius of the arc in data units.
+    n_segments : int
+        The number of segments to discretize the arc into.
+
+    Returns
+    -------
+    rotator_vertices : np.ndarray
+        (n_rotators * n_segments, 3) array containing the coordinates
+        of all vertices.
+    rotator_connections : np.ndarray
+        (n_rotators * [n_segments - 1], 2) array containing the
+        connections between arc vertices.
+    rotator_colors : np.ndarray
+        (n_rotators * n_segments, 4) array containing RGBA colors
+        for all vertices.
+    handle_points : np.ndarray
+        (n_rotators, 3) array containing the coordinates of the handle for
+        each rotator.
+    handle_colors : np.ndarray
+        (n_rotators, 4) RGBA array containing the color for each rotator handle.
+    rotator_indices : np.ndarray
+        The rotator index for each vertex.
+    """
+    # the handle is at the midpoint of the arc
+    handle_index = int(n_segments / 2)
+
+    vertex_offset = 0
+    rotator_vertices = []
+    rotator_connections = []
+    colors = []
+    handle_points = []
+    handle_colors = []
+    rotator_indicies = []
+    for rotator_index, (normal_vector, color) in enumerate(zip(rotator_normals, rotator_colors)):
+        # get the vertices and connections
+        vertices, connections = make_rotator_arc(
+            center_point=center_point,
+            normal_vector=normal_vector,
+            radius=radius,
+            n_segments=n_segments
+
+        )
+        rotator_vertices.append(vertices)
+        rotator_connections.append(connections + vertex_offset)
+
+        # make the colors
+        assert color.shape == (4,)
+        colors.append(np.tile(color, (n_segments, 1)))
+
+        # get the handle point and color
+        handle_points.append(vertices[handle_index])
+        handle_colors.append(color)
+
+        # add the rotator indices
+        rotator_indicies.append([rotator_index] * n_segments)
+
+        vertex_offset += n_segments
+
+    return np.concatenate(rotator_vertices), np.concatenate(rotator_connections), np.concatenate(colors), np.stack(handle_points), np.stack(handle_colors), np.concatenate(rotator_indicies)
+
+
+class RotatorDragManager:
+    def __init__(self, normal_vector: np.ndarray, update_period: float = 0.03):
+
+        # store the normal vector of the rotator
+        self.normal_vector = normal_vector
+
+        # the minimum time that must pass between updates in seconds
+        self._update_period = update_period
+
+    def start_drag(self, manipulator_centroid_coordinate: np.ndarray) -> None:
+        pass
+
+    def update_drag(self, click_point: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        pass
