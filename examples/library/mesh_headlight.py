@@ -3,7 +3,7 @@ from nilearn import surface
 
 import napari
 
-from napari_threedee.lighting.qt_lighting_control import QtLightingControlWidget
+from napari_threedee.visualization.qt_lighting_control import QtLightingControlWidget
 
 # Fetch datasets - this will download dataset if datasets are not found
 nki_dataset = datasets.fetch_surf_nki_enhanced(n_subjects=1)

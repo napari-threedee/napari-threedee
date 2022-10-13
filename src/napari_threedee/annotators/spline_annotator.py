@@ -200,7 +200,7 @@ class SplineAnnotator(ThreeDeeModel):
         return layer
 
     def _create_shapes_layer(self) -> Shapes:
-        return Shapes(ndim=self.image_layer.data.ndim, name="splines")
+        return Shapes(ndim=self.image_layer.data.ndim, name="splines", edge_color="green")
 
     def set_layers(self, image_layer: napari.layers.Image):
         self.image_layer = image_layer

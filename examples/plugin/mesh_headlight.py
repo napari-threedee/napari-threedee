@@ -8,7 +8,7 @@ except ImportError:
 
 import napari
 
-from napari_threedee.lighting.qt_lighting_control import QtLightingControlWidget
+from napari_threedee.visualization.qt_lighting_control import QtLightingControlWidget
 
 
 # Fetch datasets - this will download dataset if datasets are not found
