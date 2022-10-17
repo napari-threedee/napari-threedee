@@ -1,79 +1,24 @@
-from types import MappingProxyType
-from typing import Dict, Optional, Type, List, Mapping, Union
+from typing import Optional, Type, Union
 
 import napari
 import numpy as np
-
+from pydantic import BaseModel
 from vispy.visuals.transforms import MatrixTransform
 
-from ._drag_manager import RotatorDragManager, TranslatorDragManager
-from ._manipulator_components import CentralAxesModel, TranslatorModel, RotatorModel
-from ._manipulator_visual import ManipulatorVisual
-from ..utils.napari_utils import get_vispy_node, add_mouse_callback_safe, mouse_event_to_layer_data_displayed
-from ..utils.selection_utils import select_sphere_from_click
+from napari_threedee.manipulator.manipulator import ManipulatorModel
+from napari_threedee.manipulators._drag_manager import RotatorDragManager, TranslatorDragManager
+from napari_threedee.manipulators._manipulator_visual import ManipulatorVisual
+from napari_threedee.utils.napari_utils import get_vispy_node, add_mouse_callback_safe, mouse_event_to_layer_data_displayed
+from napari_threedee.utils.selection_utils import select_sphere_from_click
 
 
-# Default RGBA colors for each axis
-AXIS_COLORS: Mapping[int, np.ndarray] = MappingProxyType({
-    0: np.array([0.5, 0.8, 0.5, 1]),
-    1: np.array([0.75, 0.68, 0.83, 1]),
-    2: np.array([1, 0.75, 0.52, 1])
-})
-
-# central axis indices that are associated with a
-# given rotator axis
-ROTATOR_CENTRAL_AXIS_INDICES: Dict[int, List[int]] = {
-    0: [1, 2],
-    1: [0, 2],
-    2: [0, 1]
-}
+class Manipulator(BaseModel):
+    model: ManipulatorModel
+    viewer: napari.viewer.Viewer
+    visual: ManipulatorVisual = ManipulatorVisual(parent=None)
+    layer: Optional[napari.layers.Layer] = None
 
 
-class Manipulator:
-    def __init__(
-            self,
-            rotator_axis_indices: np.ndarray,
-            translator_axis_indices: np.ndarray,
-            viewer: napari.Viewer,
-            layer: Optional[Type[napari.layers.Layer]] = None,
-            radius: float = 10,
-            axis_colormap: Dict[int, np.ndarray] = AXIS_COLORS
-    ):
-        self._radius = radius
-
-        # initialize the transform
-        self._rotation_matrix = np.eye(3)
-        self._center_point = np.zeros((3,))
-
-        # set up the rotators
-        rotator_colors = np.array([axis_colormap[index] for index in rotator_axis_indices])
-        self.rotators = RotatorModel(
-            normal_vectors=rotator_axis_indices,
-            colors=rotator_colors,
-            radius=self._radius
-        )
-
-        # set up the translators
-        translator_colors = np.array([axis_colormap[index] for index in translator_axis_indices])
-        self.translators = TranslatorModel(
-            normal_vectors=translator_axis_indices,
-            colors=translator_colors,
-            radius=self._radius
-        )
-
-        # determine which central axes are required based on requested
-        # translators and rotators
-        rotator_central_axis_indices = []
-        for index in rotator_axis_indices:
-            rotator_central_axis_indices += ROTATOR_CENTRAL_AXIS_INDICES[index]
-        central_axis_indices = list(set(np.concatenate([rotator_central_axis_indices, translator_axis_indices])))
-
-        # set up the central axes
-        central_axis_colors = np.array([axis_colormap[index] for index in central_axis_indices])
-        self.central_axes = CentralAxesModel(normal_vectors=central_axis_indices, colors=central_axis_colors, radius=self._radius)
-
-        # create the visual
-        self.visual = ManipulatorVisual(parent=None)
 
         self._viewer = viewer
         self._layer = layer
@@ -119,7 +64,7 @@ class Manipulator:
         self.visual.axes_visual.set_data(
             pos=self.central_axes.vertices[:, ::-1],
             connect=self.central_axes.connections,
-            color=self.central_axes.rendered_colors,
+            color=self.central_axes.rendered_vertex_colors,
             width=10
         )
 
@@ -136,7 +81,7 @@ class Manipulator:
             pos=self.rotators.vertices[:, ::-1],
             connect=self.rotators.connections,
             color=rotator_arc_colors,
-            width=self.rotators.width
+            width=self.rotators.line_width
         )
 
         # update the handle data
@@ -155,7 +100,7 @@ class Manipulator:
             pos=self.translators.vertices[:, ::-1],
             color=translator_axis_colors,
             connect="segments",
-            width=self.translators.width,
+            width=self.translators.line_width,
         )
 
         # set the handles
@@ -238,14 +183,13 @@ class Manipulator:
         """
 
         # identify clicked rotator/translator
-        drag_manager = self._check_if_manipulator_clicked(click_point=click_position,
-                                                                                   view_direction=view_direction)
+        drag_manager = self._check_if_manipulator_clicked(click_point=click_position, view_direction=view_direction)
 
         if drag_manager is not None:
             if isinstance(drag_manager, RotatorDragManager):
                 self.rotators.highlighted_rotators = [drag_manager.axis_index]
                 self.translators.highlighted_translators = []
-                self.central_axes.highlighted = ROTATOR_CENTRAL_AXIS_INDICES[drag_manager.axis_index]
+                self.central_axes.highlighted = PERPENDICULAR_AXES[drag_manager.axis_index]
             else:
                 self.rotators.highlighted_rotators = []
                 self.translators.highlighted_translators = [drag_manager.axis_index]
@@ -295,13 +239,13 @@ class Manipulator:
         n_rotators = self.rotators.n_rotators
         if selection < n_rotators:
             # a rotator was selected
-            untransformed_normal_vector = self.rotators.normal_vectors[selection]
+            untransformed_normal_vector = self.rotators.basis_vectors[selection]
             normal_vector = self.rotation_matrix.dot(untransformed_normal_vector)
             return RotatorDragManager(normal_vector=normal_vector, axis_index=selection)
         else:
             # a translator was selected
             translator_index = selection - n_rotators
-            untransformed_normal_vector = self.translators.normal_vectors[translator_index]
+            untransformed_normal_vector = self.translators.basis_vectors[translator_index]
             normal_vector = self.rotation_matrix.dot(untransformed_normal_vector)
             return TranslatorDragManager(normal_vector=normal_vector, axis_index=translator_index)
 
@@ -320,7 +264,7 @@ class Manipulator:
 
         # Embed in the top left corner of a 4x4 affine matrix
         affine_matrix = np.eye(4)
-        affine_matrix[: rotation_matrix.shape[0], : rotation_matrix.shape[1]] = rotation_matrix
-        affine_matrix[-1, : len(translation)] = translation
+        affine_matrix[:3, :3] = rotation_matrix
+        affine_matrix[-1, :3] = translation
 
         self.visual.transform.matrix = affine_matrix

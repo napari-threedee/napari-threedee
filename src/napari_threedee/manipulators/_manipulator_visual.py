@@ -20,6 +20,7 @@ class ManipulatorVisual(Compound):
         self.translator_handles_visual.scaling = True
         self.translator_handles_visual.antialias = 0
 
+
     @property
     def axes_visual(self) -> Line:
         return self._subvisuals[0]

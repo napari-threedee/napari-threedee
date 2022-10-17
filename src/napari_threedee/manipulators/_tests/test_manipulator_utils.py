@@ -42,7 +42,7 @@ def test_make_rotator_data():
     n_rotators = 3
 
     vertices, connections, colors, handle_points, handle_colors, rotator_indices = make_rotator_data(
-        rotator_normals=rotator_normals,
+        rotator_vectors=rotator_normals,
         rotator_colors=rotator_colors,
         center_point=center_point,
         radius=radius,

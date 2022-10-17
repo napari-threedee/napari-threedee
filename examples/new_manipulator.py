@@ -1,36 +1,17 @@
 import napari
 import numpy as np
 
-from napari_threedee.manipulators.new_manipulator import Manipulator
+from napari_threedee._manipulator_base import Manipulator
 
 viewer = napari.Viewer()
-
-# lines = 50 * np.array(
-#     [
-#         [
-#             [0, 0, 0],
-#             [1, 0, 0]
-#         ],
-#         [
-#             [0, 0, 0],
-#             [0, 1, 0]
-#         ],
-#         [
-#             [0, 0, 0],
-#             [0, 0, 1]
-#         ]
-#     ]
-# )
-#
-# layer = viewer.add_shapes(lines, shape_type="line")
 
 layer = viewer.add_image(np.zeros((50, 50, 50)))
 
 viewer.dims.ndisplay = 3
 
 manipulator = Manipulator(
-    rotator_axis_indices=np.array([0, 1]),
-    translator_axis_indices=np.array([0]),
+    rotator_axes='xyz',
+    translator_axes='xyz',
     viewer=viewer,
     layer=layer
 )
