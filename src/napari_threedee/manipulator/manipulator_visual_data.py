@@ -126,6 +126,10 @@ class ManipulatorHandleData(BaseModel):
         )
 
     @classmethod
+    def from_translator_set(cls, translators: TranslatorSet) -> ManipulatorHandleData:
+        return sum(cls.from_translator(translator) for translator in translators)
+
+    @classmethod
     def from_rotator(cls, rotator: Rotator):
         return cls(
             points=rotator.handle_point.reshape((1, 3)),
@@ -133,7 +137,16 @@ class ManipulatorHandleData(BaseModel):
             axis_identifiers=np.asarray(rotator.axis.id)
         )
 
+    @classmethod
+    def from_rotator_set(cls, rotators: RotatorSet):
+        return sum(cls.from_rotator(rotator) for rotator in rotators)
+
+    def __radd__(self, other):
+        return self.__add__(other)
+
     def __add__(self, other: ManipulatorHandleData) -> ManipulatorHandleData:
+        if other == 0:
+            return self
         points = np.concatenate([self.points, other.points], axis=0)
         colors = np.concatenate([self.colors, other.colors], axis=0)
         axis_ids = np.concatenate([self.axis_identifiers, other.axis_identifiers], axis=0)
