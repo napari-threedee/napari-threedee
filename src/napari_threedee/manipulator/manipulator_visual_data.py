@@ -152,6 +152,8 @@ class ManipulatorVisualData(BaseModel):
     rotator_handle_data: ManipulatorHandleData
     selected_axes: List[int] = []
 
+    _attenuation_factor: float = 0.5
+
     class Config:
         arbitrary_types_allowed = True
 
@@ -169,6 +171,41 @@ class ManipulatorVisualData(BaseModel):
             rotator_line_data=rotator_line_data,
             rotator_handle_data=rotator_handle_data
         )
+
+    @property
+    def central_axis_line_colors(self) -> np.ndarray:
+        """Central axis line vertex colors, non-selected axes are attenuated."""
+        central_axis_colors = self.central_axis_line_data.colors.copy()
+        central_axis_colors[~self._selected_central_axis_vertices] *= self._attenuation_factor
+        return central_axis_colors
+
+    @property
+    def translator_line_colors(self) -> np.ndarray:
+        """Translator line vertex colors, non-selected axes are attenuated."""
+        translator_line_colors = self.translator_line_data.colors.copy()
+        translator_line_colors[~self._selected_translator_line_vertices] *= self._attenuation_factor
+        return translator_line_colors
+
+    @property
+    def translator_handle_colors(self) -> np.ndarray:
+        """Translator handle colors, non-selected axes are attenuated."""
+        translator_handle_colors = self.translator_handle_data.colors.copy()
+        translator_handle_colors[~self._selected_translator_handle_points] *= self._attenuation_factor
+        return translator_handle_colors
+
+    @property
+    def rotator_line_colors(self) -> np.ndarray:
+        """Rotator line vertex colors, non-selected axes are attenuated."""
+        rotator_line_colors = self.rotator_line_data.colors.copy()
+        rotator_line_colors[~self._selected_rotator_line_vertices] *= self._attenuation_factor
+        return rotator_line_colors
+
+    @property
+    def rotator_handle_colors(self) -> np.ndarray:
+        """Rotator handle colors, non-selected axes are attenuated."""
+        rotator_handle_colors = self.rotator_handle_data.colors.copy()
+        rotator_handle_colors[~self._selected_rotator_handle_points] *= self._attenuation_factor
+        return rotator_handle_colors
 
     @property
     def _selected_central_axis_vertices(self) -> np.ndarray:
@@ -189,4 +226,6 @@ class ManipulatorVisualData(BaseModel):
     @property
     def _selected_rotator_handle_points(self) -> np.ndarray:
         return np.isin(self.rotator_handle_data.axis_identifiers, test_elements=self.selected_axes)
+
+
 
