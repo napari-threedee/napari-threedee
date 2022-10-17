@@ -1,4 +1,3 @@
-from .manipulator import ManipulatorModel
 from .manipulator_visual_data import ManipulatorVisualData
 
 import numpy as np
@@ -52,46 +51,38 @@ class ManipulatorVisual(Compound):
     def translator_handle_visual(self) -> Markers:
         return self._subvisuals[5]
 
-    def _instantiate_from_manipulator_visual_data(self):
-        self._setup_central_axis_visuals()
-        self._setup_translator_visuals()
-        self._setup_rotator_visuals()
+    def _update_from_manipulator_visual_data(self):
+        self._update_central_axis_visuals()
+        self._update_translator_visuals()
+        self._update_rotator_visuals()
 
-    def _setup_central_axis_visuals(self):
+    def _setup_origin_marker_visual(self):
+        self.origin_marker_visual.set_data(
+            pos=np.array([[0, 0, 0]]),
+            face_color=[0.7, 0.7, 0.7, 1],
+            size=10
+        )
+
+    def _update_central_axis_visuals(self):
         self.central_axes_visual.set_data(
             pos=self.manipulator_visual_data.central_axis_line_data.vertices,
             connect=self.manipulator_visual_data.central_axis_line_data.connections,
-            color=self.manipulator_visual_data.central_axis_line_data.colors,
+            color=self.manipulator_visual_data.central_axis_line_colors,
             width=self.manipulator_visual_data.central_axis_line_data.line_width,
         )
 
-    def _setup_translator_visuals(self):
+    def _update_translator_visuals(self):
         self.translator_line_visual.set_data(
             pos=self.manipulator_visual_data.translator_line_data.vertices,
             connect=self.manipulator_visual_data.translator_line_data.connections,
-            color=self.manipulator_visual_data.translator_line_data.colors,
+            color=self.manipulator_visual_data.translator_line_colors,
             width=self.manipulator_visual_data.translator_line_data.line_width,
         )
 
-    def _setup_rotator_visuals(self):
+    def _update_rotator_visuals(self):
         self.rotator_line_visual.set_data(
             pos=self.manipulator_visual_data.rotator_line_data.vertices,
             connect=self.manipulator_visual_data.rotator_line_data.connections,
-            color=self.manipulator_visual_data.rotator_line_data.colors,
+            color=self.manipulator_visual_data.rotator_line_colors,
             width=self.manipulator_visual_data.rotator_line_data.line_width,
         )
-
-    def _update_colors_on_highlight(self):
-
-
-    @classmethod
-    def from_manipulator_visual_data(cls, manipulator_visual_data: ManipulatorVisualData):
-        visual = cls(manipulator_visual_data=manipulator_visual_data)
-        visual._instantiate_from_manipulator_visual_data()
-        return visual
-
-    @classmethod
-    def from_manipulator(cls, manipulator: ManipulatorModel):
-        mvd = ManipulatorVisualData.from_manipulator(manipulator)
-        return cls.from_manipulator_visual_data(mvd)
-
