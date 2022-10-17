@@ -169,3 +169,24 @@ class ManipulatorVisualData(BaseModel):
             rotator_line_data=rotator_line_data,
             rotator_handle_data=rotator_handle_data
         )
+
+    @property
+    def _selected_central_axis_vertices(self) -> np.ndarray:
+        return np.isin(self.central_axis_line_data.axis_identifiers, test_elements=self.selected_axes)
+
+    @property
+    def _selected_translator_line_vertices(self) -> np.ndarray:
+        return np.isin(self.translator_line_data.axis_identifiers, test_elements=self.selected_axes)
+
+    @property
+    def _selected_translator_handle_points(self) -> np.ndarray:
+        return np.isin(self.translator_handle_data.axis_identifiers, test_elements=self.selected_axes)
+
+    @property
+    def _selected_rotator_line_vertices(self) -> np.ndarray:
+        return np.isin(self.rotator_line_data.axis_identifiers, test_elements=self.selected_axes)
+
+    @property
+    def _selected_rotator_handle_points(self) -> np.ndarray:
+        return np.isin(self.rotator_handle_data.axis_identifiers, test_elements=self.selected_axes)
+

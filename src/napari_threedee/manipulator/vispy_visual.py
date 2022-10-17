@@ -81,6 +81,9 @@ class ManipulatorVisual(Compound):
             width=self.manipulator_visual_data.rotator_line_data.line_width,
         )
 
+    def _update_colors_on_highlight(self):
+
+
     @classmethod
     def from_manipulator_visual_data(cls, manipulator_visual_data: ManipulatorVisualData):
         visual = cls(manipulator_visual_data=manipulator_visual_data)
