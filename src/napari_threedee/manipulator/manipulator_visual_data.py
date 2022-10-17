@@ -84,7 +84,7 @@ class ManipulatorLineData(BaseModel):
         if other == 0:
             return self
         vertices = np.concatenate([self.vertices, other.vertices], axis=0)
-        reindexed_connections = other.connections.copy() + len(self.connections)
+        reindexed_connections = other.connections + len(self.vertices)
         connections = np.concatenate([self.connections, reindexed_connections], axis=0)
         colors = np.concatenate([self.colors, other.colors], axis=0)
         axis_ids = np.concatenate([self.axis_identifiers, other.axis_identifiers], axis=0)

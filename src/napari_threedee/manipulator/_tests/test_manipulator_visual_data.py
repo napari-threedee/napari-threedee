@@ -71,7 +71,7 @@ def test_reindex_on_add_linedata():
     """connections must be reindexed after adding pieces of linedata together"""
     ld_x = ManipulatorLineData.from_central_axis(CentralAxis.from_string('x'))
     ld_y = ManipulatorLineData.from_central_axis(CentralAxis.from_string('y'))
-    ld_sum = ld_x + ld_y
-    assert len(ld_sum.vertices) == len(ld_x.vertices) + len(ld_y.vertices)
-    assert not np.allclose(ld_sum.connections[1], ld_y.connections[0])
-    assert np.allclose(ld_sum.connections[1], ld_y.connections[0] + len(ld_x.vertices))
+    ld_xy = ld_x + ld_y
+    assert len(ld_xy.vertices) == len(ld_x.vertices) + len(ld_y.vertices)
+    assert not np.allclose(ld_xy.connections[1], ld_y.connections[0])
+    assert np.allclose(ld_xy.connections[1], ld_y.connections[0] + len(ld_x.vertices))
