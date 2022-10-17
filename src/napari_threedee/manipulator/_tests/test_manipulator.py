@@ -14,6 +14,6 @@ def test_instantiation():
 
 @pytest.mark.xfail
 def test_rotation_matrix_type():
-    manipulator = ManipulatorModel.from_string('x')
+    manipulator = ManipulatorModel(central_axes='xyz', rotators='xyz', translators='xyz')
     assert type(manipulator.rotation_matrix) == np.ndarray
 
