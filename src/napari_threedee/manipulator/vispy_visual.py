@@ -7,20 +7,9 @@ from vispy.scene import Line, Compound, Markers
 
 
 class ManipulatorVisual(Compound):
-    _default_origin_point_kwargs = {
-        'pos': np.array([0, 0, 0]),
-        'size': 10,
-        'edge_width_rel': 0.2,
-        'edge_color': np.array([0.5, 0.5, 0.5]),
-        'face_color': np.array([1, 1, 1]),
-        'symbol': 'disc',
-        'scaling': False,
-        'antialias': 1,
-        'spherical': True,
-    }
-
-    def __init__(self, parent):
+    def __init__(self, parent, manipulator_visual_data: ManipulatorVisualData):
         super().__init__([Line(), Line(), Markers(), Markers(), Line(), Markers()], parent=parent)
+        self._manipulator_visual_data = manipulator_visual_data
 
         # set up the central axis visual
         self.origin_marker_visual.spherical = True
@@ -34,6 +23,10 @@ class ManipulatorVisual(Compound):
         self.translator_handle_visual.spherical = True
         self.translator_handle_visual.scaling = True
         self.translator_handle_visual.antialias = 0
+
+    @property
+    def manipulator_visual_data(self) -> ManipulatorVisualData:
+        return self._manipulator_visual_data
 
     @property
     def origin_marker_visual(self) -> Markers:
@@ -59,11 +52,29 @@ class ManipulatorVisual(Compound):
     def translator_handle_visual(self) -> Markers:
         return self._subvisuals[5]
 
+    def _instantiate_from_manipulator_visual_data(self):
+        self._update_central_axis_visuals()
+        self._update_translator_visuals()
+        self._update_rotator_visuals()
+
+    def _update_central_axis_visuals(self):
+        pass
+
+    def _update_translator_visuals(self):
+        pass
+
+    def _update_rotator_visuals(self):
+        pass
+
+
     @classmethod
     def from_manipulator_visual_data(cls, manipulator_visual_data: ManipulatorVisualData):
-        visual = cls()
-        visual.
-        return
+        visual = cls(manipulator_visual_data=manipulator_visual_data)
+        visual._instantiate_from_manipulator_visual_data()
+        return visual
 
     @classmethod
     def from_manipulator(cls, manipulator: ManipulatorModel):
+        mvd = ManipulatorVisualData.from_manipulator(manipulator)
+        return cls.from_manipulator_visual_data(mvd)
+
