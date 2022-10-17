@@ -2,10 +2,11 @@ import numpy as np
 
 from napari_threedee.manipulator.axis_model import AxisModel
 from napari_threedee.manipulator.central_axis import CentralAxis, CentralAxisSet
+from napari_threedee.manipulator.manipulator import ManipulatorModel
 from napari_threedee.manipulator.translator import Translator, TranslatorSet
 from napari_threedee.manipulator.rotator import Rotator, RotatorSet
 from napari_threedee.manipulator.manipulator_visual_data import ManipulatorLineData, \
-    ManipulatorHandleData
+    ManipulatorHandleData, ManipulatorVisualData
 
 
 def test_linedata_from_central_axis():
@@ -101,3 +102,11 @@ def test_handledata_from_rotator_set():
     hd = ManipulatorHandleData.from_rotator_set(RotatorSet.from_string('xyz'))
     assert len(hd.points) == 3
     assert len(hd.axis_identifiers) == 3
+
+
+def test_manipulator_visual_data_from_manipulator():
+    manipulator = ManipulatorModel(central_axes='xyz', translators='xyz', rotators='xyz')
+    mvd = ManipulatorVisualData.from_manipulator(manipulator=manipulator)
+    assert isinstance(mvd, ManipulatorVisualData)
+    assert isinstance(mvd.line_data, ManipulatorLineData)
+    assert isinstance(mvd.handle_data, ManipulatorHandleData)

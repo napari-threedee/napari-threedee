@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import List
 
 import numpy as np
@@ -10,24 +8,6 @@ from .central_axis import CentralAxis, CentralAxisSet
 from .manipulator import ManipulatorModel
 from .rotator import Rotator, RotatorSet
 from .translator import TranslatorSet, Translator
-
-
-class ManipulatorVisualData(BaseModel):
-    """Data required to render a manipulator"""
-    line_data: ManipulatorLineData  # vertices, connections, vertex colors, vertex associated axis_ids
-    handle_data: ManipulatorHandleData  # points, colors, point associated axis_ids
-    selected_axes: List[int] = []
-
-    @classmethod
-    def from_manipulator(cls, manipulator: ManipulatorModel):
-        translator_line_data = ManipulatorLineData.from_translator_set(manipulator.translators)
-        rotator_line_data = ManipulatorLineData.from_rotator_set(manipulator.rotators)
-        line_data = translator_line_data + rotator_line_data
-
-        translator_handles = ManipulatorHandleData.from_translator_set(manipulator.translators)
-        rotator_handles = ManipulatorHandleData.from_rotator_set(manipulator.rotators)
-        handle_data = translator_handles + rotator_handles
-        return cls(line_data=line_data, handle_data=handle_data)
 
 
 class ManipulatorLineData(BaseModel):
@@ -89,7 +69,7 @@ class ManipulatorLineData(BaseModel):
     def from_rotator_set(cls, rotators: RotatorSet, n_segments: int = 64):
         return sum(cls.from_rotator(rotator, n_segments=n_segments) for rotator in rotators)
 
-    def __add__(self, other: ManipulatorLineData) -> ManipulatorLineData:
+    def __add__(self, other):
         if other == 0:
             return self
         vertices = np.concatenate([self.vertices, other.vertices], axis=0)
@@ -135,7 +115,7 @@ class ManipulatorHandleData(BaseModel):
         )
 
     @classmethod
-    def from_translator_set(cls, translators: TranslatorSet) -> ManipulatorHandleData:
+    def from_translator_set(cls, translators: TranslatorSet):
         return sum(cls.from_translator(translator) for translator in translators)
 
     @classmethod
@@ -153,10 +133,31 @@ class ManipulatorHandleData(BaseModel):
     def __radd__(self, other):
         return self.__add__(other)
 
-    def __add__(self, other: ManipulatorHandleData) -> ManipulatorHandleData:
+    def __add__(self, other):
         if other == 0:
             return self
         points = np.concatenate([self.points, other.points], axis=0)
         colors = np.concatenate([self.colors, other.colors], axis=0)
         axis_ids = np.concatenate([self.axis_identifiers, other.axis_identifiers], axis=0)
         return ManipulatorHandleData(points=points, colors=colors, axis_identifiers=axis_ids)
+
+
+class ManipulatorVisualData(BaseModel):
+    """Data required to render a manipulator"""
+    line_data: ManipulatorLineData  # vertices, connections, vertex colors, vertex associated axis_ids
+    handle_data: ManipulatorHandleData  # points, colors, point associated axis_ids
+    selected_axes: List[int] = []
+
+    class Config:
+        arbitrary_types_allowed = True
+
+    @classmethod
+    def from_manipulator(cls, manipulator: ManipulatorModel):
+        translator_line_data = ManipulatorLineData.from_translator_set(manipulator.translators)
+        rotator_line_data = ManipulatorLineData.from_rotator_set(manipulator.rotators)
+        line_data = translator_line_data + rotator_line_data
+
+        translator_handles = ManipulatorHandleData.from_translator_set(manipulator.translators)
+        rotator_handles = ManipulatorHandleData.from_rotator_set(manipulator.rotators)
+        handle_data = translator_handles + rotator_handles
+        return cls(line_data=line_data, handle_data=handle_data)
