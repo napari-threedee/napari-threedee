@@ -61,7 +61,7 @@ class Manipulator(BaseModel):
 
     def _update_central_axes_visual(self) -> None:
         # set the axes
-        self.visual.axes_visual.set_data(
+        self.visual.central_axes_visual.set_data(
             pos=self.central_axes.vertices[:, ::-1],
             connect=self.central_axes.connections,
             color=self.central_axes.rendered_vertex_colors,
@@ -69,7 +69,7 @@ class Manipulator(BaseModel):
         )
 
         # set the accenting points that cap the axes
-        self.visual.centroid_visual.set_data(
+        self.visual.origin_marker_visual.set_data(
             pos=np.array([[0, 0, 0]]),
             face_color=[0.7, 0.7, 0.7, 1],
             size=10
@@ -77,7 +77,7 @@ class Manipulator(BaseModel):
 
     def _update_rotators_visual(self) -> None:
         rotator_arc_colors, rotator_handle_colors = self.rotators.rendered_rotator_colors
-        self.visual.rotator_arc_visual.set_data(
+        self.visual.rotator_line_visual.set_data(
             pos=self.rotators.vertices[:, ::-1],
             connect=self.rotators.connections,
             color=rotator_arc_colors,
@@ -85,7 +85,7 @@ class Manipulator(BaseModel):
         )
 
         # update the handle data
-        self.visual.rotator_handles_visual.set_data(
+        self.visual.rotator_handle_visual.set_data(
             pos=self.rotators.handle_points[:, ::-1],
             face_color=rotator_handle_colors,
             size=self.rotators.handle_size,
@@ -96,7 +96,7 @@ class Manipulator(BaseModel):
         translator_axis_colors, translator_handle_colors = self.translators.rendered_translator_colors
 
         # set the axes
-        self.visual.translator_visual.set_data(
+        self.visual.translator_line_visual.set_data(
             pos=self.translators.vertices[:, ::-1],
             color=translator_axis_colors,
             connect="segments",
@@ -104,7 +104,7 @@ class Manipulator(BaseModel):
         )
 
         # set the handles
-        self.visual.translator_handles_visual.set_data(
+        self.visual.translator_handle_visual.set_data(
             pos=self.translators.handle_points[:, ::-1],
             face_color=translator_handle_colors, size=self.translators.handle_size, edge_color=np.array([0, 0, 0, 0])
         )

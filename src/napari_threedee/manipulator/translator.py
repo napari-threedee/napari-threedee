@@ -42,3 +42,6 @@ class TranslatorSet(List[Translator]):
     @classmethod
     def from_string(cls, axes: str):
         return cls.from_axis_set(AxisSet.from_string(axes))
+
+    def __str__(self) -> str:
+        return ''.join(translator.axis.name for translator in self)

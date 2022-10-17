@@ -27,3 +27,6 @@ class CentralAxisSet(List[CentralAxis]):
     @classmethod
     def from_string(cls, axes: str):
         return cls.from_axis_set(AxisSet.from_string(axes))
+
+    def __str__(self) -> str:
+        return ''.join(central_axis.axis.name for central_axis in self)

@@ -17,3 +17,12 @@ def test_rotation_matrix_type():
     manipulator = ManipulatorModel(central_axes='xyz', rotators='xyz', translators='xyz')
     assert type(manipulator.rotation_matrix) == np.ndarray
 
+
+def test_instantiation_from_strings():
+    """Central axes are implied by set of translators and rotators."""
+    manipulator = ManipulatorModel.from_strings(translators='x', rotators='z')
+    central_axes = str(manipulator.central_axes)
+    assert len(central_axes) == 2
+    assert 'x' in central_axes
+    assert 'y' in central_axes
+    assert 'z' not in central_axes

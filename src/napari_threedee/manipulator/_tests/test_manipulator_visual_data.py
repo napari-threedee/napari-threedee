@@ -108,5 +108,5 @@ def test_manipulator_visual_data_from_manipulator():
     manipulator = ManipulatorModel(central_axes='xyz', translators='xyz', rotators='xyz')
     mvd = ManipulatorVisualData.from_manipulator(manipulator=manipulator)
     assert isinstance(mvd, ManipulatorVisualData)
-    assert isinstance(mvd.line_data, ManipulatorLineData)
-    assert isinstance(mvd.handle_data, ManipulatorHandleData)
+    assert isinstance(mvd.translator_line_data, ManipulatorLineData)
+    assert isinstance(mvd.translator_handle_data, ManipulatorHandleData)

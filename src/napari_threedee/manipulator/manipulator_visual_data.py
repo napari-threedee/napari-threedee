@@ -144,8 +144,10 @@ class ManipulatorHandleData(BaseModel):
 
 class ManipulatorVisualData(BaseModel):
     """Data required to render a manipulator"""
-    line_data: ManipulatorLineData  # vertices, connections, vertex colors, vertex associated axis_ids
-    handle_data: ManipulatorHandleData  # points, colors, point associated axis_ids
+    translator_line_data: ManipulatorLineData  # vertices, connections, vertex colors, vertex associated axis_ids
+    translator_handle_data: ManipulatorHandleData  # points, colors, point associated axis_ids
+    rotator_line_data: ManipulatorLineData
+    rotator_handle_data: ManipulatorHandleData
     selected_axes: List[int] = []
 
     class Config:
@@ -155,9 +157,12 @@ class ManipulatorVisualData(BaseModel):
     def from_manipulator(cls, manipulator: ManipulatorModel):
         translator_line_data = ManipulatorLineData.from_translator_set(manipulator.translators)
         rotator_line_data = ManipulatorLineData.from_rotator_set(manipulator.rotators)
-        line_data = translator_line_data + rotator_line_data
 
-        translator_handles = ManipulatorHandleData.from_translator_set(manipulator.translators)
-        rotator_handles = ManipulatorHandleData.from_rotator_set(manipulator.rotators)
-        handle_data = translator_handles + rotator_handles
-        return cls(line_data=line_data, handle_data=handle_data)
+        translator_handle_data = ManipulatorHandleData.from_translator_set(manipulator.translators)
+        rotator_handle_data = ManipulatorHandleData.from_rotator_set(manipulator.rotators)
+        return cls(
+            translator_line_data=translator_line_data,
+            translator_handle_data=translator_handle_data,
+            rotator_line_data=rotator_line_data,
+            rotator_handle_data=rotator_handle_data
+        )
