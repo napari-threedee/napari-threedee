@@ -122,7 +122,7 @@ class ManipulatorHandleData(BaseModel):
         return cls(
             points=translator.start_point.reshape((1, 3)),
             colors=translator.axis.color.reshape((1, 4)),
-            axis_identifiers=np.asarray(translator.axis.id)
+            axis_identifiers=np.array([translator.axis.id])
         )
 
     @classmethod
@@ -134,7 +134,7 @@ class ManipulatorHandleData(BaseModel):
         return cls(
             points=rotator.handle_point.reshape((1, 3)),
             colors=rotator.axis.color.reshape((1, 4)),
-            axis_identifiers=np.asarray(rotator.axis.id)
+            axis_identifiers=np.array([rotator.axis.id])
         )
 
     @classmethod
