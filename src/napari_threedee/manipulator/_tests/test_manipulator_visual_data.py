@@ -1,9 +1,11 @@
 import numpy as np
 
+from napari_threedee.manipulator.axis_model import AxisModel
 from napari_threedee.manipulator.central_axis import CentralAxis, CentralAxisSet
 from napari_threedee.manipulator.translator import Translator, TranslatorSet
 from napari_threedee.manipulator.rotator import Rotator, RotatorSet
-from napari_threedee.manipulator.manipulator_visual_data import ManipulatorLineData
+from napari_threedee.manipulator.manipulator_visual_data import ManipulatorLineData, \
+    ManipulatorHandleData
 
 
 def test_linedata_from_central_axis():
@@ -41,7 +43,7 @@ def test_linedata_from_rotator_set():
     assert ld.vertices.shape == (n_expected_vertices, 3)
     assert ld.connections.shape == (n_segments * n_rotators, 2)
     assert ld.colors.shape == (n_expected_vertices, 4)
-    assert ld.axis_identifiers.shape == (n_expected_vertices, )
+    assert ld.axis_identifiers.shape == (n_expected_vertices,)
 
 
 def test_linedata_from_translator():
@@ -52,7 +54,7 @@ def test_linedata_from_translator():
     assert ld.vertices.shape == (n_expected_vertices, 3)
     assert ld.connections.shape == (n_expected_connections, 2)
     assert ld.colors.shape == (n_expected_vertices, 4)
-    assert ld.axis_identifiers.shape == (n_expected_vertices, )
+    assert ld.axis_identifiers.shape == (n_expected_vertices,)
 
 
 def test_linedata_from_translator_set():
@@ -64,7 +66,7 @@ def test_linedata_from_translator_set():
     assert ld.vertices.shape == (n_expected_vertices, 3)
     assert ld.connections.shape == (n_expected_connections, 2)
     assert ld.colors.shape == (n_expected_vertices, 4)
-    assert ld.axis_identifiers.shape == (n_expected_vertices, )
+    assert ld.axis_identifiers.shape == (n_expected_vertices,)
 
 
 def test_reindex_on_add_linedata():
@@ -75,3 +77,27 @@ def test_reindex_on_add_linedata():
     assert len(ld_xy.vertices) == len(ld_x.vertices) + len(ld_y.vertices)
     assert not np.allclose(ld_xy.connections[1], ld_y.connections[0])
     assert np.allclose(ld_xy.connections[1], ld_y.connections[0] + len(ld_x.vertices))
+
+
+def test_handledata_from_translator():
+    hd = ManipulatorHandleData.from_translator(Translator.from_string('x'))
+    assert len(hd.points) == 1
+    assert np.allclose(hd.axis_identifiers, AxisModel.from_string('x').id)
+
+
+def test_handledata_from_rotator():
+    hd = ManipulatorHandleData.from_rotator(Rotator.from_string('x'))
+    assert len(hd.points) == 1
+    assert np.allclose(hd.axis_identifiers, AxisModel.from_string('x').id)
+
+
+def test_handledata_from_translator_set():
+    hd = ManipulatorHandleData.from_translator_set(TranslatorSet.from_string('xyz'))
+    assert len(hd.points) == 3
+    assert len(hd.axis_identifiers) == 3
+
+
+def test_handledata_from_rotator_set():
+    hd = ManipulatorHandleData.from_rotator_set(RotatorSet.from_string('xyz'))
+    assert len(hd.points) == 3
+    assert len(hd.axis_identifiers) == 3
