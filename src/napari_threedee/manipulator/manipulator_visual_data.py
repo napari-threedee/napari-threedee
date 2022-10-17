@@ -16,6 +16,7 @@ class ManipulatorLineData(BaseModel):
     connections: np.ndarray  # (n_segments, 2) array of indices for vertices in connected segments
     colors: np.ndarray  # (n_vertices, 4) array of per-vertex RGBA colors
     axis_identifiers: np.ndarray  # (n_vertices, ) array of per-vertex axis identifiers
+    line_width: float = 3
 
     class Config:
         arbitrary_types_allowed = True

@@ -53,19 +53,33 @@ class ManipulatorVisual(Compound):
         return self._subvisuals[5]
 
     def _instantiate_from_manipulator_visual_data(self):
-        self._update_central_axis_visuals()
-        self._update_translator_visuals()
-        self._update_rotator_visuals()
+        self._setup_central_axis_visuals()
+        self._setup_translator_visuals()
+        self._setup_rotator_visuals()
 
-    def _update_central_axis_visuals(self):
-        pass
+    def _setup_central_axis_visuals(self):
+        self.central_axes_visual.set_data(
+            pos=self.manipulator_visual_data.central_axis_line_data.vertices,
+            connect=self.manipulator_visual_data.central_axis_line_data.connections,
+            color=self.manipulator_visual_data.central_axis_line_data.colors,
+            width=self.manipulator_visual_data.central_axis_line_data.line_width,
+        )
 
-    def _update_translator_visuals(self):
-        pass
+    def _setup_translator_visuals(self):
+        self.translator_line_visual.set_data(
+            pos=self.manipulator_visual_data.translator_line_data.vertices,
+            connect=self.manipulator_visual_data.translator_line_data.connections,
+            color=self.manipulator_visual_data.translator_line_data.colors,
+            width=self.manipulator_visual_data.translator_line_data.line_width,
+        )
 
-    def _update_rotator_visuals(self):
-        pass
-
+    def _setup_rotator_visuals(self):
+        self.rotator_line_visual.set_data(
+            pos=self.manipulator_visual_data.rotator_line_data.vertices,
+            connect=self.manipulator_visual_data.rotator_line_data.connections,
+            color=self.manipulator_visual_data.rotator_line_data.colors,
+            width=self.manipulator_visual_data.rotator_line_data.line_width,
+        )
 
     @classmethod
     def from_manipulator_visual_data(cls, manipulator_visual_data: ManipulatorVisualData):
