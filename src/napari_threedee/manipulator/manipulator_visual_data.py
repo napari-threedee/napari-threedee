@@ -7,6 +7,7 @@ from napari.utils.geometry import rotation_matrix_from_vectors_3d
 from pydantic import BaseModel
 
 from .central_axis import CentralAxis, CentralAxisSet
+from .manipulator import ManipulatorModel
 from .rotator import Rotator, RotatorSet
 from .translator import TranslatorSet, Translator
 
@@ -15,10 +16,18 @@ class ManipulatorVisualData(BaseModel):
     """Data required to render a manipulator"""
     line_data: ManipulatorLineData  # vertices, connections, vertex colors, vertex associated axis_ids
     handle_data: ManipulatorHandleData  # points, colors, point associated axis_ids
-    selected_axes: List[int]
+    selected_axes: List[int] = []
 
-    class Config:
-        arbitrary_types_allowed = True
+    @classmethod
+    def from_manipulator(cls, manipulator: ManipulatorModel):
+        translator_line_data = ManipulatorLineData.from_translator_set(manipulator.translators)
+        rotator_line_data = ManipulatorLineData.from_rotator_set(manipulator.rotators)
+        line_data = translator_line_data + rotator_line_data
+
+        translator_handles = ManipulatorHandleData.from_translator_set(manipulator.translators)
+        rotator_handles = ManipulatorHandleData.from_rotator_set(manipulator.rotators)
+        handle_data = translator_handles + rotator_handles
+        return cls(line_data=line_data, handle_data=handle_data)
 
 
 class ManipulatorLineData(BaseModel):
