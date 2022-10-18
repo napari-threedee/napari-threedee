@@ -72,6 +72,7 @@ class NapariManipulator:
         if drag_manager is None:
             return
         layer.interactive = False  # disable layer interactivity
+        self._update_colors()
         yield  # then start handling the mouse drag
         drag_manager.setup_drag(
             layer=layer,
@@ -79,7 +80,6 @@ class NapariManipulator:
             translation=self.manipulator.origin,
             rotation_matrix=self.manipulator.rotation_matrix
         )
-        self._update_colors()
         while event.type == 'mouse_move':
             new_origin, new_rotation_matrix = drag_manager.update_drag(mouse_event=event)
             with self.manipulator.events.blocked():
@@ -131,10 +131,11 @@ class NapariManipulator:
         axis_vector = AxisModel.from_id(axis_id).vector
         rotated_axis_vector = self.manipulator.rotation_matrix @ axis_vector
 
-        # is the clicked axis a translator or a rotator?
-        is_translator = np.zeros(len(handle_data.points), dtype=bool)
-        is_translator[:len(self.vispy_visual_data.translator_handle_data)] = True
-        if is_translator[selection] == True:
+        # is the clicked point  a translator or a rotator?
+        point_is_translator = np.zeros(len(handle_data.points), dtype=bool)
+        point_is_translator[:len(self.vispy_visual_data.translator_handle_data)] = True
+        point_is_translator = point_is_translator[selection] == True  # np.array(True) is not True
+        if point_is_translator:
             self.vispy_visual_data.translator_is_selected = True
             drag_manager = TranslatorDragManager(translation_vector=rotated_axis_vector)
         else:

@@ -45,7 +45,7 @@ class ManipulatorVisual(Compound):
         return self._subvisuals[3]
 
     @property
-    def central_axes_visual(self) -> Line:
+    def central_axis_visual(self) -> Line:
         return self._subvisuals[0]
 
     @property
@@ -65,14 +65,13 @@ class ManipulatorVisual(Compound):
         return self._subvisuals[5]
 
     def update_visuals_from_manipulator_visual_data(self):
-        self._update_central_axis_visuals()
+        self._update_central_axis_visual()
         self._update_translator_visuals()
         self._update_rotator_visuals()
         self.update()
 
-
-    def _update_central_axis_visuals(self):
-        self.central_axes_visual.set_data(
+    def _update_central_axis_visual(self):
+        self.central_axis_visual.set_data(
             pos=self.manipulator_visual_data.central_axis_line_data.vertices[:, ::-1],
             connect=self.manipulator_visual_data.central_axis_line_data.connections,
             color=self.manipulator_visual_data.central_axis_line_colors,
