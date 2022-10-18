@@ -2,7 +2,7 @@ import napari
 from napari.utils.events import Event
 from qtpy.QtWidgets import QPushButton, QGroupBox, QVBoxLayout, QCheckBox, QSpinBox, QLabel, QHBoxLayout
 
-from ..base import QtThreeDeeWidgetBase
+from .._base_model import QtThreeDeeWidgetBase
 
 from .spline_annotator import SplineAnnotator
 
