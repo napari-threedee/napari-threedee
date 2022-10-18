@@ -53,6 +53,17 @@ class AxisModel(BaseModel):
                 id=2
             )
 
+    @classmethod
+    def from_id(cls, id: int):
+        if id == 0:
+            return cls.from_string('x')
+        elif id == 1:
+            return cls.from_string('y')
+        elif id == 2:
+            return cls.from_string('z')
+        else:
+            raise ValueError("id must be 0, 1 or 2")
+
 
 class AxisSet(List[AxisModel]):
     @classmethod

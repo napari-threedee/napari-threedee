@@ -183,7 +183,7 @@ class Manipulator(BaseModel):
         """
 
         # identify clicked rotator/translator
-        drag_manager = self._check_if_manipulator_clicked(click_point=click_position, view_direction=view_direction)
+        drag_manager = self._drag_manager_from_click(click_point=click_position, view_direction=view_direction)
 
         if drag_manager is not None:
             if isinstance(drag_manager, RotatorDragManager):
@@ -241,13 +241,13 @@ class Manipulator(BaseModel):
             # a rotator was selected
             untransformed_normal_vector = self.rotators.basis_vectors[selection]
             normal_vector = self.rotation_matrix.dot(untransformed_normal_vector)
-            return RotatorDragManager(normal_vector=normal_vector, axis_index=selection)
+            return RotatorDragManager(rotation_vector=normal_vector, axis_index=selection)
         else:
             # a translator was selected
             translator_index = selection - n_rotators
             untransformed_normal_vector = self.translators.basis_vectors[translator_index]
             normal_vector = self.rotation_matrix.dot(untransformed_normal_vector)
-            return TranslatorDragManager(normal_vector=normal_vector, axis_index=translator_index)
+            return TranslatorDragManager(translation_vector=normal_vector, axis_index=translator_index)
 
     def _on_transformation_changed(self) -> None:
         """Update the manipulator visual transformation based on the

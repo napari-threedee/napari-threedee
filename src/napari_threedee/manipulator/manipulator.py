@@ -1,8 +1,8 @@
-from typing import Tuple
+from typing import Tuple, Optional
 
 import numpy as np
 from psygnal import EventedModel
-from pydantic import validator
+from pydantic import validator, Field
 
 from .central_axis import CentralAxisSet
 from .rotator import RotatorSet
@@ -10,16 +10,14 @@ from .translator import TranslatorSet
 
 
 class ManipulatorModel(EventedModel):
-    # manipulable bits
-    central_axes: CentralAxisSet
-    rotators: RotatorSet
     translators: TranslatorSet
+    rotators: RotatorSet
+    central_axes: CentralAxisSet
 
-    # transformation
-    origin: Tuple[float, float, float] = (0, 0, 0)
-    rotation_matrix: np.ndarray = ((1, 0, 0),
-                                   (0, 1, 0),
-                                   (0, 0, 1))  # equality check failing when array is default
+    origin: Tuple[float, float, float] = Field(default_factory=lambda: np.zeros(3))
+    rotation_matrix: np.ndarray = Field(default_factory=lambda: np.eye(3))
+
+    selected_axis_id: Optional[int]
 
     class Config:
         arbitrary_types_allowed = True

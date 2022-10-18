@@ -157,7 +157,7 @@ def select_sphere_from_click(
         The index for the sphere that was intersected.
         Returns None if no spheres are intersected.
     """
-    # project the in view points onto the plane
+    # project the in view points onto the camera plane
     projected_points, projection_distances = project_points_onto_plane(
         points=sphere_centroids,
         plane_point=click_point,

@@ -16,6 +16,7 @@ class ManipulatorLineData(BaseModel):
     connections: np.ndarray  # (n_segments, 2) array of indices for vertices in connected segments
     colors: np.ndarray  # (n_vertices, 4) array of per-vertex RGBA colors
     axis_identifiers: np.ndarray  # (n_vertices, ) array of per-vertex axis identifiers
+
     line_width: float = 3
 
     class Config:
@@ -104,6 +105,8 @@ class ManipulatorHandleData(BaseModel):
     colors: np.ndarray  # (n_handles, 4) array of RGBA colors for points
     axis_identifiers: np.ndarray  # (n_points, ) array of axis identifiers
 
+    handle_size: float = 10
+
     class Config:
         arbitrary_types_allowed = True
 
@@ -141,6 +144,9 @@ class ManipulatorHandleData(BaseModel):
         colors = np.concatenate([self.colors, other.colors], axis=0)
         axis_ids = np.concatenate([self.axis_identifiers, other.axis_identifiers], axis=0)
         return ManipulatorHandleData(points=points, colors=colors, axis_identifiers=axis_ids)
+
+    def __len__(self):
+        return len(self.points)
 
 
 class ManipulatorVisualData(BaseModel):
