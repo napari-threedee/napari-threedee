@@ -12,10 +12,14 @@ def test_instantiation():
     assert isinstance(manipulator, ManipulatorModel)
 
 
-def test_instantiation_empty_rotators():
+def test_instantiation_with_empty_rotators():
     manipulator = ManipulatorModel.from_strings(translators='xyz', rotators=None)
     assert isinstance(manipulator, ManipulatorModel)
 
+
+def test_instantiation_with_empty_translators():
+    manipulator = ManipulatorModel.from_strings(translators=None, rotators='xyz')
+    assert isinstance(manipulator, ManipulatorModel)
 
 @pytest.mark.xfail
 def test_rotation_matrix_type():

@@ -10,9 +10,9 @@ from .translator import TranslatorSet
 
 
 class ManipulatorModel(EventedModel):
-    translators: TranslatorSet
-    rotators: RotatorSet
-    central_axes: CentralAxisSet
+    translators: Optional[TranslatorSet]
+    rotators: Optional[RotatorSet]
+    central_axes: Optional[CentralAxisSet]
 
     origin: Tuple[float, float, float] = Field(default_factory=lambda: np.zeros(3))
     rotation_matrix: np.ndarray = Field(default_factory=lambda: np.eye(3))
@@ -41,9 +41,12 @@ class ManipulatorModel(EventedModel):
         return v
 
     @classmethod
-    def from_strings(cls, translators: str, rotators: str):
-        translator_central_axes = translators
-        rotators = RotatorSet.from_string(rotators)
-        rotator_central_axes = ''.join(rotator.axis.perpendicular_axes for rotator in rotators)
-        central_axes = ''.join(set(translator_central_axes + rotator_central_axes))
+    def from_strings(cls, translators: Optional[str], rotators: Optional[str]):
+        if rotators is None:
+            return cls(central_axes=translators, translators=translators, rotators=rotators)
+        rotator_central_axes = ''.join(
+            rotator.axis.perpendicular_axes for rotator in RotatorSet.from_string(rotators)
+        )
+        translator_central_axes = '' if translators is None else translators
+        central_axes = rotator_central_axes + translator_central_axes
         return cls(central_axes=central_axes, translators=translators, rotators=rotators)
