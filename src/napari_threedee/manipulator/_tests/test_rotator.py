@@ -8,7 +8,6 @@ def test_rotator_instantiation():
 
 
 def test_rotatorset_instantiation():
-    aset = AxisSet.from_string('xyz')
-    rotators = RotatorSet(axes=aset)
+    rotators = RotatorSet.from_string('xyz')
     assert isinstance(rotators, RotatorSet)
-    assert len(rotators.axes) == 3
+    assert len(rotators) == 3
