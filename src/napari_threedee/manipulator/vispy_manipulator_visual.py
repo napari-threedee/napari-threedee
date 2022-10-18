@@ -1,5 +1,5 @@
-from .manipulator import ManipulatorModel
-from .manipulator_visual_data import ManipulatorVisualData
+from .model import ManipulatorModel
+from .vispy_visual_data import ManipulatorVisualData
 
 import numpy as np
 

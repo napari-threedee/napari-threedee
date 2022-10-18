@@ -6,9 +6,9 @@ import numpy as np
 from vispy.visuals.transforms import MatrixTransform
 
 from .axis_model import AxisModel
-from .manipulator import ManipulatorModel
-from .manipulator_visual_data import ManipulatorVisualData
-from .vispy_visual import ManipulatorVisual
+from .model import ManipulatorModel
+from .vispy_visual_data import ManipulatorVisualData
+from .vispy_manipulator_visual import ManipulatorVisual
 from ..manipulators._drag_manager import RotatorDragManager, TranslatorDragManager
 from ..utils.napari_utils import get_vispy_node, mouse_event_to_layer_data_displayed, \
     add_mouse_callback_safe
@@ -53,7 +53,8 @@ class NapariManipulator:
     def _mouse_callback(self, layer, event):
         """Mouse call back for selecting and dragging a manipulator."""
         initial_layer_interactive = layer.interactive
-        click_position_data_3d, click_dir_data_3d = mouse_event_to_layer_data_displayed(layer, event)
+        click_position_data_3d, click_dir_data_3d = mouse_event_to_layer_data_displayed(layer,
+                                                                                        event)
         drag_manager = self._drag_manager_from_click(click_position_data_3d, click_dir_data_3d)
         if drag_manager is None:
             return
@@ -79,7 +80,8 @@ class NapariManipulator:
         # reset layer interaction to original state
         layer.interactive = initial_layer_interactive
 
-    def _drag_manager_from_click(self, click_point: np.ndarray, view_direction: np.ndarray) -> Optional[Union[RotatorDragManager, TranslatorDragManager]]:
+    def _drag_manager_from_click(self, click_point: np.ndarray, view_direction: np.ndarray) -> \
+    Optional[Union[RotatorDragManager, TranslatorDragManager]]:
         """Determine if a translator or rotator was clicked on.
         Parameters
         ----------
@@ -98,7 +100,8 @@ class NapariManipulator:
         """
         handle_data = self.visual_data.translator_handle_data + self.visual_data.rotator_handle_data
         untransformed_handle_points = einops.rearrange(handle_data.points, 'b xyz -> b xyz 1')
-        rotation, translation = self.manipulator.rotation_matrix, einops.rearrange(self.manipulator.origin, 'xyz -> xyz 1')  # Rotation, Translation...
+        rotation, translation = self.manipulator.rotation_matrix, einops.rearrange(
+            self.manipulator.origin, 'xyz -> xyz 1')  # Rotation, Translation...
         transformed_handle_points = (rotation @ untransformed_handle_points) + translation
         selection = select_sphere_from_click(
             click_point=click_point,
@@ -127,17 +130,15 @@ class NapariManipulator:
         """Update the manipulator visual transformation based on the manipulator state
         """
         if self._layer is None:
-            # do not do anything if the layer has not been set
             return
         # convert NumPy axis ordering to VisPy axis ordering
-        # by reversing the axes order and flipping the linear
-        # matrix
         translation = self.manipulator.origin[::-1]
         rotation_matrix = self.manipulator.rotation_matrix[::-1, ::-1].T
 
-        # Embed in the top left corner of a 4x4 affine matrix
+        # Embed rotation matrix in the top left corner of a 4x4 affine matrix
         affine_matrix = np.eye(4)
         affine_matrix[: rotation_matrix.shape[0], : rotation_matrix.shape[1]] = rotation_matrix
         affine_matrix[-1, : len(translation)] = translation
 
+        # update transform on vispy manipulator
         self.vispy_visual.transform.matrix = affine_matrix
