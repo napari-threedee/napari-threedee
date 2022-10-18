@@ -95,8 +95,9 @@ class NapariManipulator:
         self._update_colors()
         layer.interactive = initial_layer_interactive
 
-    def _drag_manager_from_click(self, click_point: np.ndarray, view_direction: np.ndarray) -> \
-    Optional[Union[RotatorDragManager, TranslatorDragManager]]:
+    def _drag_manager_from_click(
+            self, click_point: np.ndarray, view_direction: np.ndarray
+    ) -> Optional[Union[RotatorDragManager, TranslatorDragManager]]:
         """Determine if a translator or rotator was clicked on.
         Parameters
         ----------
@@ -128,6 +129,7 @@ class NapariManipulator:
             return None
 
         axis_id = handle_data.axis_identifiers[selection]
+        print(axis_id)
         self.manipulator.selected_axis_id = axis_id
         axis_vector = AxisModel.from_id(axis_id).vector
         rotated_axis_vector = self.manipulator.rotation_matrix @ axis_vector

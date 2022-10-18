@@ -15,6 +15,11 @@ class ManipulatorVisual(Compound):
 
         # set up the central axis visual
         self.origin_marker_visual.spherical = True
+        self.origin_marker_visual.set_data(
+            pos=np.array([[0, 0, 0]]),
+            face_color=[0.7, 0.7, 0.7, 1],
+            size=10
+        )
 
         # set up the rotator visual
         self.rotator_handle_visual.spherical = True
@@ -65,16 +70,10 @@ class ManipulatorVisual(Compound):
         self._update_rotator_visuals()
         self.update()
 
-    def _setup_origin_marker_visual(self):
-        self.origin_marker_visual.set_data(
-            pos=np.array([[0, 0, 0]]),
-            face_color=[0.7, 0.7, 0.7, 1],
-            size=10
-        )
 
     def _update_central_axis_visuals(self):
         self.central_axes_visual.set_data(
-            pos=self.manipulator_visual_data.central_axis_line_data.vertices,
+            pos=self.manipulator_visual_data.central_axis_line_data.vertices[:, ::-1],
             connect=self.manipulator_visual_data.central_axis_line_data.connections,
             color=self.manipulator_visual_data.central_axis_line_colors,
             width=self.manipulator_visual_data.central_axis_line_data.line_width,
@@ -82,26 +81,26 @@ class ManipulatorVisual(Compound):
 
     def _update_translator_visuals(self):
         self.translator_line_visual.set_data(
-            pos=self.manipulator_visual_data.translator_line_data.vertices,
+            pos=self.manipulator_visual_data.translator_line_data.vertices[:, ::-1],
             connect=self.manipulator_visual_data.translator_line_data.connections,
             color=self.manipulator_visual_data.translator_line_colors,
             width=self.manipulator_visual_data.translator_line_data.line_width,
         )
         self.translator_handle_visual.set_data(
-            pos=self.manipulator_visual_data.translator_handle_data.points,
-            face_color=self.manipulator_visual_data.translator_handle_data.colors,
+            pos=self.manipulator_visual_data.translator_handle_data.points[:, ::-1],
+            face_color=self.manipulator_visual_data.translator_handle_colors,
             size=self.manipulator_visual_data.translator_handle_data.handle_size,
         )
 
     def _update_rotator_visuals(self):
         self.rotator_line_visual.set_data(
-            pos=self.manipulator_visual_data.rotator_line_data.vertices,
+            pos=self.manipulator_visual_data.rotator_line_data.vertices[:, ::-1],
             connect=self.manipulator_visual_data.rotator_line_data.connections,
             color=self.manipulator_visual_data.rotator_line_colors,
             width=self.manipulator_visual_data.rotator_line_data.line_width,
         )
         self.rotator_handle_visual.set_data(
-            pos=self.manipulator_visual_data.rotator_handle_data.points,
-            face_color=self.manipulator_visual_data.rotator_handle_data.colors,
+            pos=self.manipulator_visual_data.rotator_handle_data.points[:, ::-1],
+            face_color=self.manipulator_visual_data.rotator_handle_colors,
             size=self.manipulator_visual_data.rotator_handle_data.handle_size,
         )

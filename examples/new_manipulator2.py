@@ -4,6 +4,7 @@ import numpy as np
 from napari_threedee.manipulator.napari_manipulator import NapariManipulator
 
 viewer = napari.Viewer(ndisplay=3)
+viewer.axes.visible = True
 image_layer = viewer.add_image(np.zeros((50, 50, 50)))
 
 manipulator = NapariManipulator(

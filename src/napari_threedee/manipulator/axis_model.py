@@ -34,7 +34,7 @@ class AxisModel(BaseModel):
                 vector=np.array([0, 0, 1]),
                 perpendicular_axes='yz',
                 color=np.array([1, 0.75, 0.52, 1]),
-                id=0,
+                id=2,
             )
         elif axis == 'y':
             return cls(
@@ -50,17 +50,17 @@ class AxisModel(BaseModel):
                 vector=np.array([1, 0, 0]),
                 perpendicular_axes='xy',
                 color=np.array([0.5, 0.8, 0.5, 1]),
-                id=2
+                id=0
             )
 
     @classmethod
     def from_id(cls, id: int):
         if id == 0:
-            return cls.from_string('x')
+            return cls.from_string('z')
         elif id == 1:
             return cls.from_string('y')
         elif id == 2:
-            return cls.from_string('z')
+            return cls.from_string('x')
         else:
             raise ValueError("id must be 0, 1 or 2")
 
