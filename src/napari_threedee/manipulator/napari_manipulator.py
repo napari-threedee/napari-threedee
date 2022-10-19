@@ -9,7 +9,7 @@ from .axis_model import AxisModel
 from .model import ManipulatorModel
 from .vispy_visual_data import ManipulatorVisualData
 from .vispy_manipulator_visual import ManipulatorVisual
-from ..manipulators._drag_manager import RotatorDragManager, TranslatorDragManager
+from napari_threedee.manipulator.drag_managers import RotatorDragManager, TranslatorDragManager
 from ..utils.napari_utils import get_vispy_node, mouse_event_to_layer_data_displayed, \
     add_mouse_callback_safe
 from ..utils.selection_utils import select_sphere_from_click

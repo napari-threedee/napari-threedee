@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from vispy.visuals.transforms import MatrixTransform
 
 from napari_threedee.manipulator.manipulator import ManipulatorModel
-from napari_threedee.manipulators._drag_manager import RotatorDragManager, TranslatorDragManager
+from napari_threedee.manipulator.drag_managers import RotatorDragManager, TranslatorDragManager
 from napari_threedee.manipulators._manipulator_visual import ManipulatorVisual
 from napari_threedee.utils.napari_utils import get_vispy_node, add_mouse_callback_safe, mouse_event_to_layer_data_displayed
 from napari_threedee.utils.selection_utils import select_sphere_from_click

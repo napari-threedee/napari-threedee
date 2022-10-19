@@ -2,8 +2,8 @@ import napari
 from napari.utils.geometry import intersect_line_with_plane_3d
 import numpy as np
 
-from ..utils.geometry import signed_angle_between_vectors, rotation_matrix_around_vector_3d
-from ..utils.napari_utils import mouse_event_to_layer_data_displayed
+from napari_threedee.utils.geometry import signed_angle_between_vectors, rotation_matrix_around_vector_3d
+from napari_threedee.utils.napari_utils import mouse_event_to_layer_data_displayed
 
 
 class RotatorDragManager:
