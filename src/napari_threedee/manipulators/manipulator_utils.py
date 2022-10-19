@@ -365,7 +365,7 @@ def make_rotator_arc(
 
 
 def make_rotator_data(
-        rotator_normals: np.ndarray,
+        rotator_vectors: np.ndarray,
         rotator_colors: np.ndarray,
         center_point: np.ndarray,
         radius: float,
@@ -375,7 +375,7 @@ def make_rotator_data(
 
     Parameters
     ----------
-    rotator_normals : np.ndarray
+    rotator_vectors : np.ndarray
         (n, 3) array for the n rotators to be created.
     rotator_colors : np.ndarray
         (n, 4) array of RGBA colors for the n rotators to be created.
@@ -415,7 +415,7 @@ def make_rotator_data(
     handle_points = []
     handle_colors = []
     rotator_indicies = []
-    for rotator_index, (normal_vector, color) in enumerate(zip(rotator_normals, rotator_colors)):
+    for rotator_index, (normal_vector, color) in enumerate(zip(rotator_vectors, rotator_colors)):
         # get the vertices and connections
         vertices, connections = make_rotator_arc(
             center_point=center_point,

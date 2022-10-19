@@ -10,7 +10,7 @@ from vispy.scene import Mesh
 from vispy.visuals.transforms import MatrixTransform
 
 from .manipulator_utils import make_translator_meshes, color_lines, make_rotator_meshes
-from ..base import ThreeDeeModel
+from .._base_model import ThreeDeeModel
 from ..utils.napari_utils import get_vispy_node, add_mouse_callback_safe, remove_mouse_callback_safe
 from ..utils.selection_utils import select_mesh_from_click
 

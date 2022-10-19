@@ -9,7 +9,7 @@ from psygnal import EventedModel
 from pydantic import validator, PrivateAttr
 from scipy.interpolate import splprep, splev
 
-from ..base import ThreeDeeModel
+from .._base_model import ThreeDeeModel
 from ..mouse_callbacks import add_point_on_plane
 from ..utils.napari_utils import add_mouse_callback_safe, remove_mouse_callback_safe
 

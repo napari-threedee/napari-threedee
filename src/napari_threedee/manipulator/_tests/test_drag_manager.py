@@ -5,7 +5,7 @@ import numpy as np
 from napari.layers import Image
 import pytest
 
-from napari_threedee.manipulators._drag_manager import RotatorDragManager, TranslatorDragManager
+from napari_threedee.manipulator.drag_managers import RotatorDragManager, TranslatorDragManager
 
 
 @dataclass
@@ -32,12 +32,10 @@ def test_rotator_drag_manager(view_direction, drag_position, expected_angle):
 
     # axis around which rotation will be applied
     rotation_axis = np.array([1, 0, 0])
-    axis_index = 0
 
     # instantiate the drag manager
-    drag_manager = RotatorDragManager(normal_vector=rotation_axis, axis_index=0)
-    assert drag_manager.axis_index == axis_index
-    np.testing.assert_allclose(rotation_axis, drag_manager.rotation_normal)
+    drag_manager = RotatorDragManager(rotation_vector=rotation_axis)
+    np.testing.assert_allclose(rotation_axis, drag_manager.rotation_vector)
 
     # start the drag
     mouse_event = DummyMouseEvent(
@@ -95,12 +93,10 @@ def test_translator_drag_manager(view_direction, drag_position, expected_transla
 
     # axis around which rotation will be applied
     translation_axis = np.array([1, 0, 0])
-    axis_index = 1
 
     # instantiate the drag manager
-    drag_manager = TranslatorDragManager(normal_vector=translation_axis, axis_index=axis_index)
-    assert drag_manager.axis_index == axis_index
-    np.testing.assert_allclose(translation_axis, drag_manager.translation_normal)
+    drag_manager = TranslatorDragManager(translation_vector=translation_axis)
+    np.testing.assert_allclose(translation_axis, drag_manager.translation_vector)
 
     # start the drag
     mouse_event = DummyMouseEvent(

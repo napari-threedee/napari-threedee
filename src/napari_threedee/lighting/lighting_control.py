@@ -3,7 +3,7 @@ from typing import List
 import numpy as np
 import napari
 
-from ..base import ThreeDeeModel
+from .._base_model import ThreeDeeModel
 from ..utils.napari_utils import add_mouse_callback_safe, get_napari_visual, remove_mouse_callback_safe
 
 
