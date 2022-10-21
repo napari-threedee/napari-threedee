@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from napari_threedee._infrastructure.utils.geometry import signed_angle_between_vectors, rotation_matrix_around_vector_3d
+from napari_threedee.utils.geometry import signed_angle_between_vectors, rotation_matrix_around_vector_3d
 
 
 @pytest.mark.parametrize(

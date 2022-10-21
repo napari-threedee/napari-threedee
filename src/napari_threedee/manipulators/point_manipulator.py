@@ -5,7 +5,7 @@ from napari.layers.points._points_mouse_bindings import select as napari_selecti
 import numpy as np
 
 from .base_manipulator import BaseManipulator
-from .._infrastructure.utils.napari_utils import remove_mouse_callback_safe, add_mouse_callback_safe
+from napari_threedee.utils.napari_utils import remove_mouse_callback_safe, add_mouse_callback_safe
 
 
 class PointManipulator(BaseManipulator):

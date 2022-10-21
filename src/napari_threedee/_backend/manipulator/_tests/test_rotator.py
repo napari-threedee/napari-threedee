@@ -1,4 +1,4 @@
-from napari_threedee._infrastructure.manipulator.rotator import RotatorSet, Rotator
+from napari_threedee._backend.manipulator.rotator import RotatorSet, Rotator
 
 
 def test_rotator_instantiation():

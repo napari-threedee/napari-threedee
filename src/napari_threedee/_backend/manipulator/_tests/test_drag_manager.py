@@ -5,7 +5,7 @@ import numpy as np
 from napari.layers import Image
 import pytest
 
-from napari_threedee._infrastructure.manipulator.drag_managers import RotatorDragManager, \
+from napari_threedee._backend.manipulator.drag_managers import RotatorDragManager, \
     TranslatorDragManager
 
 

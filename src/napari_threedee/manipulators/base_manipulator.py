@@ -5,10 +5,10 @@ import napari
 import numpy as np
 from napari.viewer import Viewer
 
-from napari_threedee._infrastructure._threedee_base import ThreeDeeModel
-from .._infrastructure.manipulator.axis_model import AxisModel
-from .._infrastructure.manipulator.napari_manipulator import NapariManipulator
-from .._infrastructure.utils.napari_utils import add_mouse_callback_safe, remove_mouse_callback_safe
+from napari_threedee._backend.threedee_model import ThreeDeeModel
+from .._backend.manipulator.axis_model import AxisModel
+from .._backend.manipulator.napari_manipulator import NapariManipulator
+from napari_threedee.utils.napari_utils import add_mouse_callback_safe, remove_mouse_callback_safe
 
 
 class BaseManipulator(ThreeDeeModel, ABC):
@@ -131,6 +131,14 @@ class BaseManipulator(ThreeDeeModel, ABC):
         """
         pass
 
+    def set_layers(self, layer: Type[napari.layers.Layer]):
+        """Add the correct layer type for the manipulator in a subclass.
+
+        Implementing this method with a correct type annotation will allow
+        autogeneration of a Qt widget for a manipulator.
+        """
+        self.layer = layer
+
     def _connect_events(self):
         """This method should be implemented on subclasses that
         require events to be connected to the layer when self.layer
@@ -142,10 +150,6 @@ class BaseManipulator(ThreeDeeModel, ABC):
         implement _connect_events(). This method is to disconnect
         the events that were connected in _connect_events()"""
         pass
-
-    def set_layers(self, layer: Type[napari.layers.Layer]):
-        """Override this in a subclass with the correct layer type for the manipulator."""
-        self.layer = layer
 
     @property
     def layer(self):

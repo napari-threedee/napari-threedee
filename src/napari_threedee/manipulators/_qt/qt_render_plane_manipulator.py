@@ -1,6 +1,6 @@
 import napari
 
-from ..._infrastructure._threedee_widget_base import QtThreeDeeWidgetBase
+from ..._backend.threedee_widget_model import QtThreeDeeWidgetBase
 from ..render_plane_manipulator import RenderPlaneManipulator
 
 

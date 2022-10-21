@@ -3,7 +3,7 @@ from typing import List
 import numpy as np
 from pydantic import BaseModel
 
-from napari_threedee._infrastructure.manipulator.axis_model import AxisModel, AxisSet
+from napari_threedee._backend.manipulator.axis_model import AxisModel, AxisSet
 
 
 class CentralAxis(BaseModel):

@@ -3,8 +3,8 @@ from typing import List
 import numpy as np
 import napari
 
-from napari_threedee._infrastructure._threedee_base import ThreeDeeModel
-from napari_threedee._infrastructure.utils import get_napari_visual
+from napari_threedee._backend.threedee_model import ThreeDeeModel
+from napari_threedee.utils import get_napari_visual
 
 
 class LightingControl(ThreeDeeModel):

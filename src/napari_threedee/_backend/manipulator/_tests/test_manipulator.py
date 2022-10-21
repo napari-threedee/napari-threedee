@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from napari_threedee._infrastructure.manipulator.manipulator_model import ManipulatorModel
+from napari_threedee._backend.manipulator.manipulator_model import ManipulatorModel
 
 
 def test_instantiation():
