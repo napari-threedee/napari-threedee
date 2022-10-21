@@ -1,5 +1,4 @@
 from napari_threedee.manipulators._qt import QtRenderPlaneManipulatorWidget
-from napari_threedee.manipulators.render_plane_manipulator import RenderPlaneManipulator
 
 import napari
 from skimage import data
