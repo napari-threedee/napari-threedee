@@ -1,7 +1,7 @@
 import napari
 import numpy as np
 
-from napari_threedee.manipulators.qt_manipulators import QtLayerManipulatorWidget
+from napari_threedee.manipulators._qt.qt_manipulators import QtLayerManipulatorWidget
 
 data = np.random.random((100, 100, 100))
 

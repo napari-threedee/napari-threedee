@@ -3,8 +3,8 @@ from typing import List
 import numpy as np
 import napari
 
-from .._base_model import ThreeDeeModel
-from ..utils.napari_utils import add_mouse_callback_safe, get_napari_visual, remove_mouse_callback_safe
+from napari_threedee._infrastructure._threedee_base import ThreeDeeModel
+from napari_threedee._infrastructure.utils import get_napari_visual
 
 
 class LightingControl(ThreeDeeModel):

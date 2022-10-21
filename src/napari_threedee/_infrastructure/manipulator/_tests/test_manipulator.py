@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from napari_threedee.manipulator.model import ManipulatorModel
+from napari_threedee._infrastructure.manipulator.manipulator_model import ManipulatorModel
 
 
 def test_instantiation():
@@ -35,3 +35,13 @@ def test_instantiation_from_strings():
     assert 'x' in central_axes
     assert 'y' in central_axes
     assert 'z' not in central_axes
+
+
+def test_selected_object_type_update():
+    """Selected object type should be set to None if selected axis id is unset."""
+    manipulator = ManipulatorModel.from_strings(translators='x', rotators='z')
+    manipulator.selected_axis_id = 1
+    manipulator.selected_object_type = 'rotator'
+    assert manipulator.selected_object_type == 'rotator'
+    manipulator.selected_axis_id = None
+    assert manipulator.selected_object_type is None

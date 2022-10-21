@@ -1,11 +1,11 @@
 import numpy as np
 
-from napari_threedee.manipulator.axis_model import AxisModel
-from napari_threedee.manipulator.central_axis import CentralAxis, CentralAxisSet
-from napari_threedee.manipulator.model import ManipulatorModel
-from napari_threedee.manipulator.translator import Translator, TranslatorSet
-from napari_threedee.manipulator.rotator import Rotator, RotatorSet
-from napari_threedee.manipulator.vispy_visual_data import ManipulatorLineData, \
+from napari_threedee._infrastructure.manipulator.axis_model import AxisModel
+from napari_threedee._infrastructure.manipulator.central_axis import CentralAxis, CentralAxisSet
+from napari_threedee._infrastructure.manipulator.manipulator_model import ManipulatorModel
+from napari_threedee._infrastructure.manipulator.translator import Translator, TranslatorSet
+from napari_threedee._infrastructure.manipulator.rotator import Rotator, RotatorSet
+from napari_threedee._infrastructure.manipulator.vispy_visual_data import ManipulatorLineData, \
     ManipulatorHandleData, ManipulatorVisualData
 
 

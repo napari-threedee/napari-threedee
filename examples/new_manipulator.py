@@ -1,7 +1,7 @@
 import napari
 import numpy as np
 
-from napari_threedee.manipulator.napari_manipulator import NapariManipulator
+from napari_threedee._infrastructure.manipulator.napari_manipulator import NapariManipulator
 
 viewer = napari.Viewer(ndisplay=3)
 viewer.axes.visible = True

@@ -1,0 +1,9 @@
+import napari
+
+from ..layer_manipulator import LayerManipulator
+from ..._infrastructure._threedee_widget_base import QtThreeDeeWidgetBase
+
+
+class QtLayerManipulatorWidget(QtThreeDeeWidgetBase):
+    def __init__(self, viewer: napari.Viewer, *args, **kwargs):
+        super().__init__(model_class=LayerManipulator, viewer=viewer, *args, **kwargs)

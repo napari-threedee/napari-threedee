@@ -1,4 +1,4 @@
-from napari_threedee.manipulator.translator import TranslatorSet, Translator
+from napari_threedee._infrastructure.manipulator.translator import TranslatorSet, Translator
 
 
 def test_translator_instantiation():

@@ -5,11 +5,11 @@ import numpy as np
 from pydantic import BaseModel
 from vispy.visuals.transforms import MatrixTransform
 
-from napari_threedee.manipulator.manipulator import ManipulatorModel
-from napari_threedee.manipulator.drag_managers import RotatorDragManager, TranslatorDragManager
+from napari_threedee._infrastructure.manipulator import ManipulatorModel
+from napari_threedee._infrastructure.manipulator.drag_managers import RotatorDragManager, TranslatorDragManager
 from napari_threedee.manipulators._manipulator_visual import ManipulatorVisual
-from napari_threedee.utils.napari_utils import get_vispy_node, add_mouse_callback_safe, mouse_event_to_layer_data_displayed
-from napari_threedee.utils.selection_utils import select_sphere_from_click
+from napari_threedee._infrastructure.utils.napari_utils import get_vispy_node, add_mouse_callback_safe, get_mouse_position_in_displayed_layer_data_coordinates
+from napari_threedee._infrastructure.utils.selection_utils import select_sphere_from_click
 
 
 class Manipulator(BaseModel):
@@ -121,7 +121,7 @@ class Manipulator(BaseModel):
         initial_layer_interactive = layer.interactive
 
         # get click position and direction in data coordinates
-        click_position_data_3d, click_dir_data_3d = mouse_event_to_layer_data_displayed(layer, event)
+        click_position_data_3d, click_dir_data_3d = get_mouse_position_in_displayed_layer_data_coordinates(layer, event)
 
         # determine which, if any rotator/translator was selected
         drag_manager = self._process_mouse_event_click(click_position_data_3d, click_dir_data_3d)

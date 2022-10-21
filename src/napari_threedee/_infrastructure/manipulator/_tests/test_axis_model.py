@@ -1,6 +1,6 @@
 import numpy as np
 
-from napari_threedee.manipulator.axis_model import AxisModel, AxisSet
+from napari_threedee._infrastructure.manipulator.axis_model import AxisModel, AxisSet
 
 
 def test_axis_model_instantiation_from_string():

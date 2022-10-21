@@ -6,13 +6,15 @@ import numpy as np
 from vispy.visuals.transforms import MatrixTransform
 
 from .axis_model import AxisModel
-from .model import ManipulatorModel
+from .manipulator_model import ManipulatorModel
 from .vispy_visual_data import ManipulatorVisualData
 from .vispy_manipulator_visual import ManipulatorVisual
-from napari_threedee.manipulator.drag_managers import RotatorDragManager, TranslatorDragManager
-from ..utils.napari_utils import get_vispy_node, mouse_event_to_layer_data_displayed, \
-    add_mouse_callback_safe
-from ..utils.selection_utils import select_sphere_from_click
+from napari_threedee._infrastructure.manipulator.drag_managers import RotatorDragManager, \
+    TranslatorDragManager
+from napari_threedee._infrastructure.utils.napari_utils import get_vispy_node, \
+    get_mouse_position_in_displayed_layer_data_coordinates, \
+    add_mouse_callback_safe, remove_mouse_callback_safe
+from napari_threedee._infrastructure.utils.selection_utils import select_sphere_from_click
 
 
 class NapariManipulator:
@@ -23,31 +25,55 @@ class NapariManipulator:
             viewer: napari.viewer.Viewer,
             layer: Optional[Type[napari.layers.Layer]] = None,
     ):
-        self.manipulator = ManipulatorModel.from_strings(
+        self.manipulator_model = ManipulatorModel.from_strings(
             translators=translator_axes, rotators=rotator_axes
         )
-        self.vispy_visual_data = ManipulatorVisualData.from_manipulator(self.manipulator)
-        self.vispy_visual = ManipulatorVisual(parent=None, manipulator_visual_data=self.vispy_visual_data)
+        self.vispy_visual_data = ManipulatorVisualData.from_manipulator(self.manipulator_model)
+        self.vispy_visual = ManipulatorVisual(parent=None,
+                                              manipulator_visual_data=self.vispy_visual_data)
         self._viewer = viewer
         self._layer = layer
+        self.is_dragging = False
 
         if self._layer is not None:
-            self._connect_vispy_visual(self._layer)
+            self._connect_vispy_visual()
             self._connect_mouse_callback()
 
         self._connect_transformation_events()
         self.vispy_visual.update()
         self.vispy_visual.update_visuals_from_manipulator_visual_data()
 
-    def _connect_vispy_visual(self, layer: napari.layers.Layer):
-        parent = get_vispy_node(self._viewer, layer)
+    @property
+    def layer(self) -> napari.layers.Layer:
+        return self._layer
+
+    @layer.setter
+    def layer(self, layer: napari.layers.Layer):
+        self.vispy_visual.parent = None
+        if self._layer is not None:
+            self._disconnect_mouse_callback()
+        self._layer = layer
+        self._connect_vispy_visual()
+        self._connect_mouse_callback()
+
+    @property
+    def is_dragging(self) -> bool:
+        return self._is_dragging
+
+    @is_dragging.setter
+    def is_dragging(self, value: bool):
+        self._is_dragging = value
+
+    def _connect_vispy_visual(self):
+        parent = get_vispy_node(self._viewer, self.layer)
         self.vispy_visual.parent = parent
         self.vispy_visual.transform = MatrixTransform()
+        self.vispy_visual.canvas._backend.destroyed.connect(self._set_canvas_none)
 
     def _connect_transformation_events(self):
         # updating the model should update the view
-        self.manipulator.events.origin.connect(self._on_transformation_changed)
-        self.manipulator.events.origin.connect(self._on_transformation_changed)
+        self.manipulator_model.events.origin.connect(self._on_transformation_changed)
+        self.manipulator_model.events.origin.connect(self._on_transformation_changed)
 
     def _connect_mouse_callback(self):
         add_mouse_callback_safe(
@@ -56,42 +82,50 @@ class NapariManipulator:
             index=0
         )
 
+    def _disconnect_mouse_callback(self):
+        remove_mouse_callback_safe(
+            self.layer.mouse_drag_callbacks,
+            self._mouse_callback
+        )
+
     def _update_colors(self):
-        if self.manipulator.selected_axis_id is None:
+        if self.manipulator_model.selected_axis_id is None:
             self.vispy_visual_data.selected_axes = []
         else:
-            self.vispy_visual_data.selected_axes = [self.manipulator.selected_axis_id]
+            self.vispy_visual_data.selected_axes = [self.manipulator_model.selected_axis_id]
         self.vispy_visual.update_visuals_from_manipulator_visual_data()
 
     def _mouse_callback(self, layer, event):
         """Mouse call back for selecting and dragging a manipulator."""
         initial_layer_interactive = layer.interactive
-        click_position_data_3d, click_dir_data_3d = mouse_event_to_layer_data_displayed(layer,
-                                                                                        event)
+        click_position_data_3d, click_dir_data_3d = get_mouse_position_in_displayed_layer_data_coordinates(layer,
+                                                                                                           event)
         drag_manager = self._drag_manager_from_click(click_position_data_3d, click_dir_data_3d)
         if drag_manager is None:
             return
         layer.interactive = False  # disable layer interactivity
+        self.is_dragging = True
         self._update_colors()
         yield  # then start handling the mouse drag
         drag_manager.setup_drag(
             layer=layer,
             mouse_event=event,
-            translation=self.manipulator.origin,
-            rotation_matrix=self.manipulator.rotation_matrix
+            translation=self.manipulator_model.origin,
+            rotation_matrix=self.manipulator_model.rotation_matrix
         )
         while event.type == 'mouse_move':
             new_origin, new_rotation_matrix = drag_manager.update_drag(mouse_event=event)
-            with self.manipulator.events.blocked():
-                self.manipulator.origin = new_origin
-                self.manipulator.rotation_matrix = new_rotation_matrix
+            with self.manipulator_model.events.blocked():
+                self.manipulator_model.origin = new_origin
+                self.manipulator_model.rotation_matrix = new_rotation_matrix
                 self._on_transformation_changed()
             yield
 
         # reset manipulator visual and layer interactivity to original state
-        self.manipulator.selected_axis_id = None
+        self.manipulator_model.selected_axis_id = None
         self._update_colors()
         layer.interactive = initial_layer_interactive
+        self.is_dragging = False
 
     def _drag_manager_from_click(
             self, click_point: np.ndarray, view_direction: np.ndarray
@@ -114,9 +148,9 @@ class NapariManipulator:
         """
         handle_data = self.vispy_visual_data.translator_handle_data + self.vispy_visual_data.rotator_handle_data
         untransformed_handle_points = einops.rearrange(handle_data.points, 'b xyz -> b xyz 1')
-        rotation, translation = self.manipulator.rotation_matrix, einops.rearrange(
-            self.manipulator.origin, 'xyz -> xyz 1')  # Rotation, Translation...
-        transformed_handle_points = (rotation @ untransformed_handle_points) + translation
+        rotation_matrix = self.manipulator_model.rotation_matrix
+        translation = einops.rearrange(self.manipulator_model.origin, 'xyz -> xyz 1')
+        transformed_handle_points = (rotation_matrix @ untransformed_handle_points) + translation
         selection = select_sphere_from_click(
             click_point=click_point,
             view_direction=view_direction,
@@ -126,19 +160,21 @@ class NapariManipulator:
         if selection is None:
             return None
 
-        axis_id = handle_data.axis_identifiers[selection]
-        self.manipulator.selected_axis_id = axis_id
-        axis_vector = AxisModel.from_id(axis_id).vector
-        rotated_axis_vector = self.manipulator.rotation_matrix @ axis_vector
+        selected_axis_id = handle_data.axis_identifiers[selection]
+        self.manipulator_model.selected_axis_id = selected_axis_id
+        axis_vector = AxisModel.from_id(selected_axis_id).vector
+        rotated_axis_vector = self.manipulator_model.rotation_matrix @ axis_vector
 
         # is the clicked point  a translator or a rotator?
         point_is_translator = np.zeros(len(handle_data.points), dtype=bool)
         point_is_translator[:len(self.vispy_visual_data.translator_handle_data)] = True
         point_is_translator = point_is_translator[selection] == True  # np.array(True) is not True
         if point_is_translator:
+            self.manipulator_model.selected_object_type = 'translator'
             self.vispy_visual_data.translator_is_selected = True
             drag_manager = TranslatorDragManager(translation_vector=rotated_axis_vector)
         else:
+            self.manipulator_model.selected_object_type = 'rotator'
             self.vispy_visual_data.rotator_is_selected = True
             drag_manager = RotatorDragManager(rotation_vector=rotated_axis_vector)
         return drag_manager
@@ -149,8 +185,8 @@ class NapariManipulator:
         if self._layer is None:
             return
         # convert NumPy axis ordering to VisPy axis ordering
-        translation = self.manipulator.origin[::-1]
-        rotation_matrix = self.manipulator.rotation_matrix[::-1, ::-1].T
+        translation = self.manipulator_model.origin[::-1]
+        rotation_matrix = self.manipulator_model.rotation_matrix[::-1, ::-1].T
 
         # Embed rotation matrix in the top left corner of a 4x4 affine matrix
         affine_matrix = np.eye(4)
@@ -159,3 +195,12 @@ class NapariManipulator:
 
         # update transform on vispy manipulator
         self.vispy_visual.transform.matrix = affine_matrix
+
+    def _on_ndisplay_change(self, event=None):
+        if self._viewer.dims.ndisplay == 2:
+            self._disconnect_mouse_callback()
+        else:
+            self._connect_mouse_callback()
+
+    def _set_canvas_none(self):
+        self.vispy_visual._set_canvas(None)

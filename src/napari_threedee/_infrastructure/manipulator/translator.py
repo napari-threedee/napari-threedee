@@ -3,8 +3,8 @@ from typing import List
 import numpy as np
 from pydantic import BaseModel
 
-from napari_threedee.manipulator._interface import _Grabbable
-from napari_threedee.manipulator.axis_model import AxisSet, AxisModel
+from napari_threedee._infrastructure.manipulator._interface import _Grabbable
+from napari_threedee._infrastructure.manipulator.axis_model import AxisSet, AxisModel
 
 
 class Translator(BaseModel, _Grabbable):

@@ -2,8 +2,8 @@ import napari
 from napari.utils.geometry import intersect_line_with_plane_3d
 import numpy as np
 
-from napari_threedee.utils.geometry import signed_angle_between_vectors, rotation_matrix_around_vector_3d
-from napari_threedee.utils.napari_utils import mouse_event_to_layer_data_displayed
+from napari_threedee._infrastructure.utils.geometry import signed_angle_between_vectors, rotation_matrix_around_vector_3d
+from napari_threedee._infrastructure.utils.napari_utils import get_mouse_position_in_displayed_layer_data_coordinates
 
 
 class RotatorDragManager:
@@ -22,8 +22,8 @@ class RotatorDragManager:
                    rotation_matrix=np.ndarray):
         self._layer = layer
 
-        click_point_data, click_dir_data_3d = mouse_event_to_layer_data_displayed(layer,
-                                                                                  mouse_event)
+        click_point_data, click_dir_data_3d = get_mouse_position_in_displayed_layer_data_coordinates(layer,
+                                                                                                     mouse_event)
         click_on_rotation_plane = intersect_line_with_plane_3d(
             line_position=click_point_data,
             line_direction=click_dir_data_3d,
@@ -70,7 +70,7 @@ class TranslatorDragManager:
                    rotation_matrix=np.ndarray):
         self._layer = layer
 
-        _, click_dir_data_3d = mouse_event_to_layer_data_displayed(layer, mouse_event)
+        _, click_dir_data_3d = get_mouse_position_in_displayed_layer_data_coordinates(layer, mouse_event)
 
         self._initial_position_world = mouse_event.position
         self._initial_rotation_matrix = rotation_matrix.copy()
