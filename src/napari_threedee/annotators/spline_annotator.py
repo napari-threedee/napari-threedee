@@ -134,7 +134,8 @@ class SplineAnnotator(ThreeDeeModel):
     ):
         self.events = EmitterGroup(
             source=self,
-            current_spline_id=Event
+            current_spline_id=Event,
+            splines_updated=Event,
         )
 
         self.viewer = viewer
@@ -242,6 +243,7 @@ class SplineAnnotator(ThreeDeeModel):
                 spline_coordinates = self.points_layer.data[point_indices]
                 splines[spline_name] = _NDimensionalFilament(points=spline_coordinates, k=self.SPLINE_ORDER)
         self.points_layer.metadata["splines"] = splines
+        self.events.splines_updated()
 
     def _clear_shapes_layer(self):
         """Delete all shapes in the shapes layer."""
