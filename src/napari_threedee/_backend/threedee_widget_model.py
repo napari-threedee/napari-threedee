@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout
 from napari.utils.events import Event
 
 from napari_threedee._backend.threedee_model import ThreeDeeModel
-from napari_threedee.utils import generate_populated_layer_selection_widget
+from ..utils.napari_utils import generate_populated_layer_selection_widget
 
 
 class QtThreeDeeWidgetBase(QWidget):

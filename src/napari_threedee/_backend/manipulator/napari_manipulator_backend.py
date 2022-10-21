@@ -11,13 +11,13 @@ from .vispy_visual_data import ManipulatorVisualData
 from .vispy_manipulator_visual import ManipulatorVisual
 from napari_threedee._backend.manipulator.drag_managers import RotatorDragManager, \
     TranslatorDragManager
-from napari_threedee.utils import get_vispy_node, \
+from ...utils.napari_utils import get_vispy_node, \
     get_mouse_position_in_displayed_layer_data_coordinates, \
     add_mouse_callback_safe, remove_mouse_callback_safe
-from napari_threedee.utils import select_sphere_from_click
+from ...utils.selection_utils import select_sphere_from_click
 
 
-class NapariManipulator:
+class NapariManipulatorBackend:
     def __init__(
             self,
             translator_axes: str,

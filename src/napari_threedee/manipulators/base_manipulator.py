@@ -7,7 +7,7 @@ from napari.viewer import Viewer
 
 from napari_threedee._backend.threedee_model import ThreeDeeModel
 from .._backend.manipulator.axis_model import AxisModel
-from .._backend.manipulator.napari_manipulator import NapariManipulator
+from .._backend.manipulator.napari_manipulator_backend import NapariManipulatorBackend
 from napari_threedee.utils.napari_utils import add_mouse_callback_safe, remove_mouse_callback_safe
 
 
@@ -44,7 +44,7 @@ class BaseManipulator(ThreeDeeModel, ABC):
         super().__init__()
         self._viewer = viewer
         self._enabled = enabled
-        self.napari_manipulator = NapariManipulator(
+        self._backend = NapariManipulatorBackend(
             rotator_axes=rotator_axes,
             translator_axes=translator_axes,
             viewer=self._viewer,
@@ -58,12 +58,12 @@ class BaseManipulator(ThreeDeeModel, ABC):
     @property
     def origin(self) -> np.ndarray:
         """(3, ) array containing the origin of the manipulator."""
-        return self.napari_manipulator.manipulator_model.origin
+        return self._backend.manipulator_model.origin
 
     @property
     def rotation_matrix(self) -> np.ndarray:
         """(3, 3) array containing the rotation matrix of the manipulator."""
-        return self.napari_manipulator.manipulator_model.rotation_matrix
+        return self._backend.manipulator_model.rotation_matrix
 
     @property
     def z_vector(self) -> np.ndarray:
@@ -79,16 +79,16 @@ class BaseManipulator(ThreeDeeModel, ABC):
 
     @property
     def selected_translator(self) -> Optional[AxisModel]:
-        if self.napari_manipulator.manipulator_model.selected_object_type != 'translator':
+        if self._backend.manipulator_model.selected_object_type != 'translator':
             return None
-        axis_id = self.napari_manipulator.manipulator_model.selected_axis_id
+        axis_id = self._backend.manipulator_model.selected_axis_id
         return AxisModel.from_id(axis_id)
 
     @property
     def selected_rotator(self) -> Optional[AxisModel]:
-        if self.napari_manipulator.manipulator_model.selected_object_type != 'rotator':
+        if self._backend.manipulator_model.selected_object_type != 'rotator':
             return None
-        axis_id = self.napari_manipulator.manipulator_model.selected_axis_id
+        axis_id = self._backend.manipulator_model.selected_axis_id
         return AxisModel.from_id(axis_id)
 
     @abstractmethod
@@ -153,7 +153,7 @@ class BaseManipulator(ThreeDeeModel, ABC):
 
     @property
     def layer(self):
-        return self.napari_manipulator.layer
+        return self._backend.layer
 
     @layer.setter
     def layer(self, layer: Optional[Type[napari.layers.Layer]]):
@@ -162,7 +162,7 @@ class BaseManipulator(ThreeDeeModel, ABC):
         if layer is None:
             return
         self._disconnect_events()
-        self.napari_manipulator.layer = layer
+        self._backend.layer = layer
         self._initialize_transform()
         if self.enabled:
             self._on_enable()
@@ -172,11 +172,11 @@ class BaseManipulator(ThreeDeeModel, ABC):
 
     @property
     def visible(self) -> bool:
-        return self.napari_manipulator.vispy_visual.visible
+        return self._backend.vispy_visual.visible
 
     @visible.setter
     def visible(self, value: bool):
-        self.napari_manipulator.vispy_visual.visible = value
+        self._backend.vispy_visual.visible = value
 
     def _on_enable(self):
         if self.layer is not None:
@@ -204,11 +204,11 @@ class BaseManipulator(ThreeDeeModel, ABC):
     def _mouse_callback(self, layer, event):
         """Update the manipulated object via subclass implementations of drag/rotate behaviour."""
         yield
-        if self._viewer.dims.ndisplay != 3 or self.napari_manipulator.is_dragging is False:
+        if self._viewer.dims.ndisplay != 3 or self._backend.is_dragging is False:
             return  # early exit if manipulator is not being manipulated
         self._pre_drag()
         while event.type == 'mouse_move':
-            selected_object_type = self.napari_manipulator.manipulator_model.selected_object_type
+            selected_object_type = self._backend.manipulator_model.selected_object_type
             if selected_object_type == 'translator':
                 self._while_dragging_translator()
             elif selected_object_type == 'rotator':
@@ -218,8 +218,8 @@ class BaseManipulator(ThreeDeeModel, ABC):
 
     @origin.setter
     def origin(self, value: np.ndarray):
-        self.napari_manipulator.manipulator_model.origin = value
+        self._backend.manipulator_model.origin = value
 
     @rotation_matrix.setter
     def rotation_matrix(self, value: np.ndarray):
-        self.napari_manipulator.manipulator_model.rotation_matrix = value
+        self._backend.manipulator_model.rotation_matrix = value

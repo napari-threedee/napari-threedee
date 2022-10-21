@@ -1,13 +1,13 @@
 import napari
 import numpy as np
 
-from napari_threedee._backend.manipulator.napari_manipulator import NapariManipulator
+from napari_threedee._backend.manipulator.napari_manipulator_backend import NapariManipulatorBackend
 
 viewer = napari.Viewer(ndisplay=3)
 viewer.axes.visible = True
 image_layer = viewer.add_image(np.zeros((50, 50, 50)))
 
-manipulator = NapariManipulator(
+manipulator = NapariManipulatorBackend(
     rotator_axes='xyz',
     translator_axes='xyz',
     viewer=viewer,
