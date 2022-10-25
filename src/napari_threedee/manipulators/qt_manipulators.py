@@ -3,7 +3,7 @@ import napari
 from .layer_manipulator import LayerManipulator
 from .render_plane_manipulator import RenderPlaneManipulator
 from .point_manipulator import PointManipulator
-from ..base import QtThreeDeeWidgetBase
+from .._base_model import QtThreeDeeWidgetBase
 
 
 class QtRenderPlaneManipulatorWidget(QtThreeDeeWidgetBase):

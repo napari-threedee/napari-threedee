@@ -1,6 +1,6 @@
 import napari
 
-from ..base import QtThreeDeeWidgetBase
+from .._base_model import QtThreeDeeWidgetBase
 
 from .plane_point_annotator import PlanePointAnnotator
 
