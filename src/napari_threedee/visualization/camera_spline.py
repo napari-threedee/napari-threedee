@@ -108,10 +108,12 @@ class CameraSpline(ThreeDeeModel):
 
     @property
     def spline_valid(self) -> bool:
+        """Flag set to True when a valid spline has been annotated"""
         return self._spline_valid
 
     @spline_valid.setter
     def spline_valid(self, valid: bool):
+        """Flag set to True when a valid spline has been annotated"""
         if valid == self._spline_valid:
             # if the value is unchanged, do nothing
             return
@@ -125,20 +127,45 @@ class CameraSpline(ThreeDeeModel):
         Returns
         -------
         view_direction_transformation : np.ndarray
-            Transformation to be applied to the view direction.
+            (3, 3) array containing the transformation
+            to be applied to the view direction when
+            sliding along the spline
         """
         return self._view_direction_transformation
 
     @view_direction_transformation.setter
     def view_direction_transformation(self, transformation: np.ndarray):
+        """The transformation to apply to the view direction when viewing along the spline.
+
+        Returns
+        -------
+        view_direction_transformation : np.ndarray
+            (3, 3) array containing the transformation
+            to be applied to the view direction when
+            sliding along the spline.
+        """
         self._view_direction_transformation = transformation
 
     @property
     def up_direction(self) -> Tuple[float, float, float]:
+        """The 3D vector for the camera up direction when sliding along the spline.
+
+        Returns
+        -------
+        up_direction : Tuple[float, float, float]
+            The up direction in 3D displayed data units.
+        """
         return self._up_direction
 
     @up_direction.setter
     def up_direction(self, up_vector: Tuple[float, float, float]):
+        """The 3D vector for the camera up direction when sliding along the spline.
+
+        Parameters
+        ----------
+        up_direction : Tuple[float, float, float]
+            The up direction in 3D displayed data units.
+        """
         self._up_direction = up_vector
 
     @property
@@ -190,26 +217,23 @@ class CameraSpline(ThreeDeeModel):
 
     @property
     def image_layer(self) -> Image:
+        """The image layer to set the spline points on.
+
+        The visualization plane for the image layer is used to set
+        the plane the spline points are added on.
+        """
         return self._image_layer
 
     @image_layer.setter
     def image_layer(self, layer: Image):
         self._image_layer = layer
-        # self.spline_annotator_model.set_layers(layer)
-
-    def start_spline_annotation(self):
-        self.spline_annotator_model.enabled = True
-
-        # disable the key binding to switch to the next spline index
-        self.viewer.bind_key('n', None)
-
-    def stop_spline_annotation(self):
-        self.spline_annotator_model.enabled = False
 
     def _on_enable(self):
+        """Function called when the widget is activated"""
         self.spline_annotator_model.set_layers(self.image_layer)
 
     def _on_disable(self):
+        """Function called when the widget is deactivated"""
         self.spline_annotator_model.enabled = False
         self.mode = CameraSplineMode("pan_zoom")
 
@@ -217,8 +241,21 @@ class CameraSpline(ThreeDeeModel):
         self.image_layer = image_layer
 
     def set_camera_position(self, spline_coordinate: float):
+        """Set the viewer camera position along the spline.
+
+        Parameters
+        ----------
+        spline_coordinate : float
+            The position along the spline the set the viewer
+            camera. Should be in the spline coordinate system
+            from 0 to 1.
+        """
         if self.image_layer is None:
             # do not do anything if the image layer hasn't been set
+            return
+
+        if self.spline_valid is False:
+            # do not do anything if there isn't a valid spline
             return
 
         spline_dict = self.spline_annotator_model.points_layer.metadata["splines"]
@@ -254,6 +291,17 @@ class CameraSpline(ThreeDeeModel):
             The view direction transformed by self.view_direction_transformation
         """
         return self.view_direction_transformation.dot(view_direction)
+
+    def start_spline_annotation(self):
+        """Callback called when entering ANNOTATION mode."""
+        self.spline_annotator_model.enabled = True
+
+        # disable the key binding to switch to the next spline index
+        self.viewer.bind_key('n', None)
+
+    def stop_spline_annotation(self):
+        """Callback called when exiting ANNOTATION mode."""
+        self.spline_annotator_model.enabled = False
 
     def start_spline_exploration(self):
         """Setup up the exploration mode.
