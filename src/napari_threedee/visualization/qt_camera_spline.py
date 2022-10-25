@@ -9,6 +9,7 @@ from .camera_spline import CameraSpline, CameraSplineMode
 
 
 class QtCameraDirectionControls(QWidget):
+    """Widget for setting the camera direction along the spline"""
     def __init__(self, viewer, model, parent=None):
         super().__init__(parent=parent)
 
@@ -23,10 +24,12 @@ class QtCameraDirectionControls(QWidget):
         self.layout().addWidget(self.set_view_button)
 
     def _on_set_view(self, event=None):
+        """Callback that sets the view direction from the current view"""
         self.model.calculate_transform_from_spline_tangent_to_view_direction()
 
 
 class QCameraSplineNavationWidget(QWidget):
+    """Widget for controlling the camera position along the spline."""
     def __init__(self, viewer, model, parent=None):
         super().__init__(parent=parent)
 
@@ -67,11 +70,10 @@ class QCameraSplineNavationWidget(QWidget):
 
 
 class QtCameraSplineControls(QWidget):
-
+    """Widget for annotating and exploring a spline path through a scene."""
     PAN_ZOOM_BUTTON_NAME: str = "pan_zoom"
     ANNOTATE_BUTTON_NAME: str = "annotate"
     EXPLORE_BUTTON_NAME: str = "explore"
-
 
     def __init__(self, viewer, model, parent=None):
         super().__init__(parent=parent)
@@ -112,6 +114,7 @@ class QtCameraSplineControls(QWidget):
         self._on_mode_changed()
 
     def _on_mode_button_clicked(self):
+        """Update the mode based on the selection."""
         button = self.sender()
         button_name = button.text()
 
@@ -126,6 +129,7 @@ class QtCameraSplineControls(QWidget):
                 raise ValueError("invalid mode")
 
     def _on_mode_changed(self, event=None):
+        """Update the UI based when the model mode changes."""
         if self.model.mode == CameraSplineMode.PAN_ZOOM:
             self.spline_navigation_widget.setVisible(False)
 
@@ -150,7 +154,7 @@ class QtCameraSplineControls(QWidget):
 
 
 class QtCameraSpline(QtThreeDeeWidgetBase):
-
+    """Container widget for the camera spline controls"""
     DISABLE_STRING: str = "deactivate"
     ENABLE_STRING: str = "activate"
 
