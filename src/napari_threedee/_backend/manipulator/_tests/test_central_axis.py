@@ -1,4 +1,4 @@
-from napari_threedee.manipulator.central_axis import CentralAxis, CentralAxisSet
+from napari_threedee._backend.manipulator.central_axis import CentralAxis, CentralAxisSet
 
 
 def test_central_axis_model_instantiation():

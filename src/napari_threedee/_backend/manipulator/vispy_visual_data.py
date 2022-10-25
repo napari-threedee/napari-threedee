@@ -5,7 +5,7 @@ from napari.utils.geometry import rotation_matrix_from_vectors_3d
 from pydantic import BaseModel
 
 from .central_axis import CentralAxis, CentralAxisSet
-from .model import ManipulatorModel
+from .manipulator_model import ManipulatorModel
 from .rotator import Rotator, RotatorSet
 from .translator import TranslatorSet, Translator
 from .utils import ModelWithSettableProperties

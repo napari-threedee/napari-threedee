@@ -2,14 +2,14 @@ import napari
 from napari.utils.events import Event
 from qtpy.QtWidgets import QPushButton, QGroupBox, QVBoxLayout, QCheckBox, QSpinBox, QLabel, QHBoxLayout
 
-from .._base_model import QtThreeDeeWidgetBase
+from napari_threedee._backend.threedee_widget_model import QtThreeDeeWidgetBase
 
-from .spline_annotator import SplineAnnotator
+from napari_threedee.annotators.spline_annotator import SplineAnnotator
 
 
-class QtFilamentAnnotatorWidget(QtThreeDeeWidgetBase):
+class QtSplineAnnotatorWidget(QtThreeDeeWidgetBase):
     def __init__(self, viewer: napari.Viewer):
-        super().__init__(model=SplineAnnotator, viewer=viewer)
+        super().__init__(model_class=SplineAnnotator, viewer=viewer)
 
         self.auto_fit_checkbox = QCheckBox("automatically fit spline")
         self.auto_fit_checkbox.clicked.connect(self._on_auto_fit)

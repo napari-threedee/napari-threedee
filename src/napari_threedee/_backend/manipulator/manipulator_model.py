@@ -1,12 +1,12 @@
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Literal, Union, Any
 
 import numpy as np
 from psygnal import EventedModel
 from pydantic import validator, Field
 
 from .central_axis import CentralAxisSet
-from .rotator import RotatorSet
-from .translator import TranslatorSet
+from .rotator import RotatorSet, Rotator
+from .translator import TranslatorSet, Translator
 
 
 class ManipulatorModel(EventedModel):
@@ -18,9 +18,35 @@ class ManipulatorModel(EventedModel):
     rotation_matrix: np.ndarray = Field(default_factory=lambda: np.eye(3))
 
     selected_axis_id: Optional[int]
+    selected_object_type: Optional[Literal['translator', 'rotator']]
 
     class Config:
         arbitrary_types_allowed = True
+
+    @property
+    def selected_object(self) -> Optional[Union[Translator, Rotator]]:
+        if self.selected_axis_id is None:
+            return None
+        if self.selected_object_type == 'translator':
+            [translator] = [
+                translator
+                for translator in self.translators
+                if translator.axis.id == self.selected_axis_id
+            ]
+            return translator
+        elif self.selected_object_type == 'rotator':
+            [rotator] = [
+                rotator
+                for rotator in self.rotators
+                if rotator.axis.id == self.selected_axis_id
+            ]
+            return rotator
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        """Overwritten so that selected object type is unset when selection is removed."""
+        super().__setattr__(name, value)
+        if name == 'selected_axis_id' and value is None:
+            self.selected_object_type = None
 
     @validator('central_axes', pre=True)
     def central_axes_from_string(cls, v):
