@@ -5,9 +5,9 @@ import numpy as np
 from pydantic import BaseModel
 from vispy.visuals.transforms import MatrixTransform
 
-from napari_threedee.manipulator.manipulator import ManipulatorModel
+from napari_threedee.manipulator.model import ManipulatorModel
 from napari_threedee.manipulator.drag_managers import RotatorDragManager, TranslatorDragManager
-from napari_threedee.manipulators._manipulator_visual import ManipulatorVisual
+from napari_threedee.manipulator.vispy_manipulator_visual import ManipulatorVisual
 from napari_threedee.utils.napari_utils import get_vispy_node, add_mouse_callback_safe, mouse_event_to_layer_data_displayed
 from napari_threedee.utils.selection_utils import select_sphere_from_click
 
@@ -18,8 +18,7 @@ class Manipulator(BaseModel):
     visual: ManipulatorVisual = ManipulatorVisual(parent=None)
     layer: Optional[napari.layers.Layer] = None
 
-
-
+    def __init__(self, viewer: napari.Viewer, layer: napari.layers.Layer):
         self._viewer = viewer
         self._layer = layer
         if self._layer is not None:
