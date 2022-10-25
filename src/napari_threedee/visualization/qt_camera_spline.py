@@ -4,11 +4,11 @@ from qtpy.QtWidgets import QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QLabe
 from qtpy.QtCore import Qt
 from superqt.sliders import QLabeledDoubleSlider
 
-from ..base import QtThreeDeeWidgetBase
+from .._base_model import QtThreeDeeWidgetBase
 from .camera_spline import CameraSpline, CameraSplineMode
 
 
-class QCameraDirection(QWidget):
+class QtCameraDirectionControls(QWidget):
     def __init__(self, viewer, model, parent=None):
         super().__init__(parent=parent)
 
@@ -41,7 +41,7 @@ class QCameraSplineNavationWidget(QWidget):
         self.spline_slider.valueChanged.connect(self._on_slider_moved)
 
         # create the view direction controls
-        self.camera_direction_controls = QCameraDirection(viewer=viewer, model=model)
+        self.camera_direction_controls = QtCameraDirectionControls(viewer=viewer, model=model)
 
         # create the layout
         self.setLayout(QVBoxLayout())
@@ -66,7 +66,7 @@ class QCameraSplineNavationWidget(QWidget):
             self.setDisabled(True)
 
 
-class QCameraSpline(QWidget):
+class QtCameraSplineControls(QWidget):
 
     PAN_ZOOM_BUTTON_NAME: str = "pan_zoom"
     ANNOTATE_BUTTON_NAME: str = "annotate"
@@ -158,7 +158,7 @@ class QtCameraSpline(QtThreeDeeWidgetBase):
         super().__init__(model=CameraSpline, viewer=viewer)
 
         # create and add the spline widget
-        self.spline_widget = QCameraSpline(viewer=viewer, model=self.model, parent=self)
+        self.spline_widget = QtCameraSplineControls(viewer=viewer, model=self.model, parent=self)
         self.spline_widget.setVisible(False)
         self.layout().addWidget(self.spline_widget)
 
