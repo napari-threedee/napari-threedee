@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
 import napari
 from napari.layers import Image
@@ -18,6 +18,7 @@ class CameraSplineMode(Enum):
 
 
 class CameraSpline(ThreeDeeModel):
+    """Model for a spline that is used to direct the camera path."""
     COLOR_CYCLE = [
         '#1f77b4',
         '#ff7f0e',
@@ -62,12 +63,32 @@ class CameraSpline(ThreeDeeModel):
 
     @property
     def mode(self) -> CameraSplineMode:
+        """The current mode for interaction.
+
+        Returns
+        -------
+        mode : CameraSplineMode
+            PAN_ZOOM: normal napari pan/zooming interaction
+            ANNOTATE:
+            EXPLORE: The camera follows the spline.
+                The position is set by CameraSpline.current_spline_coordinate.
+        """
         return self._mode
 
     @mode.setter
-    def mode(self, mode: CameraSplineMode):
+    def mode(self, mode: Union[str, CameraSplineMode]):
+        """The current mode for interaction.
+
+        Parameters
+        -------
+        mode : Union[str, CameraSplineMode]
+            PAN_ZOOM: normal napari pan/zooming interaction
+            ANNOTATE:
+            EXPLORE: The camera follows the spline.
+                The position is set by CameraSpline.current_spline_coordinate.
+        """
         if isinstance(mode, str):
-            mode = CameraSplineMode(mode)
+            mode = CameraSplineMode(mode.lower())
         if mode == self.mode:
             # don't do anything if the mode is unchanged
             return
@@ -246,5 +267,6 @@ class CameraSpline(ThreeDeeModel):
 
         This is called when mode is switched from exploration mode.
         """
+        # currently nothing is done - added for completeness
         pass
 
