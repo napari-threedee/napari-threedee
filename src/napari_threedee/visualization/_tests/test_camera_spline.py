@@ -3,6 +3,7 @@ from typing import Tuple
 
 import napari
 import numpy as np
+import pytest
 
 from napari_threedee.visualization.camera_spline import CameraSpline, CameraSplineMode
 
