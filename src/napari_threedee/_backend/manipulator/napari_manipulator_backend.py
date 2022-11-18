@@ -97,14 +97,18 @@ class NapariManipulatorBackend:
     def _mouse_callback(self, layer, event):
         """Mouse call back for selecting and dragging a manipulator."""
         initial_layer_interactive = layer.interactive
-        click_position_data_3d, click_dir_data_3d = get_mouse_position_in_displayed_layer_data_coordinates(layer,
-                                                                                                           event)
+        click_position_data_3d, click_dir_data_3d = get_mouse_position_in_displayed_layer_data_coordinates(
+            layer, event
+        )
         drag_manager = self._drag_manager_from_click(click_position_data_3d, click_dir_data_3d)
-        if drag_manager is None:
+        if drag_manager is None:  # no translator/rotator was clicked
             return
-        layer.interactive = False  # disable layer interactivity
+
+        # setup...
+        layer.interactive = False
         self.is_dragging = True
         self._update_colors()
+
         yield  # then start handling the mouse drag
         drag_manager.setup_drag(
             layer=layer,
