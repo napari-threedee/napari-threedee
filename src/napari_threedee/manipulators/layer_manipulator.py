@@ -22,7 +22,6 @@ class LayerManipulator(BaseManipulator):
     def _while_dragging_translator(self):
         new_translate = self.translate_start + self.origin
         self.layer.translate = new_translate
-        ini
         # origin is relative to the layer transform so needs
         # to be reset after updating the transform
         self.origin = np.asarray((0, 0, 0))
