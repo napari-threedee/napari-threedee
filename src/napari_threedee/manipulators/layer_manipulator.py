@@ -8,7 +8,7 @@ class LayerManipulator(BaseManipulator):
     """A manipulator for translating a layer."""
 
     def __init__(self, viewer, layer=None):
-        super().__init__(viewer, layer, rotator_axes='x', translator_axes='xyz')
+        super().__init__(viewer, layer, rotator_axes=None, translator_axes='xyz')
 
     def set_layers(self, layer: napari.layers.Layer):
         super().set_layers(layer)

@@ -72,8 +72,10 @@ class ManipulatorVisual(Compound):
 
     def update_visuals_from_manipulator_visual_data(self):
         self._update_central_axis_visual()
-        self._update_translator_visuals()
-        self._update_rotator_visuals()
+        if self.manipulator_visual_data.translator_line_data is not None:
+            self._update_translator_visuals()
+        if self.manipulator_visual_data.rotator_line_data is not None:
+            self._update_rotator_visuals()
         self.update()
 
     def _update_central_axis_visual(self):

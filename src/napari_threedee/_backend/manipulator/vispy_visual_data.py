@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 from napari.utils.geometry import rotation_matrix_from_vectors_3d
@@ -155,11 +155,11 @@ class ManipulatorHandleData(BaseModel):
 
 class ManipulatorVisualData(ModelWithSettableProperties):
     """Data required to render a manipulator"""
-    central_axis_line_data: ManipulatorLineData
-    translator_line_data: ManipulatorLineData
-    translator_handle_data: ManipulatorHandleData
-    rotator_line_data: ManipulatorLineData
-    rotator_handle_data: ManipulatorHandleData
+    central_axis_line_data: Optional[ManipulatorLineData]
+    translator_line_data: Optional[ManipulatorLineData]
+    translator_handle_data: Optional[ManipulatorHandleData]
+    rotator_line_data: Optional[ManipulatorLineData]
+    rotator_handle_data: Optional[ManipulatorHandleData]
 
     selected_axes: List[int] = []
     translator_is_selected: bool = False
@@ -180,10 +180,20 @@ class ManipulatorVisualData(ModelWithSettableProperties):
     @classmethod
     def from_manipulator(cls, manipulator: ManipulatorModel):
         central_axis_line_data = ManipulatorLineData.from_central_axis_set(manipulator.central_axes)
-        translator_line_data = ManipulatorLineData.from_translator_set(manipulator.translators)
-        rotator_line_data = ManipulatorLineData.from_rotator_set(manipulator.rotators)
-        translator_handle_data = ManipulatorHandleData.from_translator_set(manipulator.translators)
-        rotator_handle_data = ManipulatorHandleData.from_rotator_set(manipulator.rotators)
+        # translators
+        if manipulator.translators is None:
+            translator_line_data = None
+            translator_handle_data = None
+        else:
+            translator_line_data = ManipulatorLineData.from_translator_set(manipulator.translators)
+            translator_handle_data = ManipulatorHandleData.from_translator_set(manipulator.translators)
+        # rotators
+        if manipulator.rotators is None:
+            rotator_line_data = None
+            rotator_handle_data = None
+        else:
+            rotator_line_data = ManipulatorLineData.from_rotator_set(manipulator.rotators)
+            rotator_handle_data = ManipulatorHandleData.from_rotator_set(manipulator.rotators)
         return cls(
             central_axis_line_data=central_axis_line_data,
             translator_line_data=translator_line_data,
@@ -248,7 +258,8 @@ class ManipulatorVisualData(ModelWithSettableProperties):
     def _selected_central_axis_vertices(self) -> np.ndarray:
         if not self.translator_is_selected:
             return np.zeros(len(self.central_axis_line_data)).astype(bool)
-        return np.isin(self.central_axis_line_data.axis_identifiers, test_elements=self.selected_axes)
+        return np.isin(self.central_axis_line_data.axis_identifiers,
+                       test_elements=self.selected_axes)
 
     @property
     def _selected_translator_line_vertices(self) -> np.ndarray:
@@ -260,7 +271,8 @@ class ManipulatorVisualData(ModelWithSettableProperties):
     def _selected_translator_handle_points(self) -> np.ndarray:
         if not self.translator_is_selected:
             return np.zeros(len(self.translator_handle_data)).astype(bool)
-        return np.isin(self.translator_handle_data.axis_identifiers, test_elements=self.selected_axes)
+        return np.isin(self.translator_handle_data.axis_identifiers,
+                       test_elements=self.selected_axes)
 
     @property
     def _selected_rotator_line_vertices(self) -> np.ndarray:

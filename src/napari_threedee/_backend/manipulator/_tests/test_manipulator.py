@@ -21,6 +21,7 @@ def test_instantiation_with_empty_translators():
     manipulator = ManipulatorModel.from_strings(translators=None, rotators='xyz')
     assert isinstance(manipulator, ManipulatorModel)
 
+
 @pytest.mark.xfail
 def test_rotation_matrix_type():
     manipulator = ManipulatorModel(central_axes='xyz', rotators='xyz', translators='xyz')
