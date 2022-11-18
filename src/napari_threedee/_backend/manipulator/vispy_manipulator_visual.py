@@ -8,6 +8,7 @@ from vispy.scene import Line, Compound, Markers
 
 class ManipulatorVisual(Compound):
     _line_antialiasing_width: float = 2
+
     def __init__(self, parent, manipulator_visual_data: ManipulatorVisualData):
         super().__init__([Line(), Line(), Markers(), Markers(), Line(), Markers()], parent=parent)
         self.unfreeze()
