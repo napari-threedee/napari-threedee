@@ -34,12 +34,12 @@ class BaseManipulator(ThreeDeeModel, ABC):
     """
 
     def __init__(
-            self,
-            viewer,
-            layer=None,
-            rotator_axes: Optional[str] = None,
-            translator_axes: Optional[str] = None,
-            enabled: bool = True,
+        self,
+        viewer,
+        layer=None,
+        rotator_axes: Optional[str] = None,
+        translator_axes: Optional[str] = None,
+        enabled: bool = True,
     ):
         super().__init__()
         self._viewer = viewer
