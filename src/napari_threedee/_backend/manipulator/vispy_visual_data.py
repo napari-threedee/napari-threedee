@@ -73,7 +73,7 @@ class ManipulatorLineData(BaseModel):
         return sum(cls.from_rotator(rotator, n_segments=n_segments) for rotator in rotators)
 
     def __add__(self, other):
-        if other == 0:
+        if other == 0 or other is None:
             return self
         vertices = np.concatenate([self.vertices, other.vertices], axis=0)
         reindexed_connections = other.connections + len(self.vertices)
@@ -142,7 +142,7 @@ class ManipulatorHandleData(BaseModel):
         return self.__add__(other)
 
     def __add__(self, other):
-        if other == 0:
+        if other == 0 or other is None:
             return self
         points = np.concatenate([self.points, other.points], axis=0)
         colors = np.concatenate([self.colors, other.colors], axis=0)
