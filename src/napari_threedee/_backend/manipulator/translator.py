@@ -41,6 +41,8 @@ class TranslatorSet(List[Translator]):
 
     @classmethod
     def from_string(cls, axes: str):
+        if axes == '':
+            return None
         return cls.from_axis_set(AxisSet.from_string(axes))
 
     def __str__(self) -> str:
