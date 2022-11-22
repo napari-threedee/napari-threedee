@@ -20,7 +20,7 @@ class QtFilamentAnnotatorWidget(QtThreeDeeWidgetBase):
         spinbox_layout = QHBoxLayout()
         self.current_spline_index_spinbox = QSpinBox()
         self.current_spline_index_spinbox.setMinimum(0)
-        self.current_spline_index_spinbox.setValue(self.model.current_spline_id)
+        self.current_spline_index_spinbox.setValue(self.model.current_sphere_id)
         self.current_spline_index_spinbox.valueChanged.connect(self._on_current_filament_id_changed)
         spinbox_layout.addWidget(QLabel("current spline index:"))
         spinbox_layout.addWidget(self.current_spline_index_spinbox)
@@ -41,11 +41,11 @@ class QtFilamentAnnotatorWidget(QtThreeDeeWidgetBase):
         self.layout().addWidget(self.fitting_group_box)
 
         # connect events to sync changes in the model to the UI
-        self.model.events.current_spline_id.connect(self._update_current_spline_id)
+        self.model.events.current_sphere_id.connect(self._update_current_spline_id)
 
     def _on_spline_fit(self):
         # update splines from points
-        self.model._update_splines()
+        self.model._update_spheres()
 
         # draw splines
         self.model._draw_splines()
@@ -55,7 +55,7 @@ class QtFilamentAnnotatorWidget(QtThreeDeeWidgetBase):
         self.model.auto_fit_spline = self.auto_fit_checkbox.isChecked()
 
     def _on_current_filament_id_changed(self, event: Event):
-        self.model.current_spline_id = self.current_spline_index_spinbox.value()
+        self.model.current_sphere_id = self.current_spline_index_spinbox.value()
 
     def on_activate_button_click(self, event: Event):
         """Callback function when the activate button is clicked"""
@@ -70,6 +70,6 @@ class QtFilamentAnnotatorWidget(QtThreeDeeWidgetBase):
 
     def _update_current_spline_id(self):
         """Update the spline id spinbox when the model has changed value"""
-        self.current_spline_index_spinbox.setValue(self.model.current_spline_id)
+        self.current_spline_index_spinbox.setValue(self.model.current_sphere_id)
 
 
