@@ -25,29 +25,29 @@ class PointManipulator(BaseManipulator):
         super()._connect_events()
         if self.layer is None:
             return
-        #
-        # remove_mouse_callback_safe(
-        #     self.layer.mouse_drag_callbacks,
-        #     napari_selection_callback
-        # )
-        # if len(self.layer.selected_data) == 1:
-        #     add_mouse_callback_safe(
-        #         self.layer.mouse_drag_callbacks,
-        #         self.napari_selection_callback_passthrough
-        #     )
+
+        remove_mouse_callback_safe(
+            self.layer.mouse_drag_callbacks,
+            napari_selection_callback
+        )
+        if len(self.layer.selected_data) == 1:
+            add_mouse_callback_safe(
+                self.layer.mouse_drag_callbacks,
+                self.napari_selection_callback_passthrough
+            )
 
     def _disconnect_events(self):
         super()._disconnect_events()
         if self.layer is None:
             return
-        # remove_mouse_callback_safe(
-        #     self.layer.mouse_drag_callbacks,
-        #     self.napari_selection_callback_passthrough
-        # )
-        # if self.layer.mode == 'select':
-        #     add_mouse_callback_safe(
-        #         self.layer.mouse_drag_callbacks, napari_selection_callback
-        #     )
+        remove_mouse_callback_safe(
+            self.layer.mouse_drag_callbacks,
+            self.napari_selection_callback_passthrough
+        )
+        if self.layer.mode == 'select':
+            add_mouse_callback_safe(
+                self.layer.mouse_drag_callbacks, napari_selection_callback
+            )
 
     @property
     def active_point_index(self):
@@ -57,36 +57,36 @@ class PointManipulator(BaseManipulator):
     def active_point_position(self):
         return self.layer.data[self.active_point_index]
 
-    # def _on_selection_change(self, event=None):
-    #     if self.layer is None:
-    #         return
-    #     elif self.enabled is False:
-    #         return
-    #     elif self.layer._is_selecting is True:
-    #         return
-    #     selected_points = list(self.layer.selected_data)
-    #     if len(selected_points) == 1:
-    #         remove_mouse_callback_safe(
-    #             self.layer.mouse_drag_callbacks,
-    #             napari_selection_callback
-    #         )
-    #         add_mouse_callback_safe(
-    #             self.layer.mouse_drag_callbacks,
-    #             self.napari_selection_callback_passthrough
-    #         )
-    #         self.visible = True
-    #         self.origin = self.active_point_position
-    #
-    #     else:
-    #         self.visible = False
-    #         if self.layer.mode == 'select':
-    #             remove_mouse_callback_safe(
-    #                 self.layer.mouse_drag_callbacks,
-    #                 self.napari_selection_callback_passthrough
-    #             )
-    #             add_mouse_callback_safe(
-    #                 self.layer.mouse_drag_callbacks, napari_selection_callback
-    #             )
+    def _on_selection_change(self, event=None):
+        if self.layer is None:
+            return
+        elif self.enabled is False:
+            return
+        elif self.layer._is_selecting is True:
+            return
+        selected_points = list(self.layer.selected_data)
+        if len(selected_points) == 1:
+            remove_mouse_callback_safe(
+                self.layer.mouse_drag_callbacks,
+                napari_selection_callback
+            )
+            add_mouse_callback_safe(
+                self.layer.mouse_drag_callbacks,
+                self.napari_selection_callback_passthrough
+            )
+            self.visible = True
+            self.origin = self.active_point_position
+
+        else:
+            self.visible = False
+            if self.layer.mode == 'select':
+                remove_mouse_callback_safe(
+                    self.layer.mouse_drag_callbacks,
+                    self.napari_selection_callback_passthrough
+                )
+                add_mouse_callback_safe(
+                    self.layer.mouse_drag_callbacks, napari_selection_callback
+                )
 
     def _while_dragging_translator(self):
         self.layer._move([self.active_point_index], self.origin)
@@ -114,4 +114,4 @@ class PointManipulator(BaseManipulator):
 
     def _on_enable(self):
         super()._on_enable()
-        # self._on_selection_change()
+        self._on_selection_change()

@@ -178,6 +178,15 @@ class BaseManipulator(ThreeDeeModel, ABC):
     def visible(self, value: bool):
         self._backend.vispy_visual.visible = value
 
+    @property
+    def enabled(self) -> bool:
+        return self._enabled
+
+    @enabled.setter
+    def enabled(self, value: bool):
+        self._enabled = value
+        self._on_enable() if self._enabled is True else self._on_disable()
+
     def _on_enable(self):
         if self.layer is not None:
             self.visible = True
