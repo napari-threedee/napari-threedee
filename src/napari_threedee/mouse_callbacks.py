@@ -17,7 +17,7 @@ def add_point_on_plane(
         event: Event,
         points_layer: napari.layers.Points = None,
         plane_layer: napari.layers.Image = None,
-        append: bool = True,
+        replace_selected: bool = False,
 ):
     # Early exit if not alt-clicked
     if 'Alt' not in event.modifiers:
@@ -42,7 +42,6 @@ def add_point_on_plane(
     if not point_in_bounding_box(intersection_nd, plane_layer.extent.data):
         return
 
-    if append:
-        points_layer.add(intersection_nd)
-    else:
-        points_layer.data = intersection_nd
+    if replace_selected:
+        points_layer.remove_selected()
+    points_layer.add(intersection_nd)

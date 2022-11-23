@@ -29,6 +29,7 @@ class SphereAnnotator(ThreeDeeModel):
     SPHERE_RADIUS_COLUMN = "radius"
     SPHERE_METADATA_LABEL = "sphere_data"
     DEFAULT_SPHERE_RADIUS = 5
+
     def __init__(
         self,
         viewer: napari.Viewer,
@@ -78,7 +79,8 @@ class SphereAnnotator(ThreeDeeModel):
             viewer=viewer,
             event=event,
             points_layer=self.points_layer,
-            plane_layer=self.image_layer
+            plane_layer=self.image_layer,
+            replace_selected=True,
         )
 
     def _create_points_layer(self) -> Optional[Points]:
@@ -152,11 +154,15 @@ class SphereAnnotator(ThreeDeeModel):
             sphere_vertices.append(vertex_data)
             sphere_faces.append(mesh_data.get_faces() + face_index_offset)
             face_index_offset += len(vertex_data)
-        sphere_vertices = np.concatenate(sphere_vertices, axis=0)
-        sphere_faces = np.concatenate(sphere_faces, axis=0)
-        self.points_layer.metadata[self.SPHERE_METADATA_LABEL] = (
-            sphere_vertices, sphere_faces
-        )
+        if len(sphere_vertices) > 0:
+            sphere_vertices = np.concatenate(sphere_vertices, axis=0)
+            sphere_faces = np.concatenate(sphere_faces, axis=0)
+            self.points_layer.metadata[self.SPHERE_METADATA_LABEL] = (
+                sphere_vertices, sphere_faces
+            )
+        else:
+            self.points_layer.metadata[self.SPHERE_METADATA_LABEL] = None
 
     def _draw_spheres(self):
-        self.surface_layer.data = self.points_layer.metadata[self.SPHERE_METADATA_LABEL]
+        if self.points_layer.metadata[self.SPHERE_METADATA_LABEL] is not None:
+            self.surface_layer.data = self.points_layer.metadata[self.SPHERE_METADATA_LABEL]
