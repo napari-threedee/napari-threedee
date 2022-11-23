@@ -25,10 +25,10 @@ def test_add_point(filament_annotator):
     # add points, make sure filament id in feature table matches the annotator
     points_layer.add([1, 2, 3, 4])
     assert len(points_layer.data) == 1
-    assert points_layer.features[label][0] == filament_annotator.current_sphere_id
+    assert points_layer.features[label][0] == filament_annotator.active_sphere_id
 
     # change filemanet_id in annotator, add point, check matches
-    filament_annotator.current_sphere_id = 534
+    filament_annotator.active_sphere_id = 534
     points_layer.add([2, 3, 4, 5])
-    assert points_layer.features[label][1] == filament_annotator.current_sphere_id
+    assert points_layer.features[label][1] == filament_annotator.active_sphere_id
 
