@@ -33,7 +33,7 @@ jobs:
     # Build the book
     - name: Build the book
       run: |
-        mkdocs build ./site
+        mkdocs build
 
     # Push the book's HTML to github-pages
     - name: GitHub Pages action
