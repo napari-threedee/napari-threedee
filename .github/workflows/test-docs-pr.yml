@@ -22,7 +22,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
-        pip install mkdocs mkdocs-materials mkdocstrings[python]
+        pip install mkdocs mkdocs-material mkdocstrings[python]
     # Build the book
     - name: Build the book
       run: |
