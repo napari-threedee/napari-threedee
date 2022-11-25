@@ -117,7 +117,7 @@ class SphereAnnotator(ThreeDeeModel):
         )
         self.mode = SphereAnnotatorMode.EDIT
 
-    def _set_radius(self, event: Event):
+    def _set_radius(self, event: Event = None):
         if (self.image_layer is None) or (self.points_layer is None):
             return
         # Early exit if plane_layer isn't visible
