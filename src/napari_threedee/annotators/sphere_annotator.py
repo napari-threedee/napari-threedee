@@ -1,4 +1,5 @@
 import warnings
+from enum import Enum, auto
 from typing import Optional
 
 import napari
@@ -11,6 +12,11 @@ from vispy.geometry import create_sphere
 from napari_threedee._base_model import ThreeDeeModel
 from napari_threedee.mouse_callbacks import add_point_on_plane
 from napari_threedee.utils.napari_utils import add_mouse_callback_safe, remove_mouse_callback_safe
+
+
+class SphereAnnotatorMode(Enum):
+    ADD = auto()
+    EDIT = auto()
 
 
 class SphereAnnotator(ThreeDeeModel):
@@ -47,26 +53,19 @@ class SphereAnnotator(ThreeDeeModel):
         self.image_layer = image_layer
         self.points_layer = None
         self.enabled = enabled
-
-        self.active_sphere_id: int = 0
+        self.mode = SphereAnnotatorMode.ADD
 
         if image_layer is not None:
             self.set_layers(self.image_layer)
 
     @property
-    def active_sphere_id(self) -> int:
-        return int(self._active_sphere_id)
-
-    @active_sphere_id.setter
-    def active_sphere_id(self, id: int):
-        self._active_sphere_id = np.clip(id, 0, None)
-        if self.points_layer is not None:
-            self.points_layer.selected_data = {}
-            self.points_layer.current_properties = {
-                self.SPHERE_ID_COLUMN: self.active_sphere_id,
-                self.SPHERE_RADIUS_COLUMN: [self.DEFAULT_SPHERE_RADIUS]
-            }
-        self.events.current_sphere_id()
+    def active_sphere_id(self) -> int | None:
+        if self.points_layer is None:
+            return None
+        elif self.points_layer.selected_data != {}:
+            return int(list(self.points_layer.selected_data)[0])
+        else:
+            return None
 
     @property
     def _active_sphere_center(self) -> np.ndarray | None:
@@ -82,22 +81,41 @@ class SphereAnnotator(ThreeDeeModel):
         df = df.loc[idx, :]
         return df.index.values[0]
 
-    def next_sphere(self, event=None):
-        self.active_sphere_id += 1
+    @property
+    def mode(self) -> SphereAnnotatorMode:
+        return self._mode
 
-    def previous_sphere(self, event=None):
-        self.active_sphere_id -= 1
+    @mode.setter
+    def mode(self, value: SphereAnnotatorMode):
+        self._mode = value
+        if self._mode == SphereAnnotatorMode.ADD:
+            if self.points_layer is None:
+                sphere_ids = []
+            else:
+                sphere_ids = self.points_layer.features[self.SPHERE_ID_COLUMN]
+                self.points_layer.selected_data = {}
+            if len(sphere_ids) == 0:
+                new_sphere_id = 1
+            else:
+                new_sphere_id = np.max(sphere_ids) + 1
+            self._update_current_properties(sphere_id=new_sphere_id)
+
+    def _enable_add_mode(self, event=None):
+        """Callback for enabling add mode."""
+        self.mode = SphereAnnotatorMode.ADD
 
     def _mouse_callback(self, viewer, event):
         if (self.image_layer is None) or (self.points_layer is None):
             return
+        replace_selected = True if self.mode == SphereAnnotatorMode.EDIT else False
         add_point_on_plane(
             viewer=viewer,
             event=event,
             points_layer=self.points_layer,
             plane_layer=self.image_layer,
-            replace_selected=True,
+            replace_selected=replace_selected,
         )
+        self.mode = SphereAnnotatorMode.EDIT
 
     def _set_radius(self, event: Event):
         if (self.image_layer is None) or (self.points_layer is None):
@@ -118,13 +136,26 @@ class SphereAnnotator(ThreeDeeModel):
         radius = np.linalg.norm(current_position_3d - intersection_3d)
         self.points_layer.features.loc[:, self.SPHERE_RADIUS_COLUMN].iloc[
             self._active_sphere_index] = radius
+        self._update_current_properties(radius=radius)
+        self._update_spheres()
+
+    def _update_current_properties(
+        self,
+        sphere_id: Optional[int] = None,
+        radius: Optional[float] = None
+    ):
+        if self.points_layer is None:
+            return
+        if sphere_id is None:
+            sphere_id = self.points_layer.current_properties[self.SPHERE_ID_COLUMN][0]
+        if radius is None:
+            radius = self.points_layer.current_properties[self.SPHERE_RADIUS_COLUMN][0]
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore")
             self.points_layer.current_properties = {
-                self.SPHERE_ID_COLUMN: [self.active_sphere_id],
+                self.SPHERE_ID_COLUMN: [sphere_id],
                 self.SPHERE_RADIUS_COLUMN: [radius]
             }
-        self._update_spheres()
 
     def _create_points_layer(self) -> Optional[Points]:
         layer = Points(
@@ -141,7 +172,6 @@ class SphereAnnotator(ThreeDeeModel):
         )
         layer.selected_data = {0}
         layer.remove_selected()
-        self.active_sphere_id = self.active_sphere_id
         return layer
 
     def _create_surface_layer(self) -> Surface:
@@ -168,7 +198,7 @@ class SphereAnnotator(ThreeDeeModel):
             )
             self.points_layer.events.data.connect(self._on_point_data_changed)
             self.viewer.bind_key('r', self._set_radius)
-            self.viewer.bind_key('n', self.next_sphere)
+            self.viewer.bind_key('n', self._enable_add_mode)
             self.viewer.layers.selection.active = self.image_layer
 
     def _on_disable(self):
