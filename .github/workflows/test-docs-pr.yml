@@ -22,8 +22,8 @@ jobs:
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
-        pip install jupyter-book sphinx-autodoc-typehints
+        pip install mkdocs mkdocs-materials mkdocstrings[python]
     # Build the book
     - name: Build the book
       run: |
-        jupyter-book build ./docs
+        mkdocs build ./site
