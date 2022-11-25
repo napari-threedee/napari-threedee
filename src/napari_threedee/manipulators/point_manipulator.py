@@ -22,10 +22,9 @@ class PointManipulator(BaseManipulator):
         pass
 
     def _connect_events(self):
-        super()._connect_events()
         if self.layer is None:
             return
-
+        self.layer.events.highlight.connect(self._on_selection_change)
         remove_mouse_callback_safe(
             self.layer.mouse_drag_callbacks,
             napari_selection_callback
@@ -37,9 +36,9 @@ class PointManipulator(BaseManipulator):
             )
 
     def _disconnect_events(self):
-        super()._disconnect_events()
         if self.layer is None:
             return
+        self.layer.events.highlight.disconnect(self._on_selection_change)
         remove_mouse_callback_safe(
             self.layer.mouse_drag_callbacks,
             self.napari_selection_callback_passthrough
@@ -58,6 +57,7 @@ class PointManipulator(BaseManipulator):
         return self.layer.data[self.active_point_index]
 
     def _on_selection_change(self, event=None):
+        print('selection changing!')
         if self.layer is None:
             return
         elif self.enabled is False:
@@ -75,8 +75,9 @@ class PointManipulator(BaseManipulator):
                 self.napari_selection_callback_passthrough
             )
             self.visible = True
-            self.origin = self.active_point_position
-
+            # if self._backend.is_dragging is False:
+            # toggling following line on/off breaks magnitude of translator vector
+            # self.origin = self.active_point_position
         else:
             self.visible = False
             if self.layer.mode == 'select':
@@ -87,9 +88,18 @@ class PointManipulator(BaseManipulator):
                 add_mouse_callback_safe(
                     self.layer.mouse_drag_callbacks, napari_selection_callback
                 )
+    def _pre_drag(self):
+        self.layer.events.highlight.disconnect(self._on_selection_change)
 
     def _while_dragging_translator(self):
-        self.layer._move([self.active_point_index], self.origin)
+        selected_point_index = list(self.layer.selected_data)[0]
+        self.layer.data[selected_point_index] = self.origin
+        # refresh rendering manually after modifying array data inplace
+        self.layer.refresh()
+
+    def _post_drag(self):
+        self.layer.events.highlight.connect(self._on_selection_change)
+
 
     # def _while_dragging_rotator(self, selected_rotator: int, rotation_matrix: np.ndarray):
     #     # todo: store rotmat somewhere
