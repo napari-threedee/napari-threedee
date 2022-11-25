@@ -77,6 +77,7 @@ class PointManipulator(BaseManipulator):
             self.visible = True
             # if self._backend.is_dragging is False:
             # toggling following line on/off breaks magnitude of translator vector
+            # but is needed to update position of manipulator when selection is changed...
             # self.origin = self.active_point_position
         else:
             self.visible = False
