@@ -68,8 +68,16 @@ class SphereAnnotator(ThreeDeeModel):
             return None
 
     @property
-    def _active_sphere_center(self) -> np.ndarray | None:
+    def active_sphere_center(self) -> np.ndarray:
         return self.points_layer.data[self._active_sphere_index]
+
+    @property
+    def active_sphere_radius(self) -> float | None:
+        df = features_to_pandas_dataframe(self.points_layer.features)
+        if len(df) == 0:
+            return None
+        else:
+            return float(df[self.SPHERE_RADIUS_COLUMN].iloc[self._active_sphere_index])
 
     @property
     def _active_sphere_index(self) -> int | None:
@@ -117,14 +125,16 @@ class SphereAnnotator(ThreeDeeModel):
         )
         self.mode = SphereAnnotatorMode.EDIT
 
-    def _set_radius(self, event: Event = None):
+    def _set_radius_from_mouse_event(self, event: Event = None):
+        # early exits
         if (self.image_layer is None) or (self.points_layer is None):
             return
-        # Early exit if plane_layer isn't visible
-        if not self.image_layer.visible or self._active_sphere_center is None:
+        if not self.image_layer.visible or self.active_sphere_center is None:
+            return
+        if list(self.points_layer.selected_data) == []:
             return
 
-        # Calculate intersection of click with plxane through data in displayed data (scene) coordinates
+        # Calculate intersection of click with plane through data in displayed data (scene) coordinates
         displayed_dims = np.asarray(self.viewer.dims.displayed)[
             list(self.viewer.dims.displayed_order)]
         cursor_position_3d = np.asarray(self.viewer.cursor.position)[displayed_dims]
@@ -132,12 +142,16 @@ class SphereAnnotator(ThreeDeeModel):
             line_position=cursor_position_3d,
             line_direction=self.viewer.camera.view_direction
         )
-        current_position_3d = self._active_sphere_center[displayed_dims]
+        current_position_3d = self.active_sphere_center[displayed_dims]
         radius = np.linalg.norm(current_position_3d - intersection_3d)
-        self.points_layer.features.loc[:, self.SPHERE_RADIUS_COLUMN].iloc[
-            self._active_sphere_index] = radius
+        self._update_active_sphere_radius(radius=radius)
         self._update_current_properties(radius=radius)
         self._update_spheres()
+
+    def _update_active_sphere_radius(self, radius: float):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore")
+            self.points_layer.features[self.SPHERE_RADIUS_COLUMN].iloc[self._active_sphere_index] = radius
 
     def _update_current_properties(
         self,
@@ -197,7 +211,7 @@ class SphereAnnotator(ThreeDeeModel):
                 callback=self._mouse_callback
             )
             self.points_layer.events.data.connect(self._on_point_data_changed)
-            self.viewer.bind_key('r', self._set_radius)
+            self.viewer.bind_key('r', self._set_radius_from_mouse_event)
             self.viewer.bind_key('n', self._enable_add_mode)
             self.viewer.layers.selection.active = self.image_layer
 

@@ -1,4 +1,3 @@
-from copy import deepcopy
 from napari_threedee.annotators import SphereAnnotator
 from napari_threedee.annotators.sphere_annotator import SphereAnnotatorMode
 
