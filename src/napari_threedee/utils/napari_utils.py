@@ -89,6 +89,7 @@ def mouse_event_to_layer_data_displayed(layer, event) -> Tuple[np.ndarray, np.nd
         The layer to convert the coordinates to.
     event
         The mouse event.
+
     Returns
     -------
     click_position_data_3d : np.ndarray
