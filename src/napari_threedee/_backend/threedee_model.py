@@ -21,8 +21,7 @@ class ThreeDeeModel(ABC):
 
     @enabled.setter
     def enabled(self, value: bool):
-        if self.layer is not None:
-            self._on_enable() if value is True else self._on_disable()
+        self._on_enable() if value is True else self._on_disable()
         self._enabled = value
 
     @abstractmethod
