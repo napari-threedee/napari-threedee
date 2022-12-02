@@ -1,4 +1,4 @@
-from .model import ManipulatorModel
+from .manipulator_model import ManipulatorModel
 from .vispy_visual_data import ManipulatorVisualData
 
 import numpy as np
@@ -7,6 +7,8 @@ from vispy.scene import Line, Compound, Markers
 
 
 class ManipulatorVisual(Compound):
+    _line_antialiasing_width: float = 2
+
     def __init__(self, parent, manipulator_visual_data: ManipulatorVisualData):
         super().__init__([Line(), Line(), Markers(), Markers(), Line(), Markers()], parent=parent)
         self.unfreeze()
@@ -15,21 +17,25 @@ class ManipulatorVisual(Compound):
 
         # set up the central axis visual
         self.origin_marker_visual.spherical = True
+        self.origin_marker_visual.antialias = self._line_antialiasing_width
         self.origin_marker_visual.set_data(
             pos=np.array([[0, 0, 0]]),
             face_color=[0.7, 0.7, 0.7, 1],
             size=10
         )
+        self.central_axis_visual.antialias = self._line_antialiasing_width
 
         # set up the rotator visual
         self.rotator_handle_visual.spherical = True
         self.rotator_handle_visual.scaling = True
-        self.rotator_handle_visual.antialias = 0
+        self.rotator_handle_visual.antialias = self._line_antialiasing_width
+        self.rotator_line_visual.antialias = self._line_antialiasing_width
 
         # set up the translator visual
         self.translator_handle_visual.spherical = True
         self.translator_handle_visual.scaling = True
-        self.translator_handle_visual.antialias = 0
+        self.translator_handle_visual.antialias = self._line_antialiasing_width
+        self.translator_line_visual.antialias = self._line_antialiasing_width
 
     @classmethod
     def from_manipulator(cls, manipulator: ManipulatorModel):
@@ -79,6 +85,8 @@ class ManipulatorVisual(Compound):
         )
 
     def _update_translator_visuals(self):
+        if self.manipulator_visual_data.translator_line_data is None:
+            return
         self.translator_line_visual.set_data(
             pos=self.manipulator_visual_data.translator_line_data.vertices[:, ::-1],
             connect=self.manipulator_visual_data.translator_line_data.connections,
@@ -92,6 +100,8 @@ class ManipulatorVisual(Compound):
         )
 
     def _update_rotator_visuals(self):
+        if self.manipulator_visual_data.rotator_line_data is None:
+            return
         self.rotator_line_visual.set_data(
             pos=self.manipulator_visual_data.rotator_line_data.vertices[:, ::-1],
             connect=self.manipulator_visual_data.rotator_line_data.connections,

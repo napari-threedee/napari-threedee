@@ -1,5 +1,4 @@
-from napari_threedee.manipulator.rotator import RotatorSet, Rotator
-from napari_threedee.manipulator.axis_model import AxisSet
+from napari_threedee._backend.manipulator.rotator import RotatorSet, Rotator
 
 
 def test_rotator_instantiation():

@@ -5,13 +5,14 @@ import numpy as np
 from napari.layers import Image
 import pytest
 
-from napari_threedee.manipulator.drag_managers import RotatorDragManager, TranslatorDragManager
+from napari_threedee._backend.manipulator.drag_managers import RotatorDragManager, \
+    TranslatorDragManager
 
 
 @dataclass
 class DummyMouseEvent:
     position: np.ndarray
-    view_direction:np.ndarray
+    view_direction: np.ndarray
     dims_displayed: List[int]
     modifiers: List[str]
 
@@ -19,15 +20,14 @@ class DummyMouseEvent:
 @pytest.mark.parametrize(
     "view_direction,drag_position,expected_angle",
     [
-        (np.array([1, 0, 0]), np.array([10, -10, 10]), np.pi/2),
-        (np.array([-1, 0, 0]), np.array([10, -10, 10]), np.pi/2),
-        (np.array([1, 0, 0]), np.array([10, 10, -10]), -np.pi/2),
-        (np.array([-1, 0, 0]), np.array([10, 10, -10]), -np.pi/2),
+        (np.array([1, 0, 0]), np.array([10, -10, 10]), np.pi / 2),
+        (np.array([-1, 0, 0]), np.array([10, -10, 10]), np.pi / 2),
+        (np.array([1, 0, 0]), np.array([10, 10, -10]), -np.pi / 2),
+        (np.array([-1, 0, 0]), np.array([10, 10, -10]), -np.pi / 2),
 
     ]
 )
 def test_rotator_drag_manager(view_direction, drag_position, expected_angle):
-
     image_layer = Image(np.zeros((20, 20, 20)))
 
     # axis around which rotation will be applied
@@ -55,11 +55,11 @@ def test_rotator_drag_manager(view_direction, drag_position, expected_angle):
 
     # make a click that corresponds to a +90 deg rotation
     drag_mouse_event = DummyMouseEvent(
-            position=drag_position,
-            view_direction=view_direction,
-            dims_displayed=[0, 1, 2],
-            modifiers=[]
-        )
+        position=drag_position,
+        view_direction=view_direction,
+        dims_displayed=[0, 1, 2],
+        modifiers=[]
+    )
     updated_translation, updated_rotation_matrix = drag_manager.update_drag(drag_mouse_event)
 
     # should be no translation
@@ -88,7 +88,6 @@ def test_rotator_drag_manager(view_direction, drag_position, expected_angle):
     ]
 )
 def test_translator_drag_manager(view_direction, drag_position, expected_translation_distance):
-
     image_layer = Image(np.zeros((20, 20, 20)))
 
     # axis around which rotation will be applied
@@ -116,11 +115,11 @@ def test_translator_drag_manager(view_direction, drag_position, expected_transla
 
     # make a click that corresponds to a +90 deg rotation
     drag_mouse_event = DummyMouseEvent(
-            position=drag_position,
-            view_direction=view_direction,
-            dims_displayed=[0, 1, 2],
-            modifiers=[]
-        )
+        position=drag_position,
+        view_direction=view_direction,
+        dims_displayed=[0, 1, 2],
+        modifiers=[]
+    )
     updated_translation, updated_rotation_matrix = drag_manager.update_drag(drag_mouse_event)
 
     # should be no translation

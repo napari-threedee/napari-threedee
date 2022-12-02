@@ -3,8 +3,8 @@ from typing import List
 import numpy as np
 from pydantic import BaseModel
 
-from napari_threedee.manipulator._interface import _Grabbable
-from napari_threedee.manipulator.axis_model import AxisSet, AxisModel
+from napari_threedee._backend.manipulator._interface import _Grabbable
+from napari_threedee._backend.manipulator.axis_model import AxisSet, AxisModel
 
 
 class Translator(BaseModel, _Grabbable):
@@ -41,6 +41,8 @@ class TranslatorSet(List[Translator]):
 
     @classmethod
     def from_string(cls, axes: str):
+        if axes == '':
+            return None
         return cls.from_axis_set(AxisSet.from_string(axes))
 
     def __str__(self) -> str:

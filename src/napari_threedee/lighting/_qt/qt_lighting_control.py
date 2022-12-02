@@ -2,7 +2,7 @@ import napari
 from magicgui import magicgui
 from qtpy.QtWidgets import QPushButton, QWidget, QVBoxLayout
 
-from .lighting_control import LightingControl
+from napari_threedee.lighting.lighting_control import LightingControl
 
 
 class QtLightingControlWidget(QWidget):
