@@ -57,15 +57,17 @@ class PointManipulator(BaseManipulator):
         return self.layer.data[self.active_point_index]
 
     def _on_selection_change(self, event=None):
-        print('selection changing!')
+        # early exit cases
         if self.layer is None:
             return
         elif self.enabled is False:
             return
         elif self.layer._is_selecting is True:
             return
+
         selected_points = list(self.layer.selected_data)
         if len(selected_points) == 1:
+            # replace napari selection callback with n3d passthrough
             remove_mouse_callback_safe(
                 self.layer.mouse_drag_callbacks,
                 napari_selection_callback
@@ -75,12 +77,11 @@ class PointManipulator(BaseManipulator):
                 self.napari_selection_callback_passthrough
             )
             self.visible = True
-            # if self._backend.is_dragging is False:
-            # toggling following line on/off breaks magnitude of translator vector
-            # but is needed to update position of manipulator when selection is changed...
+
+            # update manipulator position
             self.origin = self.active_point_position
-            print('origin updated')
         else:
+            # reinstate original callbacck
             self.visible = False
             if self.layer.mode == 'select':
                 remove_mouse_callback_safe(
