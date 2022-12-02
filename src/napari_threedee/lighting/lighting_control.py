@@ -4,7 +4,7 @@ import numpy as np
 import napari
 
 from napari_threedee._backend.threedee_model import ThreeDeeModel
-from napari_threedee.utils import get_napari_visual
+from napari_threedee.utils.napari_utils import get_napari_visual
 
 
 class LightingControl(ThreeDeeModel):
