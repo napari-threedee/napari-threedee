@@ -72,10 +72,8 @@ class ManipulatorVisual(Compound):
 
     def update_visuals_from_manipulator_visual_data(self):
         self._update_central_axis_visual()
-        if self.manipulator_visual_data.translator_line_data is not None:
-            self._update_translator_visuals()
-        if self.manipulator_visual_data.rotator_line_data is not None:
-            self._update_rotator_visuals()
+        self._update_translator_visuals()
+        self._update_rotator_visuals()
         self.update()
 
     def _update_central_axis_visual(self):
@@ -87,6 +85,8 @@ class ManipulatorVisual(Compound):
         )
 
     def _update_translator_visuals(self):
+        if self.manipulator_visual_data.translator_line_data is None:
+            return
         self.translator_line_visual.set_data(
             pos=self.manipulator_visual_data.translator_line_data.vertices[:, ::-1],
             connect=self.manipulator_visual_data.translator_line_data.connections,
@@ -100,6 +100,8 @@ class ManipulatorVisual(Compound):
         )
 
     def _update_rotator_visuals(self):
+        if self.manipulator_visual_data.rotator_line_data is None:
+            return
         self.rotator_line_visual.set_data(
             pos=self.manipulator_visual_data.rotator_line_data.vertices[:, ::-1],
             connect=self.manipulator_visual_data.rotator_line_data.connections,
