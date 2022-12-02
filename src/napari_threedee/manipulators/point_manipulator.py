@@ -1,5 +1,6 @@
 import napari
 from napari.layers.points._points_mouse_bindings import select as napari_selection_callback
+from napari.layers.points._points_constants import Mode
 
 from .base_manipulator import BaseManipulator
 from napari_threedee.utils.napari_utils import remove_mouse_callback_safe, add_mouse_callback_safe
@@ -43,7 +44,7 @@ class PointManipulator(BaseManipulator):
             self.layer.mouse_drag_callbacks,
             self.napari_selection_callback_passthrough
         )
-        if self.layer.mode == 'select':
+        if self.layer.mode == Mode.SELECT:
             add_mouse_callback_safe(
                 self.layer.mouse_drag_callbacks, napari_selection_callback
             )
@@ -83,7 +84,7 @@ class PointManipulator(BaseManipulator):
         else:
             # reinstate original callbacck
             self.visible = False
-            if self.layer.mode == 'select':
+            if self.layer.mode == Mode.SELECT:
                 remove_mouse_callback_safe(
                     self.layer.mouse_drag_callbacks,
                     self.napari_selection_callback_passthrough
