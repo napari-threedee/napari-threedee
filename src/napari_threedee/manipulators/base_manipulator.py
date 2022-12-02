@@ -7,8 +7,10 @@ from napari.viewer import Viewer
 
 from napari_threedee._backend.threedee_model import ThreeDeeModel
 from .._backend.manipulator.axis_model import AxisModel
-from .._backend.manipulator.napari_manipulator_backend import NapariManipulatorBackend
-from napari_threedee.utils.napari_utils import add_mouse_callback_safe, remove_mouse_callback_safe
+from .._backend.manipulator.napari_manipulator_backend import \
+    NapariManipulatorBackend
+from napari_threedee.utils.napari_utils import add_mouse_callback_safe, \
+    remove_mouse_callback_safe
 
 
 class BaseManipulator(ThreeDeeModel, ABC):
@@ -60,10 +62,18 @@ class BaseManipulator(ThreeDeeModel, ABC):
         """(3, ) array containing the origin of the manipulator."""
         return self._backend.manipulator_model.origin
 
+    @origin.setter
+    def origin(self, value: np.ndarray):
+        self._backend.manipulator_model.origin = value
+
     @property
     def rotation_matrix(self) -> np.ndarray:
         """(3, 3) array containing the rotation matrix of the manipulator."""
         return self._backend.manipulator_model.rotation_matrix
+
+    @rotation_matrix.setter
+    def rotation_matrix(self, value: np.ndarray):
+        self._backend.manipulator_model.rotation_matrix = value
 
     @property
     def z_vector(self) -> np.ndarray:
@@ -224,11 +234,3 @@ class BaseManipulator(ThreeDeeModel, ABC):
                 self._while_dragging_rotator()
             yield
         self._post_drag()
-
-    @origin.setter
-    def origin(self, value: np.ndarray):
-        self._backend.manipulator_model.origin = value
-
-    @rotation_matrix.setter
-    def rotation_matrix(self, value: np.ndarray):
-        self._backend.manipulator_model.rotation_matrix = value

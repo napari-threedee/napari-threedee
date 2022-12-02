@@ -73,8 +73,8 @@ class TranslatorDragManager:
         _, click_dir_data_3d = get_mouse_position_in_displayed_layer_data_coordinates(layer, mouse_event)
 
         self._initial_position_world = mouse_event.position
-        self._initial_rotation_matrix = rotation_matrix.copy()
-        self._initial_translation = translation
+        self._initial_rotation_matrix = np.copy(rotation_matrix)
+        self._initial_translation = np.copy(translation)
         self._view_direction = click_dir_data_3d
 
     def update_drag(self, mouse_event):

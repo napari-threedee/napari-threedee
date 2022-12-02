@@ -78,7 +78,8 @@ class PointManipulator(BaseManipulator):
             # if self._backend.is_dragging is False:
             # toggling following line on/off breaks magnitude of translator vector
             # but is needed to update position of manipulator when selection is changed...
-            # self.origin = self.active_point_position
+            self.origin = self.active_point_position
+            print('origin updated')
         else:
             self.visible = False
             if self.layer.mode == 'select':
@@ -89,6 +90,7 @@ class PointManipulator(BaseManipulator):
                 add_mouse_callback_safe(
                     self.layer.mouse_drag_callbacks, napari_selection_callback
                 )
+
     def _pre_drag(self):
         self.layer.events.highlight.disconnect(self._on_selection_change)
 
