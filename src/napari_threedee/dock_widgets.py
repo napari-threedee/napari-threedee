@@ -9,6 +9,8 @@ from .annotators._qt import (
     QtSplineAnnotatorWidget,
 )
 
-from .lighting._qt import (
-    QtLightingControlWidget
+from .visualization._qt import (
+    QtCameraSpline,
+    QtLightingControlWidget,
+
 )

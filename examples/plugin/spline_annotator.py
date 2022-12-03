@@ -43,7 +43,7 @@ viewer.add_image(
 
 
 viewer.window.add_plugin_dock_widget(
-    plugin_name="napari-threedee", widget_name="filament annotator"
+    plugin_name="napari-threedee", widget_name="spline annotator"
 )
 
 viewer.camera.angles = (60, 60, 60)

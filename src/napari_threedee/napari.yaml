@@ -26,6 +26,10 @@ contributions:
     title: Create mesh lighting control
     python_name: napari_threedee.dock_widgets:QtLightingControlWidget
 
+  - id: napari-threedee.QtCameraSplineWidget
+    title: Create camera spline control widget
+    python_name: napari_threedee.dock_widgets:QtCameraSpline
+
   widgets:
   - command: napari-threedee.QtRenderPlaneManipulatorWidget
     display_name: render plane manipulator
@@ -44,3 +48,6 @@ contributions:
 
   - command: napari-threedee.QtLightingControlWidget
     display_name: mesh lighting controls
+
+  - command: napari-threedee.QtCameraSplineWidget
+    display_name: camera spline control
