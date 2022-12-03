@@ -7,7 +7,7 @@ from napari.utils.events.event import EmitterGroup, Event
 from napari.utils.geometry import rotation_matrix_from_vectors_3d
 import numpy as np
 
-from .._base_model import ThreeDeeModel
+from .._backend.threedee_model import ThreeDeeModel
 from ..annotators.spline_annotator import SplineAnnotator
 
 

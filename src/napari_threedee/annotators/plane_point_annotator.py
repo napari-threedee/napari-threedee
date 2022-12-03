@@ -3,9 +3,9 @@ from typing import Optional
 import napari
 from napari.layers import Image, Points
 
-from .._base_model import ThreeDeeModel
+from napari_threedee._backend.threedee_model import ThreeDeeModel
 from ..mouse_callbacks import add_point_on_plane
-from ..utils.napari_utils import add_mouse_callback_safe, remove_mouse_callback_safe
+from napari_threedee.utils.napari_utils import add_mouse_callback_safe, remove_mouse_callback_safe
 
 
 class PlanePointAnnotator(ThreeDeeModel):

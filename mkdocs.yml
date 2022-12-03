@@ -1,11 +1,123 @@
 site_name: napari-threedee
-site_description: A suite of useful tools based on 3D interactivity in napari
-site_author: napari team
+site_url: https://github.com/napari-threedee/napari-threedee
+site_author: Alister Burt and Kevin Yamauchi
+site_description: >-
+  Documentation for napari-threedee, a toolkit for interactive,
+  human-in-the loop, 3D image analysis.
+# Repository
+repo_name: napari-threedee/napari-threedee
+repo_url: https://github.com/napari-threedee/napari-threedee
 
-theme: readthedocs
+# Copyright
+copyright: Copyright &copy; 2022 Alister Burt and Kevin Yamauchi
+
+theme:
+  icon:
+    logo: material/home-circle
+  name: material
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue grey
+      accent: blue grey
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    #- navigation.tabs
+    #- navigation.top
+    #- navigation.tracking
+    - search.highlight
+    - search.suggest
+    # - toc.follow
+    # - content.code.annotate
+    - content.tabs.link
+
+markdown_extensions:
+  - admonition
+  - tables
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - md_in_html
+  - pymdownx.arithmatex:
+      generic: true
 
 
-repo_url: https://github.com/alisterburt/napari-threedee
+extra:
+  analytics:
+    feedback:
+      title: Was this page helpful?
+      ratings:
+        - icon: material/emoticon-happy-outline
+          name: This page was helpful
+          data: 1
+          note: >-
+            Thanks for your feedback!
+        - icon: material/emoticon-sad-outline
+          name: This page could be improved
+          data: 0
+          note: >-
+            Thanks for your feedback! Help us improve this page by
+            using our <a href="..." target="_blank" rel="noopener">feedback form</a>.
 
-pages:
-- Home: index.md
+nav:
+  - index.md
+  - Explanations:
+      - dev_guides/core_concepts.md
+      - dev_guides/manipulators.md
+  - API:
+      - API/napari_utilities.md
+      - API/selection_utilities.md
+      - API/geometry_utilities.md
+
+plugins:
+  - search
+  - mkdocstrings:
+      watch:
+        - src/napari_threedee
+      handlers:
+        python:
+          import:
+            - https://docs.python.org/3/objects.inv
+          selection:
+            docstring_style: numpy
+            filters: [ "!^_" ]
+          rendering:
+            show_root_heading: true
+            show_root_toc_entry: true
+            show_root_full_path: true
+            show_object_full_path: false
+            # show_root_members_full_path: false
+            # show_category_heading: false
+            show_if_no_docstring: false
+            # show_signature: true
+            show_signature_annotations: true
+            show_source: true
+            # show_bases: true
+            # group_by_category: true
+            # heading_level: 2
+            members_order: source  # alphabetical/source
+
+            ## experimental
+            docstring_section_style: spacy  # or table/list/spacy
+
+
+extra_css:
+  - stylesheets/extra.css

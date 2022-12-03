@@ -3,4 +3,3 @@ try:
 except ImportError:
     __version__ = "unknown"
 
-from . import _dock_widgets

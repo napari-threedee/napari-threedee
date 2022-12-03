@@ -69,7 +69,7 @@ def get_layers_of_type(*args, viewer: napari.Viewer, layer_type):
 
 def generate_populated_layer_selection_widget(func, viewer) -> FunctionGui:
     parameters = inspect.signature(func).parameters
-    mgui_param_args = {
+    magicgui_parameter_arguments = {
         parameter_name: {
             'choices': partial(get_layers_of_type, viewer=viewer, layer_type=parameter.annotation)
         }
@@ -77,10 +77,42 @@ def generate_populated_layer_selection_widget(func, viewer) -> FunctionGui:
         in parameters.items()
         if parameter.annotation in NAPARI_LAYER_TYPES
     }
-    return magicgui.magicgui(func, **mgui_param_args, auto_call=True)
+    return magicgui.magicgui(func, **magicgui_parameter_arguments, auto_call=True)
 
 
-def mouse_event_to_layer_data_displayed(layer, event) -> Tuple[np.ndarray, np.ndarray]:
+def get_mouse_position_in_displayed_dimensions(event) -> np.ndarray:
+    """Get the position under the mouse in scene (displayed world) coordinates.
+
+    Parameters
+    ----------
+    layer : napari.layers.Layer
+        The layer to convert the coordinates to.
+    event
+        The mouse event.
+    Returns
+    -------
+    click_position_data_3d : np.ndarray
+        The click position in displayed data coordinates.
+    click_dir_data_3d : np.ndarray
+        The click direction in displayed data coordiantes
+    """
+    click_position_world = event.position
+    return np.asarray(click_position_world)[list(event.dims_displayed)]
+
+
+def get_view_direction_in_displayed_dimensions(event) -> np.ndarray:
+    """Get the view direction under the mouse in scene (displayed world) coordinates.
+
+    Parameters
+    ----------
+    event: Event
+        napari mouse event.
+    """
+    view_direction_world = event.view_direction
+    return np.asarray(view_direction_world)[list(event.dims_displayed)]
+
+
+def get_mouse_position_in_displayed_layer_data_coordinates(layer, event) -> Tuple[np.ndarray, np.ndarray]:
     """Get the mouse click position and direction in layer data displayed coordinates.
 
     Parameters
@@ -89,6 +121,7 @@ def mouse_event_to_layer_data_displayed(layer, event) -> Tuple[np.ndarray, np.nd
         The layer to convert the coordinates to.
     event
         The mouse event.
+
     Returns
     -------
     click_position_data_3d : np.ndarray

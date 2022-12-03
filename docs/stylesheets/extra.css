@@ -1,0 +1,124 @@
+.twitter {
+  color: #1DA1F2;
+}
+
+.orcid {
+  color: #A6CE39;
+}
+
+.scholar {
+  color: #4285F4;
+}
+
+.github {
+  color: #000000;
+}
+
+.mail {
+  color: #9fa4b0;
+}
+
+
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+
+.heading {
+    text-align: center;
+    font-size: 2.0em;
+    letter-spacing: 1px;
+    padding: 40px;
+    color: white;
+}
+
+
+.gallery-dl {
+  padding: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.gallery-dl img {
+  height: 150px;
+  width: 130px;
+  transform: scale(0.7);
+  transition: transform 0.4s ease;
+}
+
+.dl-box {
+  box-sizing: content-box;
+  margin: 10px;
+  height: 150px;
+  width: 150px;
+  overflow: hidden;
+  display: inline-block;
+  color: inherit;
+  position: relative;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.dl-caption {
+  position: absolute;
+  bottom: 30px;
+  left: 30px;
+  opacity: 0.0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.dl-caption > p:nth-child(2) {
+  font-size: 0.8em;
+}
+
+.transparent-box-dl {
+  height: 150px;
+  width: 150px;
+  background-color:rgba(0, 0, 0, 0);
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: background-color 0.3s ease;
+}
+
+.dl-box:hover img {
+  transform: translateY(-160px);
+}
+
+.dl-box:hover .transparent-box {
+  background-color:rgba(0, 0, 0, 1);
+}
+
+.dl-box:hover .dl-caption {
+  transform: translateY(-20px);
+  opacity: 1.0;
+}
+
+.dl-box:hover {
+  cursor: pointer;
+}
+
+.opacity-low {
+  opacity: 0.8;
+}
+
+.dl-caption > p:nth-child(2) {
+  font-size: 0.8em;
+}
+a.nocolor
+{
+    color: inherit;
+}
+a.nocolor:hover
+{
+    color: inherit;
+}
+
+video.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
