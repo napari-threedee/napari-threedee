@@ -10,5 +10,7 @@ from .annotators._qt import (
 )
 
 from .visualization._qt import (
-    QtLightingControlWidget
+    QtCameraSpline,
+    QtLightingControlWidget,
+
 )

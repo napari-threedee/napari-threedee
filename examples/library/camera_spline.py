@@ -1,7 +1,7 @@
 import napari
 import skimage
 
-from napari_threedee.visualization.qt_camera_spline import QtCameraSpline
+from napari_threedee.visualization._qt.qt_camera_spline import QtCameraSpline
 
 viewer = napari.Viewer(ndisplay=3)
 blobs = skimage.data.binary_blobs(

@@ -4,8 +4,8 @@ from qtpy.QtWidgets import QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QLabe
 from qtpy.QtCore import Qt
 from superqt.sliders import QLabeledDoubleSlider
 
-from .._base_model import QtThreeDeeWidgetBase
-from .camera_spline import CameraSpline, CameraSplineMode
+from ..._backend.threedee_widget_model import QtThreeDeeWidgetBase
+from napari_threedee.visualization.camera_spline import CameraSpline, CameraSplineMode
 
 
 class QtCameraDirectionControls(QWidget):
@@ -159,7 +159,7 @@ class QtCameraSpline(QtThreeDeeWidgetBase):
     ENABLE_STRING: str = "activate"
 
     def __init__(self, viewer: napari.Viewer):
-        super().__init__(model=CameraSpline, viewer=viewer)
+        super().__init__(model_class=CameraSpline, viewer=viewer)
 
         # create and add the spline widget
         self.spline_widget = QtCameraSplineControls(viewer=viewer, model=self.model, parent=self)
