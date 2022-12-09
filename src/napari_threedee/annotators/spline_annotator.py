@@ -122,8 +122,10 @@ class SplineAnnotator(ThreeDeeModel):
         '#bcbd22',
         '#17becf',
     ]
-    # column name in the control points layer features to store the spline ID
+    ANNOTATION_TYPE = "spline"
+    # column name in control points layer features to store the spline ID
     SPLINE_ID_COLUMN = "spline_id"
+    SPLINE_ORDER_KEY = "spline_order"
     SPLINE_ORDER = 3
 
     def __init__(
@@ -243,6 +245,7 @@ class SplineAnnotator(ThreeDeeModel):
                 spline_coordinates = self.points_layer.data[point_indices]
                 splines[spline_name] = _NDimensionalFilament(points=spline_coordinates, k=self.SPLINE_ORDER)
         self.points_layer.metadata["splines"] = splines
+        self.points_layer.metadata[self.SPLINE_ORDER_KEY] = self.SPLINE_ORDER
         self.events.splines_updated()
 
     def _clear_shapes_layer(self):
@@ -258,3 +261,4 @@ class SplineAnnotator(ThreeDeeModel):
         for spline_name, spline_object in self.points_layer.metadata["splines"].items():
             spline_points = spline_object._sample_backbone(u=np.linspace(0, 1, 50))
             self.shapes_layer.add_paths(spline_points)
+
