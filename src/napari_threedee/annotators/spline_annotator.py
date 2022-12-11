@@ -7,13 +7,13 @@ import numpy as np
 from psygnal import EventedModel
 from pydantic import validator, PrivateAttr
 from scipy.interpolate import splprep, splev
+from typing import Tuple, Union, Optional
 
 from napari_threedee._backend.threedee_model import ThreeDeeModel
 from ..mouse_callbacks import add_point_on_plane
 from napari_threedee.utils.napari_utils import add_mouse_callback_safe, \
     remove_mouse_callback_safe
-
-from typing import Tuple, Union, Optional
+from .io import N3D_METADATA_KEY
 
 
 class _NDimensionalFilament(EventedModel):
@@ -129,8 +129,8 @@ class SplineAnnotator(ThreeDeeModel):
     SPLINE_ID_FEATURES_KEY = "spline_id"
 
     # metadata and associated keys
+    SPLINES_KEY = "splines"
     SPLINE_ORDER = 3
-    SPLINE_ORDER_KEY = "spline_order"
 
     def __init__(
         self,
@@ -199,7 +199,11 @@ class SplineAnnotator(ThreeDeeModel):
             features={self.SPLINE_ID_FEATURES_KEY: [0]},
             face_color=self.SPLINE_ID_FEATURES_KEY,
             face_color_cycle=self.COLOR_CYCLE,
-            metadata={"splines": dict()}
+            metadata={
+                N3D_METADATA_KEY: {
+                    self.SPLINES_KEY: dict,
+                }
+            }
         )
         layer.selected_data = {0}
         layer.remove_selected()
@@ -253,10 +257,9 @@ class SplineAnnotator(ThreeDeeModel):
                 splines[spline_name] = _NDimensionalFilament(
                     points=spline_coordinates, k=self.SPLINE_ORDER)
         metadata = {
-
+            self.SPLINES_KEY: splines
         }
-        self.points_layer.metadata["splines"] = splines
-        self.points_layer.metadata[self.SPLINE_ORDER_KEY] = self.SPLINE_ORDER
+        self.points_layer.metadata[N3D_METADATA_KEY].update(metadata)
         self.events.splines_updated()
 
     def _clear_shapes_layer(self):
@@ -269,8 +272,9 @@ class SplineAnnotator(ThreeDeeModel):
 
     def _draw_splines(self):
         self._clear_shapes_layer()
-        for spline_name, spline_object in self.points_layer.metadata[
-            "splines"].items():
+        splines = self.points_layer.metadata[N3D_METADATA_KEY][self.SPLINES_KEY]
+        for spline_name, spline_object in splines.items():
             spline_points = spline_object._sample_backbone(
-                u=np.linspace(0, 1, 50))
+                u=np.linspace(0, 1, 50)
+            )
             self.shapes_layer.add_paths(spline_points)
