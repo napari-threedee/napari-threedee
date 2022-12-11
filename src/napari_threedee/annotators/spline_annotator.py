@@ -1,4 +1,3 @@
-
 import einops
 
 import napari
@@ -11,7 +10,8 @@ from scipy.interpolate import splprep, splev
 
 from napari_threedee._backend.threedee_model import ThreeDeeModel
 from ..mouse_callbacks import add_point_on_plane
-from napari_threedee.utils.napari_utils import add_mouse_callback_safe, remove_mouse_callback_safe
+from napari_threedee.utils.napari_utils import add_mouse_callback_safe, \
+    remove_mouse_callback_safe
 
 from typing import Tuple, Union, Optional
 
@@ -81,9 +81,11 @@ class _NDimensionalFilament(EventedModel):
         cumulative_distance /= self._length
         # prepend a zero, no distance has been covered at start of spline parametrisation
         cumulative_distance = np.r_[[0], cumulative_distance]
-        self._equidistant_spline_tck, _ = splprep([u], u=cumulative_distance, s=0, k=3)
+        self._equidistant_spline_tck, _ = splprep([u], u=cumulative_distance,
+                                                  s=0, k=3)
 
-    def _sample_backbone(self, u: Union[float, np.ndarray], derivative: int = 0):
+    def _sample_backbone(self, u: Union[float, np.ndarray],
+                         derivative: int = 0):
         """Sample points or derivatives along the backbone of the filament.
         This function
         * maps values in the range [0, 1] to points on the smooth filament backbone.
@@ -102,7 +104,7 @@ class _NDimensionalFilament(EventedModel):
         return np.linspace(0, 1 - remainder, n_points)
 
     def _get_equidistant_backbone_samples(
-            self, separation: float, calculate_derivative: bool = False
+        self, separation: float, calculate_derivative: bool = False
     ) -> np.ndarray:
         """Calculate equidistant backbone samples with a defined separation in Euclidean space."""
         u = self._get_equidistant_u(separation)
@@ -124,15 +126,17 @@ class SplineAnnotator(ThreeDeeModel):
     ]
     ANNOTATION_TYPE = "spline"
     # column name in control points layer features to store the spline ID
-    SPLINE_ID_COLUMN = "spline_id"
-    SPLINE_ORDER_KEY = "spline_order"
+    SPLINE_ID_COLUMN_NAME = "spline_id"
+
+    # metadata
     SPLINE_ORDER = 3
+    SPLINE_ORDER_KEY = "spline_order"
 
     def __init__(
-            self,
-            viewer: napari.Viewer,
-            image_layer: Optional[Image] = None,
-            enabled: bool = False
+        self,
+        viewer: napari.Viewer,
+        image_layer: Optional[Image] = None,
+        enabled: bool = False
     ):
         self.events = EmitterGroup(
             source=self,
@@ -166,7 +170,7 @@ class SplineAnnotator(ThreeDeeModel):
         if self.points_layer is not None:
             self.points_layer.selected_data = {}
             self.points_layer.current_properties = {
-                self.SPLINE_ID_COLUMN: self.current_spline_id
+                self.SPLINE_ID_COLUMN_NAME: self.current_spline_id
             }
         self.events.current_spline_id()
 
@@ -192,8 +196,8 @@ class SplineAnnotator(ThreeDeeModel):
             ndim=self.image_layer.data.ndim,
             name="spline control points",
             size=3,
-            features={self.SPLINE_ID_COLUMN: [0]},
-            face_color=self.SPLINE_ID_COLUMN,
+            features={self.SPLINE_ID_COLUMN_NAME: [0]},
+            face_color=self.SPLINE_ID_COLUMN_NAME,
             face_color_cycle=self.COLOR_CYCLE,
             metadata={"splines": dict()}
         )
@@ -203,7 +207,8 @@ class SplineAnnotator(ThreeDeeModel):
         return layer
 
     def _create_shapes_layer(self) -> Shapes:
-        return Shapes(ndim=self.image_layer.data.ndim, name="splines", edge_color="green")
+        return Shapes(ndim=self.image_layer.data.ndim, name="splines",
+                      edge_color="green")
 
     def set_layers(self, image_layer: napari.layers.Image):
         self.image_layer = image_layer
@@ -227,7 +232,8 @@ class SplineAnnotator(ThreeDeeModel):
             self.viewer.mouse_drag_callbacks, self._mouse_callback
         )
         if self.points_layer is not None:
-            self.points_layer.events.data.disconnect(self._on_point_data_changed)
+            self.points_layer.events.data.disconnect(
+                self._on_point_data_changed)
         self.viewer.bind_key('n', None)
 
     def _on_point_data_changed(self, event=None):
@@ -236,14 +242,19 @@ class SplineAnnotator(ThreeDeeModel):
             self._draw_splines()
 
     def _update_splines(self):
-        grouped_points_features = self.points_layer.features.groupby(self.SPLINE_ID_COLUMN)
+        grouped_points_features = self.points_layer.features.groupby(
+            self.SPLINE_ID_COLUMN_NAME)
         splines = dict()
         for spline_name, spline_df in grouped_points_features:
             point_indices = spline_df.index.tolist()
             if len(point_indices) > self.SPLINE_ORDER:
                 # the number of points must be greater than the spline order to properly fit
                 spline_coordinates = self.points_layer.data[point_indices]
-                splines[spline_name] = _NDimensionalFilament(points=spline_coordinates, k=self.SPLINE_ORDER)
+                splines[spline_name] = _NDimensionalFilament(
+                    points=spline_coordinates, k=self.SPLINE_ORDER)
+        metadata = {
+
+        }
         self.points_layer.metadata["splines"] = splines
         self.points_layer.metadata[self.SPLINE_ORDER_KEY] = self.SPLINE_ORDER
         self.events.splines_updated()
@@ -258,7 +269,8 @@ class SplineAnnotator(ThreeDeeModel):
 
     def _draw_splines(self):
         self._clear_shapes_layer()
-        for spline_name, spline_object in self.points_layer.metadata["splines"].items():
-            spline_points = spline_object._sample_backbone(u=np.linspace(0, 1, 50))
+        for spline_name, spline_object in self.points_layer.metadata[
+            "splines"].items():
+            spline_points = spline_object._sample_backbone(
+                u=np.linspace(0, 1, 50))
             self.shapes_layer.add_paths(spline_points)
-
