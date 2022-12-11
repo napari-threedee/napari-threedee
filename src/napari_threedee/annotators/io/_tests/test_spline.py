@@ -14,7 +14,7 @@ def test_layer_to_zarr_from_layer_matching_spec():
     """Assert successful if layer matches spec."""
     layer = Points(
         data=np.random.normal(size=(2, 3)),
-        features={SplineAnnotator.SPLINE_ID_COLUMN_NAME: [0, 1]},
+        features={SplineAnnotator.SPLINE_ID_FEATURES_KEY: [0, 1]},
         metadata={SplineAnnotator.SPLINE_ORDER_KEY: 3}
     )
     validate_spline_layer(layer)
@@ -35,7 +35,7 @@ def test_zarr_to_layer_data_tuple_from_compatible_zarr():
     """Assert succesful if zarr matches spec."""
     n3d_zarr = zarr.array(np.random.normal(size=(2, 3)))
     n3d_zarr.attrs[ANNOTATION_TYPE_KEY] = "spline"
-    n3d_zarr.attrs[SplineAnnotator.SPLINE_ID_COLUMN_NAME] = [0, 1]
+    n3d_zarr.attrs[SplineAnnotator.SPLINE_ID_FEATURES_KEY] = [0, 1]
     n3d_zarr.attrs[SplineAnnotator.SPLINE_ORDER_KEY] = 3
     validate_spline_zarr(n3d_zarr)
     layer_data_tuple = zarr_to_layer_data_tuple(n3d_zarr)

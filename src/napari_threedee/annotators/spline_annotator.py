@@ -125,10 +125,10 @@ class SplineAnnotator(ThreeDeeModel):
         '#17becf',
     ]
     ANNOTATION_TYPE = "spline"
-    # column name in control points layer features to store the spline ID
-    SPLINE_ID_COLUMN_NAME = "spline_id"
+    # keys for data stored in features table
+    SPLINE_ID_FEATURES_KEY = "spline_id"
 
-    # metadata
+    # metadata and associated keys
     SPLINE_ORDER = 3
     SPLINE_ORDER_KEY = "spline_order"
 
@@ -170,7 +170,7 @@ class SplineAnnotator(ThreeDeeModel):
         if self.points_layer is not None:
             self.points_layer.selected_data = {}
             self.points_layer.current_properties = {
-                self.SPLINE_ID_COLUMN_NAME: self.current_spline_id
+                self.SPLINE_ID_FEATURES_KEY: self.current_spline_id
             }
         self.events.current_spline_id()
 
@@ -196,8 +196,8 @@ class SplineAnnotator(ThreeDeeModel):
             ndim=self.image_layer.data.ndim,
             name="spline control points",
             size=3,
-            features={self.SPLINE_ID_COLUMN_NAME: [0]},
-            face_color=self.SPLINE_ID_COLUMN_NAME,
+            features={self.SPLINE_ID_FEATURES_KEY: [0]},
+            face_color=self.SPLINE_ID_FEATURES_KEY,
             face_color_cycle=self.COLOR_CYCLE,
             metadata={"splines": dict()}
         )
@@ -243,7 +243,7 @@ class SplineAnnotator(ThreeDeeModel):
 
     def _update_splines(self):
         grouped_points_features = self.points_layer.features.groupby(
-            self.SPLINE_ID_COLUMN_NAME)
+            self.SPLINE_ID_FEATURES_KEY)
         splines = dict()
         for spline_name, spline_df in grouped_points_features:
             point_indices = spline_df.index.tolist()
