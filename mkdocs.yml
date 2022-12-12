@@ -83,9 +83,9 @@ nav:
       - dev_guides/core_concepts.md
       - dev_guides/manipulators.md
   - API:
-      - API/napari_utilities.md
-      - API/selection_utilities.md
-      - API/geometry_utilities.md
+      - api/napari_utilities.md
+      - api/selection_utilities.md
+      - api/geometry_utilities.md
 
 plugins:
   - search

@@ -85,14 +85,11 @@ def get_mouse_position_in_displayed_dimensions(event) -> np.ndarray:
 
     Parameters
     ----------
-    layer : napari.layers.Layer
-        The layer to convert the coordinates to.
     event
         The mouse event.
+
     Returns
     -------
-    click_position_data_3d : np.ndarray
-        The click position in displayed data coordinates.
     click_dir_data_3d : np.ndarray
         The click direction in displayed data coordiantes
     """
