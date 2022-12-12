@@ -9,6 +9,7 @@ import numpy as np
 
 from .._backend.threedee_model import ThreeDeeModel
 from ..annotators.spline_annotator import SplineAnnotator
+from ..annotators.io import N3D_METADATA_KEY
 
 
 class CameraSplineMode(Enum):
@@ -207,8 +208,8 @@ class CameraSpline(ThreeDeeModel):
         if spline_points_layer is None:
             self.spline_valid = False
             return
-
-        spline_dict = spline_points_layer.metadata["splines"]
+        n3d_metadata = spline_points_layer.metadata[N3D_METADATA_KEY]
+        spline_dict = n3d_metadata[SplineAnnotator.SPLINES_KEY]
         spline_object = spline_dict.get(0, None)
         if spline_object is None:
             self.spline_valid = False
