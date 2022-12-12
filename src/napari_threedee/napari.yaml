@@ -37,7 +37,7 @@ contributions:
   widgets:
     # Annotators
     - command: napari-threedee.QtPointAnnotatorWidget
-      display_name: plane point annotator
+      display_name: point annotator
 
     - command: napari-threedee.QtSplineAnnotatorWidget
       display_name: spline annotator
