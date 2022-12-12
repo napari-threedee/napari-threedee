@@ -1,4 +1,4 @@
-from napari_threedee.annotators.qt_sphere_annotator import QtSphereAnnotatorWidget
+from napari_threedee.annotators._qt.qt_sphere_annotator import QtSphereAnnotatorWidget
 
 import napari
 from skimage import data

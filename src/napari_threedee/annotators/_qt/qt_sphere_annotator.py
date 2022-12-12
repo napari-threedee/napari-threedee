@@ -2,7 +2,7 @@ import napari
 
 from .._base_model import QtThreeDeeWidgetBase
 
-from .sphere_annotator import SphereAnnotator
+from napari_threedee.annotators.sphere_annotator import SphereAnnotator
 
 
 class QtSphereAnnotatorWidget(QtThreeDeeWidgetBase):
