@@ -13,6 +13,17 @@ class RenderPlaneManipulator(BaseManipulator):
     def set_layers(self, layers: napari.layers.Image):
         super().set_layers(layers)
 
+    def _connect_events(self):
+        self.layer.plane.events.position.connect(self._update_transform)
+        self.layer.plane.events.normal.connect(self._update_transform)
+
+    def _update_transform(self):
+        # get the new transformation data
+        self._initialize_transform()
+
+        # redraw
+        self._backend._on_transformation_changed()
+
     def _initialize_transform(self):
         self.origin = np.array(self.layer.plane.position)
         plane_normal = self.layer.plane.normal

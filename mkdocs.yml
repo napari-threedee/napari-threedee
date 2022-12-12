@@ -83,7 +83,7 @@ nav:
     - 'for users': getting_started/users.md
     - 'for developers': getting_started/developers.md
   - How do I...:
-      - how_to/how_to_render_plane_manipulator.md
+      - how_to/render_plane_manipulator.md
   - Explanations:
       - dev_guides/core_concepts.md
       - dev_guides/manipulators.md
