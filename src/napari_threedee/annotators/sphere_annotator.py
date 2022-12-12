@@ -1,6 +1,6 @@
 import warnings
 from enum import Enum, auto
-from typing import Optional
+from typing import Optional, Union
 
 import napari
 import numpy as np
@@ -59,7 +59,7 @@ class SphereAnnotator(ThreeDeeModel):
             self.set_layers(self.image_layer)
 
     @property
-    def active_sphere_id(self) -> int | None:
+    def active_sphere_id(self) -> Union[int, None]:
         if self.points_layer is None:
             return None
         elif self.points_layer.selected_data != {}:
@@ -72,7 +72,7 @@ class SphereAnnotator(ThreeDeeModel):
         return self.points_layer.data[self._active_sphere_index]
 
     @property
-    def active_sphere_radius(self) -> float | None:
+    def active_sphere_radius(self) -> Union[float, None]:
         df = features_to_pandas_dataframe(self.points_layer.features)
         if len(df) == 0:
             return None
@@ -80,7 +80,7 @@ class SphereAnnotator(ThreeDeeModel):
             return float(df[self.SPHERE_RADIUS_COLUMN].iloc[self._active_sphere_index])
 
     @property
-    def _active_sphere_index(self) -> int | None:
+    def _active_sphere_index(self) -> Union[int, None]:
         """index into data/features of current sphere"""
         if self.active_sphere_id is None:
             return None
