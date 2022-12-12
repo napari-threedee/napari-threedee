@@ -1,2 +1,2 @@
-from .plane_point_annotator import PlanePointAnnotator
+from .point_annotator import PointAnnotator
 from .spline_annotator import SplineAnnotator
