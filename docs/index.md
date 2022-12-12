@@ -19,7 +19,7 @@ below.
 === "conda"
 
     ``` bash
-    conda install -c napari-threedee
+    conda install -c conda-forge napari-threedee
     ```
 
 ## Getting started
