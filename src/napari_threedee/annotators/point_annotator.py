@@ -8,7 +8,9 @@ from ..mouse_callbacks import add_point_on_plane
 from napari_threedee.utils.napari_utils import add_mouse_callback_safe, remove_mouse_callback_safe
 
 
-class PlanePointAnnotator(ThreeDeeModel):
+class PointAnnotator(ThreeDeeModel):
+    ANNOTATION_TYPE: str = "point"
+
     def __init__(
             self,
             viewer: napari.Viewer,

@@ -1,4 +1,4 @@
-from napari_threedee.annotators import PlanePointAnnotator
+from napari_threedee.annotators import PointAnnotator
 
 import napari
 from skimage import data
@@ -29,7 +29,7 @@ plane_layer = viewer.add_image(
 
 points_layer = viewer.add_points([], size=5, face_color='cornflowerblue', ndim=3)
 
-annotator = PlanePointAnnotator(
+annotator = PointAnnotator(
     viewer=viewer, image_layer=plane_layer, points_layer=points_layer
 )
 
