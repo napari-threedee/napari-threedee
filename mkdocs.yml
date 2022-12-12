@@ -79,13 +79,18 @@ extra:
 
 nav:
   - index.md
+  - Getting started:
+    - 'for users': getting_started/users.md
+    - 'for developers': getting_started/developers.md
+  - How do I...:
+      - how_to/how_to_render_plane_manipulator.md
   - Explanations:
       - dev_guides/core_concepts.md
       - dev_guides/manipulators.md
   - API:
-      - API/napari_utilities.md
-      - API/selection_utilities.md
-      - API/geometry_utilities.md
+      - api/napari_utilities.md
+      - api/selection_utilities.md
+      - api/geometry_utilities.md
 
 plugins:
   - search
@@ -117,7 +122,9 @@ plugins:
 
             ## experimental
             docstring_section_style: spacy  # or table/list/spacy
-
+  - mkdocs-video:
+      is_video: True
+      video_autoplay: True
 
 extra_css:
   - stylesheets/extra.css
