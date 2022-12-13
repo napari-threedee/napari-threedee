@@ -1,7 +1,7 @@
 import napari
 
 from ..layer_manipulator import LayerManipulator
-from ..._backend.threedee_widget_model import QtThreeDeeWidgetBase
+from ..._backend.threedee_widget_base import QtThreeDeeWidgetBase
 
 
 class QtLayerManipulatorWidget(QtThreeDeeWidgetBase):

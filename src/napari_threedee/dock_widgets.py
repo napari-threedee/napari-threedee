@@ -5,7 +5,7 @@ from .manipulators._qt import (
 )
 
 from .annotators._qt import (
-    QtPlanePointAnnotatorWidget,
+    QtPointAnnotatorWidget,
     QtSplineAnnotatorWidget,
 )
 

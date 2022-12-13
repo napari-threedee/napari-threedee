@@ -2,52 +2,60 @@ name: napari-threedee
 schema_version: 0.1.0
 contributions:
   commands:
-  - id: napari-threedee.QtRenderPlaneManipulatorWidget
-    title: Create render plane manipulator
-    python_name: napari_threedee.dock_widgets:QtRenderPlaneManipulatorWidget
+    # Annotators
+    - id: napari-threedee.QtPointAnnotatorWidget
+      title: Create point annotator
+      python_name: napari_threedee.dock_widgets:QtPointAnnotatorWidget
 
-  - id: napari-threedee.QtPointManipulatorWidget
-    title: Create point manipulator
-    python_name: napari_threedee.dock_widgets:QtPointManipulatorWidget
+    - id: napari-threedee.QtSplineAnnotatorWidget
+      title: Create filament annotator
+      python_name: napari_threedee.dock_widgets:QtSplineAnnotatorWidget
 
-  - id: napari-threedee.QtLayerManipulatorWidget
-    title: Create layer manipulator
-    python_name: napari_threedee.dock_widgets:QtLayerManipulatorWidget
+    # Manipulators
+    - id: napari-threedee.QtRenderPlaneManipulatorWidget
+      title: Create render plane manipulator
+      python_name: napari_threedee.dock_widgets:QtRenderPlaneManipulatorWidget
 
-  - id: napari-threedee.QtPlanePointAnnotatorWidget
-    title: Create plane point annotator
-    python_name: napari_threedee.dock_widgets:QtPlanePointAnnotatorWidget
+    - id: napari-threedee.QtPointManipulatorWidget
+      title: Create point manipulator
+      python_name: napari_threedee.dock_widgets:QtPointManipulatorWidget
 
-  - id: napari-threedee.QtSplineAnnotatorWidget
-    title: Create filament annotator
-    python_name: napari_threedee.dock_widgets:QtSplineAnnotatorWidget
+    - id: napari-threedee.QtLayerManipulatorWidget
+      title: Create layer manipulator
+      python_name: napari_threedee.dock_widgets:QtLayerManipulatorWidget
 
-  - id: napari-threedee.QtLightingControlWidget
-    title: Create mesh lighting control
-    python_name: napari_threedee.dock_widgets:QtLightingControlWidget
+    # Lighting
+    - id: napari-threedee.QtLightingControlWidget
+      title: Create mesh lighting control
+      python_name: napari_threedee.dock_widgets:QtLightingControlWidget
 
-  - id: napari-threedee.QtCameraSplineWidget
-    title: Create camera spline control widget
-    python_name: napari_threedee.dock_widgets:QtCameraSpline
+    # Visualisation
+    - id: napari-threedee.QtCameraSplineWidget
+      title: Create camera spline control widget
+      python_name: napari_threedee.dock_widgets:QtCameraSpline
 
   widgets:
-  - command: napari-threedee.QtRenderPlaneManipulatorWidget
-    display_name: render plane manipulator
+    # Annotators
+    - command: napari-threedee.QtPointAnnotatorWidget
+      display_name: point annotator
 
-  - command: napari-threedee.QtPointManipulatorWidget
-    display_name: point manipulator
+    - command: napari-threedee.QtSplineAnnotatorWidget
+      display_name: spline annotator
 
-  - command: napari-threedee.QtLayerManipulatorWidget
-    display_name: layer manipulator
+    # Manipulators
+    - command: napari-threedee.QtRenderPlaneManipulatorWidget
+      display_name: render plane manipulator
 
-  - command: napari-threedee.QtPlanePointAnnotatorWidget
-    display_name: plane point annotator
+    - command: napari-threedee.QtPointManipulatorWidget
+      display_name: point manipulator
 
-  - command: napari-threedee.QtSplineAnnotatorWidget
-    display_name: spline annotator
+    - command: napari-threedee.QtLayerManipulatorWidget
+      display_name: layer manipulator
 
-  - command: napari-threedee.QtLightingControlWidget
-    display_name: mesh lighting controls
+    # Lighting
+    - command: napari-threedee.QtLightingControlWidget
+      display_name: mesh lighting controls
 
-  - command: napari-threedee.QtCameraSplineWidget
-    display_name: camera spline control
+    # Visualisation
+    - command: napari-threedee.QtCameraSplineWidget
+      display_name: camera spline control
