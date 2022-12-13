@@ -11,13 +11,13 @@ def test_spline_annotator_instantiation(make_napari_viewer, blobs_layer_4d_plane
         image_layer=plane_layer,
     )
     assert isinstance(annotator.points_layer, Points)
-    assert annotator.SPLINE_ID_COLUMN in annotator.points_layer.features
+    assert annotator.SPLINE_ID_FEATURES_KEY in annotator.points_layer.features
     assert len(annotator.points_layer.data) == 0
 
 
 def test_add_point(spline_annotator):
     points_layer = spline_annotator.points_layer
-    label = spline_annotator.SPLINE_ID_COLUMN
+    label = spline_annotator.SPLINE_ID_FEATURES_KEY
 
     # start empty
     assert len(points_layer.data) == 0

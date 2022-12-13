@@ -9,6 +9,7 @@ import numpy as np
 
 from .._backend.threedee_model import ThreeDeeModel
 from ..annotators.spline_annotator import SplineAnnotator
+from ..annotators.io import N3D_METADATA_KEY
 
 
 class CameraSplineMode(Enum):
@@ -186,8 +187,8 @@ class CameraSpline(ThreeDeeModel):
 
     def calculate_transform_from_spline_tangent_to_view_direction(self):
         current_view_direction = self.viewer.camera.view_direction
-
-        spline_dict = self.spline_annotator_model.points_layer.metadata["splines"]
+        n3d_metadata = self.spline_annotator_model.points_layer.metadata[N3D_METADATA_KEY]
+        spline_dict = n3d_metadata[SplineAnnotator.SPLINES_KEY]
 
         # only one spline
         spline_object = spline_dict[0]
@@ -207,8 +208,8 @@ class CameraSpline(ThreeDeeModel):
         if spline_points_layer is None:
             self.spline_valid = False
             return
-
-        spline_dict = spline_points_layer.metadata["splines"]
+        n3d_metadata = spline_points_layer.metadata[N3D_METADATA_KEY]
+        spline_dict = n3d_metadata[SplineAnnotator.SPLINES_KEY]
         spline_object = spline_dict.get(0, None)
         if spline_object is None:
             self.spline_valid = False
@@ -257,8 +258,8 @@ class CameraSpline(ThreeDeeModel):
         if self.spline_valid is False:
             # do not do anything if there isn't a valid spline
             return
-
-        spline_dict = self.spline_annotator_model.points_layer.metadata["splines"]
+        n3d_metadata = self.spline_annotator_model.points_layer.metadata[N3D_METADATA_KEY]
+        spline_dict = n3d_metadata[SplineAnnotator.SPLINES_KEY]
 
         # only one spline
         spline_object = spline_dict[0]

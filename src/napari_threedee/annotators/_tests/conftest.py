@@ -1,6 +1,6 @@
 import pytest
 
-from napari_threedee.annotators import PlanePointAnnotator, SplineAnnotator, SphereAnnotator
+from napari_threedee.annotators import PointAnnotator, SplineAnnotator, SphereAnnotator
 
 
 @pytest.fixture
@@ -8,7 +8,7 @@ def point_annotator(make_napari_viewer, points_layer_4d, blobs_layer_4d_plane):
     viewer = make_napari_viewer(ndisplay=3)
     points_layer = viewer.add_layer(points_layer_4d)
     plane_layer = viewer.add_layer(blobs_layer_4d_plane)
-    annotator = PlanePointAnnotator(
+    annotator = PointAnnotator(
         viewer=viewer, image_layer=plane_layer, points_layer=points_layer,
     )
     return annotator

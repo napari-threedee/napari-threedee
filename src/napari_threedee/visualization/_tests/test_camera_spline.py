@@ -5,6 +5,8 @@ import napari
 import numpy as np
 import pytest
 
+from napari_threedee.annotators import SplineAnnotator
+from napari_threedee.annotators.io import N3D_METADATA_KEY
 from napari_threedee.visualization.camera_spline import CameraSpline, CameraSplineMode
 
 
@@ -48,7 +50,6 @@ class FakeMouseEvent:
 @pytest.mark.skipif(platform.system() == 'Windows', reason="fails on CI")
 def test_annotate_spline():
     """Test annotating a spline in the CameraSpline model."""
-    """Test setting camera spline mode with strings and Enum"""
     viewer = napari.Viewer()
     camera_spline = CameraSpline(viewer=viewer)
 
@@ -74,7 +75,8 @@ def test_annotate_spline():
     # add 4 points and check that the spline was created
     points_layer.add(np.random.random((4, 3)))
     assert camera_spline.spline_valid is True
-    assert len(points_layer.metadata["splines"]) == 1
+    n3d_metadata = points_layer.metadata[N3D_METADATA_KEY]
+    assert len(n3d_metadata[SplineAnnotator.SPLINES_KEY]) == 1
 
 
 @pytest.mark.skipif(platform.system() == 'Windows', reason="fails on CI")

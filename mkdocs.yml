@@ -42,6 +42,7 @@ theme:
     - search.suggest
     # - toc.follow
     # - content.code.annotate
+    - navigation.sections
     - content.tabs.link
 
 markdown_extensions:
@@ -87,6 +88,9 @@ nav:
   - Explanations:
       - dev_guides/core_concepts.md
       - dev_guides/manipulators.md
+  - Annotations:
+      - annotations/specifications.md
+      - annotations/io.md
   - API:
       - api/napari_utilities.md
       - api/selection_utilities.md
