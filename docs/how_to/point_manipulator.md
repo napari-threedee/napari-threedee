@@ -3,6 +3,8 @@
 ## Summary
 Precisely positioning a point in 3D is a useful way to annotate specific positions or choose the location of an object in a scene. This article explains how to use the `napari-threedee` point manipulator plugin to position points in 3D.
 
+![type:video](https://user-images.githubusercontent.com/1120672/207435568-f4a2afd9-28e9-481c-97aa-6f8994382834.mov)
+
 
 ## Instructions
 

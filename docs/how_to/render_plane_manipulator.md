@@ -7,6 +7,9 @@ rendered. This is a power rendering mode for visualizing structures within a 3D 
 plane programatically can be challenging. Thus, the render plane manipulator is useful for interactively positioning 
 the rendering plane.
 
+![type:video](https://user-images.githubusercontent.com/1120672/207312303-e81f652a-3fae-476f-abee-e19227b2b6c3.mov)
+
+
 ## Instructions
 
 1. Launch `napari`. Open your terminal and activate your `napari-threedee` environment. Enter `napari` in the 
