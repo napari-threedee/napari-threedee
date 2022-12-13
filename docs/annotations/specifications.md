@@ -11,3 +11,4 @@ metadata will be stored in the layer metadata as a dictionary under the
 ## Specifications
 
 - [spline specification](./spline_spec.md) (points layer)
+- [sphere specification](./sphere_spec.md) (points layer)
