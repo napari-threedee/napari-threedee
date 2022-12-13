@@ -79,19 +79,20 @@ extra:
             using our <a href="..." target="_blank" rel="noopener">feedback form</a>.
 
 nav:
-  - index.md
-  - Getting started:
+  - 'Overview': index.md
+  - 'Getting started':
     - 'for users': getting_started/users.md
     - 'for developers': getting_started/developers.md
-  - How do I...:
+  - 'How do I...':
       - 'interactively position a render plane': how_to/render_plane_manipulator.md
-  - Explanations:
+      - 'interactively position points': how_to/point_manipulator.md
+  - 'Explanations':
       - dev_guides/core_concepts.md
       - dev_guides/manipulators.md
-  - Annotations:
+  - 'Annotations':
       - annotations/specifications.md
       - annotations/io.md
-  - API:
+  - 'API':
       - api/napari_utilities.md
       - api/selection_utilities.md
       - api/geometry_utilities.md
