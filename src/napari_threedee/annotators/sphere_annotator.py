@@ -9,10 +9,11 @@ from napari.utils.events import EmitterGroup, Event
 from napari.layers.utils.layer_utils import features_to_pandas_dataframe
 from vispy.geometry import create_sphere
 
-from napari_threedee._backend import ThreeDeeModel
-from napari_threedee.mouse_callbacks import add_point_on_plane
-from napari_threedee.utils.napari_utils import add_mouse_callback_safe, remove_mouse_callback_safe
-
+from .._backend import ThreeDeeModel
+from ..mouse_callbacks import add_point_on_plane
+from ..utils.napari_utils import add_mouse_callback_safe, \
+    remove_mouse_callback_safe
+from .io import N3D_METADATA_KEY
 
 class SphereAnnotatorMode(Enum):
     ADD = auto()
@@ -32,10 +33,16 @@ class SphereAnnotator(ThreeDeeModel):
         '#bcbd22',
         '#17becf',
     ]
-    # column name in the points layer features to store the sphere ID
-    SPHERE_ID_COLUMN = "sphere_id"
-    SPHERE_RADIUS_COLUMN = "radius"
-    SPHERE_METADATA_LABEL = "sphere_data"
+    ANNOTATION_TYPE: str = "sphere"
+
+    # column names in points layer features
+    SPHERE_ID_KEY: str = "sphere_id"
+    SPHERE_RADIUS_KEY: str = "radius"
+
+    # metadata
+    SPHERE_MESH_METADATA_KEY: str = "mesh_data"
+
+    # parameter defaults
     DEFAULT_SPHERE_RADIUS = 5
 
     def __init__(
@@ -77,7 +84,7 @@ class SphereAnnotator(ThreeDeeModel):
         if len(df) == 0:
             return None
         else:
-            return float(df[self.SPHERE_RADIUS_COLUMN].iloc[self._active_sphere_index])
+            return float(df[self.SPHERE_RADIUS_KEY].iloc[self._active_sphere_index])
 
     @property
     def _active_sphere_index(self) -> Union[int, None]:
@@ -85,7 +92,7 @@ class SphereAnnotator(ThreeDeeModel):
         if self.active_sphere_id is None:
             return None
         df = features_to_pandas_dataframe(self.points_layer.features)
-        idx = df[self.SPHERE_ID_COLUMN] == self.active_sphere_id
+        idx = df[self.SPHERE_ID_KEY] == self.active_sphere_id
         df = df.loc[idx, :]
         return df.index.values[0]
 
@@ -100,7 +107,7 @@ class SphereAnnotator(ThreeDeeModel):
             if self.points_layer is None:
                 sphere_ids = []
             else:
-                sphere_ids = self.points_layer.features[self.SPHERE_ID_COLUMN]
+                sphere_ids = self.points_layer.features[self.SPHERE_ID_KEY]
                 self.points_layer.selected_data = {}
             if len(sphere_ids) == 0:
                 new_sphere_id = 1
@@ -151,7 +158,7 @@ class SphereAnnotator(ThreeDeeModel):
     def _update_active_sphere_radius(self, radius: float):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore")
-            self.points_layer.features[self.SPHERE_RADIUS_COLUMN].iloc[self._active_sphere_index] = radius
+            self.points_layer.features[self.SPHERE_RADIUS_KEY].iloc[self._active_sphere_index] = radius
 
     def _update_current_properties(
         self,
@@ -161,14 +168,14 @@ class SphereAnnotator(ThreeDeeModel):
         if self.points_layer is None:
             return
         if sphere_id is None:
-            sphere_id = self.points_layer.current_properties[self.SPHERE_ID_COLUMN][0]
+            sphere_id = self.points_layer.current_properties[self.SPHERE_ID_KEY][0]
         if radius is None:
-            radius = self.points_layer.current_properties[self.SPHERE_RADIUS_COLUMN][0]
+            radius = self.points_layer.current_properties[self.SPHERE_RADIUS_KEY][0]
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore")
             self.points_layer.current_properties = {
-                self.SPHERE_ID_COLUMN: [sphere_id],
-                self.SPHERE_RADIUS_COLUMN: [radius]
+                self.SPHERE_ID_KEY: [sphere_id],
+                self.SPHERE_RADIUS_KEY: [radius]
             }
 
     def _create_points_layer(self) -> Optional[Points]:
@@ -178,11 +185,13 @@ class SphereAnnotator(ThreeDeeModel):
             name="sphere centers",
             size=7,
             features={
-                self.SPHERE_ID_COLUMN: [0],
-                self.SPHERE_RADIUS_COLUMN: [self.DEFAULT_SPHERE_RADIUS]},
-            face_color=self.SPHERE_ID_COLUMN,
+                self.SPHERE_ID_KEY: [0],
+                self.SPHERE_RADIUS_KEY: [self.DEFAULT_SPHERE_RADIUS]},
+            face_color=self.SPHERE_ID_KEY,
             face_color_cycle=self.COLOR_CYCLE,
-            metadata={"splines": dict()}
+            metadata={
+                N3D_METADATA_KEY: {self.SPHERE_MESH_METADATA_KEY: None}
+            }
         )
         layer.selected_data = {0}
         layer.remove_selected()
@@ -228,15 +237,16 @@ class SphereAnnotator(ThreeDeeModel):
         self._update_spheres()
 
     def _update_spheres(self):
-        self.points_layer.metadata[self.SPHERE_METADATA_LABEL] = None
-        grouped_points_features = self.points_layer.features.groupby(self.SPHERE_ID_COLUMN)
+        n3d_metadata = self.points_layer.metadata[N3D_METADATA_KEY]
+        n3d_metadata[self.SPHERE_MESH_METADATA_KEY] = None
+        grouped_points_features = self.points_layer.features.groupby(self.SPHERE_ID_KEY)
         sphere_vertices = []
         sphere_faces = []
         face_index_offset = 0
         for sphere_id, sphere_df in grouped_points_features:
             point_index = int(sphere_df.index.values[0])
             position = self.points_layer.data[point_index]
-            radius = float(sphere_df[self.SPHERE_RADIUS_COLUMN].iloc[0])
+            radius = float(sphere_df[self.SPHERE_RADIUS_KEY].iloc[0])
             mesh_data = create_sphere(radius=radius, rows=20, cols=20)
             vertex_data = mesh_data.get_vertices() + position
             sphere_vertices.append(vertex_data)
@@ -245,16 +255,17 @@ class SphereAnnotator(ThreeDeeModel):
         if len(sphere_vertices) > 0:
             sphere_vertices = np.concatenate(sphere_vertices, axis=0)
             sphere_faces = np.concatenate(sphere_faces, axis=0)
-            self.points_layer.metadata[self.SPHERE_METADATA_LABEL] = (
+            n3d_metadata[self.SPHERE_MESH_METADATA_KEY] = (
                 sphere_vertices, sphere_faces
             )
             self._draw_spheres()
         else:
-            self.points_layer.metadata[self.SPHERE_METADATA_LABEL] = None
+            n3d_metadata[self.SPHERE_MESH_METADATA_KEY] = None
 
     def _draw_spheres(self):
-        sphere_data = self.points_layer.metadata[self.SPHERE_METADATA_LABEL]
+        n3d_metadata = self.points_layer.metadata[N3D_METADATA_KEY]
+        sphere_data = n3d_metadata[self.SPHERE_MESH_METADATA_KEY]
         if sphere_data is None:
             self.surface_layer = self._create_surface_layer()
         else:
-            self.surface_layer.data = self.points_layer.metadata[self.SPHERE_METADATA_LABEL]
+            self.surface_layer.data = self.points_layer.metadata[self.SPHERE_MESH_METADATA_KEY]

@@ -4,8 +4,8 @@ import pytest
 import zarr
 from napari.layers import Points
 
-from napari_threedee.annotators.io.spline import layer_to_zarr, \
-    zarr_to_layer_data_tuple, validate_spline_zarr, validate_spline_layer
+from napari_threedee.annotators.io.spline import layer_to_n3d_zarr, \
+    n3d_zarr_to_layer_data_tuple, validate_spline_zarr, validate_spline_layer
 from napari_threedee.annotators import SplineAnnotator
 from napari_threedee.annotators.io import ANNOTATION_TYPE_KEY, N3D_METADATA_KEY
 
@@ -18,7 +18,7 @@ def test_layer_to_zarr_from_layer_matching_spec():
         metadata={N3D_METADATA_KEY: {SplineAnnotator.SPLINES_KEY: {}}}
     )
     validate_spline_layer(layer)
-    n3d_zarr = layer_to_zarr(layer)
+    n3d_zarr = layer_to_n3d_zarr(layer)
     validate_spline_zarr(n3d_zarr)
     assert isinstance(n3d_zarr, zarr.Array)
 
@@ -28,7 +28,7 @@ def test_layer_to_zarr_from_incompatible_layer():
     layer = Points(data=np.random.normal(size=(2, 3)))
     with pytest.raises(ValueError):
         validate_spline_layer(layer)
-        layer_to_zarr(layer)
+        layer_to_n3d_zarr(layer)
 
 
 def test_zarr_to_layer_data_tuple_from_compatible_zarr():
@@ -38,7 +38,7 @@ def test_zarr_to_layer_data_tuple_from_compatible_zarr():
     n3d_zarr.attrs[SplineAnnotator.SPLINE_ID_FEATURES_KEY] = [0, 1]
     n3d_zarr.attrs[SplineAnnotator.SPLINES_KEY] = {}
     validate_spline_zarr(n3d_zarr)
-    layer_data_tuple = zarr_to_layer_data_tuple(n3d_zarr)
+    layer_data_tuple = n3d_zarr_to_layer_data_tuple(n3d_zarr)
     points = napari.layers.Layer.create(*layer_data_tuple)
     validate_spline_layer(points)
 
@@ -48,4 +48,4 @@ def test_zarr_to_layer_data_tuple_from_incompatible_zarr():
     n3d_zarr = zarr.array(np.random.normal(size=(2, 3)))
     with pytest.raises(ValueError):
         validate_spline_zarr(n3d_zarr)
-        zarr_to_layer_data_tuple(n3d_zarr)
+        n3d_zarr_to_layer_data_tuple(n3d_zarr)
