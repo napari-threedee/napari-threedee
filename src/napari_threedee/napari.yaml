@@ -82,5 +82,5 @@ contributions:
   readers:
   - command: napari-threedee.read_n3d
     filename_patterns:
-      - '*.xyz'
+      - '*.n3d'
     accepts_directories: true
