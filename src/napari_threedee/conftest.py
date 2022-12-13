@@ -60,7 +60,7 @@ def points_layer_4d() -> Points:
 
 @pytest.fixture
 def viewer_with_plane_3d(make_napari_viewer, blobs_layer_3d_plane):
-    viewer = make_napari_viewer()
+    viewer = make_napari_viewer(ndisplay=3)
     viewer.add_layer(blobs_layer_3d_plane)
     return viewer
 

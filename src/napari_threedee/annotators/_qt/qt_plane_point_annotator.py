@@ -1,6 +1,6 @@
 import napari
 
-from napari_threedee._backend.threedee_widget_model import QtThreeDeeWidgetBase
+from napari_threedee._backend.threedee_widget_base import QtThreeDeeWidgetBase
 
 from napari_threedee.annotators.plane_point_annotator import PlanePointAnnotator
 

@@ -9,7 +9,7 @@ from napari.utils.events import EmitterGroup, Event
 from napari.layers.utils.layer_utils import features_to_pandas_dataframe
 from vispy.geometry import create_sphere
 
-from napari_threedee._base_model import ThreeDeeModel
+from napari_threedee._backend import ThreeDeeModel
 from napari_threedee.mouse_callbacks import add_point_on_plane
 from napari_threedee.utils.napari_utils import add_mouse_callback_safe, remove_mouse_callback_safe
 

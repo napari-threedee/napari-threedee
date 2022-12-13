@@ -134,7 +134,7 @@ class SplineAnnotator(ThreeDeeModel):
     ):
         self.events = EmitterGroup(
             source=self,
-            current_spline_id=Event,
+            active_spline_id=Event,
             splines_updated=Event,
         )
 
@@ -145,7 +145,7 @@ class SplineAnnotator(ThreeDeeModel):
         self.auto_fit_spline = True
         self.enabled = enabled
 
-        self.current_spline_id: int = 0
+        self.active_spline_id: int = 0
 
         # storage for the spline objects
         # each spline is in its own object
@@ -155,24 +155,24 @@ class SplineAnnotator(ThreeDeeModel):
             self.set_layers(self.image_layer)
 
     @property
-    def current_spline_id(self):
-        return self._current_spline_id
+    def active_spline_id(self):
+        return self._active_spline_id
 
-    @current_spline_id.setter
-    def current_spline_id(self, id: int):
-        self._current_spline_id = np.clip(id, 0, None)
+    @active_spline_id.setter
+    def active_spline_id(self, id: int):
+        self._active_spline_id = np.clip(id, 0, None)
         if self.points_layer is not None:
             self.points_layer.selected_data = {}
             self.points_layer.current_properties = {
-                self.SPLINE_ID_COLUMN: self.current_spline_id
+                self.SPLINE_ID_COLUMN: self.active_spline_id
             }
-        self.events.current_spline_id()
+        self.events.active_spline_id()
 
     def next_spline(self, event=None):
-        self.current_spline_id += 1
+        self.active_spline_id += 1
 
     def previous_spline(self, event=None):
-        self.current_spline_id -= 1
+        self.active_spline_id -= 1
 
     def _mouse_callback(self, viewer, event):
         if (self.image_layer is None) or (self.points_layer is None):
@@ -197,7 +197,7 @@ class SplineAnnotator(ThreeDeeModel):
         )
         layer.selected_data = {0}
         layer.remove_selected()
-        self.current_spline_id = self.current_spline_id
+        self.active_spline_id = self.active_spline_id
         return layer
 
     def _create_shapes_layer(self) -> Shapes:
