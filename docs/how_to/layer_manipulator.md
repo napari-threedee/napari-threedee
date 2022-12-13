@@ -4,7 +4,7 @@
 
 Sometimes objects in your data have a systematic shift relative to one another. If you need to position an entire dataset, you can use the layer manipulator. This article describes how to interactively position a layer using the layer manipulator.
 
-![type:videp](https://user-images.githubusercontent.com/1120672/207429703-d595a3cc-f569-40f5-8cb8-e3fc019d983b.mov)
+![type:video](https://user-images.githubusercontent.com/1120672/207429703-d595a3cc-f569-40f5-8cb8-e3fc019d983b.mov)
 
 ## Instructions
 
