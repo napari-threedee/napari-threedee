@@ -1,15 +1,13 @@
-from napari_threedee.annotators._qt.qt_sphere_annotator import QtSphereAnnotatorWidget
+from napari_threedee.annotators._qt.qt_sphere_annotator import \
+    QtSphereAnnotatorWidget
 
 import napari
 from skimage import data
 
 viewer = napari.Viewer(ndisplay=3)
-blobs = data.binary_blobs(
-    length=64, volume_fraction=0.1, n_dim=3
-).astype(float)
+blobs = data.binary_blobs(length=64, volume_fraction=0.1, n_dim=3).astype(float)
 
 # add a volume and render as plane
-# plane should be in 'additive' blending mode or depth looks all wrong
 plane_parameters = {
     'position': (32, 32, 32),
     'normal': (1, 0, 0),
