@@ -171,7 +171,8 @@ class BaseManipulator(ThreeDeeModel, ABC):
         #     return
         if layer is None:
             return
-        self._disconnect_events()
+        if self.layer is not None:
+            self._disconnect_events()
         self._backend.layer = layer
         self._initialize_transform()
         if self.enabled:
