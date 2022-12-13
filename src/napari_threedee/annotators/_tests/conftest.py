@@ -1,6 +1,7 @@
 import pytest
 
-from napari_threedee.annotators import PointAnnotator, SplineAnnotator, SphereAnnotator
+from napari_threedee.annotators import PointAnnotator, SplineAnnotator, \
+    SphereAnnotator
 
 
 @pytest.fixture
