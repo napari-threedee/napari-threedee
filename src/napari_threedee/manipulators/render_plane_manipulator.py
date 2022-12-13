@@ -17,6 +17,10 @@ class RenderPlaneManipulator(BaseManipulator):
         self.layer.plane.events.position.connect(self._update_transform)
         self.layer.plane.events.normal.connect(self._update_transform)
 
+    def _disconnect_events(self):
+        self.layer.plane.events.position.disconnect(self._update_transform)
+        self.layer.plane.events.normal.disconnect(self._update_transform)
+
     def _update_transform(self):
         # get the new transformation data
         self._initialize_transform()
