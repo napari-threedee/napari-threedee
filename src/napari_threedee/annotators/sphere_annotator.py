@@ -268,4 +268,4 @@ class SphereAnnotator(ThreeDeeModel):
         if sphere_data is None:
             self.surface_layer = self._create_surface_layer()
         else:
-            self.surface_layer.data = self.points_layer.metadata[self.SPHERE_MESH_METADATA_KEY]
+            self.surface_layer.data = n3d_metadata[self.SPHERE_MESH_METADATA_KEY]
