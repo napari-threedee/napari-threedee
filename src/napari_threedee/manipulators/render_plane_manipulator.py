@@ -1,4 +1,5 @@
 import napari.layers
+from napari.utils.events.event import EventBlocker
 from napari.utils.geometry import rotation_matrix_from_vectors_3d
 import numpy as np
 from napari_threedee.manipulators.base_manipulator import BaseManipulator
@@ -34,7 +35,10 @@ class RenderPlaneManipulator(BaseManipulator):
         self.rotation_matrix = rotation_matrix_from_vectors_3d([1, 0, 0], plane_normal)
 
     def _while_dragging_translator(self):
-        self.layer.plane.position = self.origin
+        with self.layer.plane.events.position.blocker(self._update_transform):
+            self.layer.plane.position = self.origin
 
     def _while_dragging_rotator(self):
-        self.layer.plane.normal = self.z_vector
+        with self.layer.plane.events.normal.blocker(self._update_transform):
+            self.layer.plane.normal = self.z_vector
+
