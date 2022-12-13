@@ -1,7 +1,7 @@
 import napari
 
 from ..point_manipulator import PointManipulator
-from ..._backend.threedee_widget_model import QtThreeDeeWidgetBase
+from ..._backend.threedee_widget_base import QtThreeDeeWidgetBase
 
 
 class QtPointManipulatorWidget(QtThreeDeeWidgetBase):

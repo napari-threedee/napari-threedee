@@ -1,3 +1,4 @@
+
 import einops
 
 import napari
@@ -81,11 +82,13 @@ class _NDimensionalFilament(EventedModel):
         cumulative_distance /= self._length
         # prepend a zero, no distance has been covered at start of spline parametrisation
         cumulative_distance = np.r_[[0], cumulative_distance]
-        self._equidistant_spline_tck, _ = splprep([u], u=cumulative_distance,
-                                                  s=0, k=3)
+        self._equidistant_spline_tck, _ = splprep(
+            [u], u=cumulative_distance, s=0, k=3
+        )
 
-    def _sample_backbone(self, u: Union[float, np.ndarray],
-                         derivative: int = 0):
+    def _sample_backbone(
+        self, u: Union[float, np.ndarray], derivative: int = 0
+    ):
         """Sample points or derivatives along the backbone of the filament.
         This function
         * maps values in the range [0, 1] to points on the smooth filament backbone.
@@ -140,7 +143,7 @@ class SplineAnnotator(ThreeDeeModel):
     ):
         self.events = EmitterGroup(
             source=self,
-            current_spline_id=Event,
+            active_spline_id=Event,
             splines_updated=Event,
         )
 
@@ -151,7 +154,7 @@ class SplineAnnotator(ThreeDeeModel):
         self.auto_fit_spline = True
         self.enabled = enabled
 
-        self.current_spline_id: int = 0
+        self.active_spline_id: int = 0
 
         # storage for the spline objects
         # each spline is in its own object
@@ -161,24 +164,24 @@ class SplineAnnotator(ThreeDeeModel):
             self.set_layers(self.image_layer)
 
     @property
-    def current_spline_id(self):
-        return self._current_spline_id
+    def active_spline_id(self):
+        return self._active_spline_id
 
-    @current_spline_id.setter
-    def current_spline_id(self, id: int):
-        self._current_spline_id = np.clip(id, 0, None)
+    @active_spline_id.setter
+    def active_spline_id(self, id: int):
+        self._active_spline_id = np.clip(id, 0, None)
         if self.points_layer is not None:
             self.points_layer.selected_data = {}
             self.points_layer.current_properties = {
-                self.SPLINE_ID_FEATURES_KEY: self.current_spline_id
+                self.SPLINE_ID_FEATURES_KEY: self.active_spline_id
             }
-        self.events.current_spline_id()
+        self.events.active_spline_id()
 
     def next_spline(self, event=None):
-        self.current_spline_id += 1
+        self.active_spline_id += 1
 
     def previous_spline(self, event=None):
-        self.current_spline_id -= 1
+        self.active_spline_id -= 1
 
     def _mouse_callback(self, viewer, event):
         if (self.image_layer is None) or (self.points_layer is None):
@@ -207,12 +210,15 @@ class SplineAnnotator(ThreeDeeModel):
         )
         layer.selected_data = {0}
         layer.remove_selected()
-        self.current_spline_id = self.current_spline_id
+        self.active_spline_id = self.active_spline_id
         return layer
 
     def _create_shapes_layer(self) -> Shapes:
-        return Shapes(ndim=self.image_layer.data.ndim, name="splines",
-                      edge_color="green")
+        return Shapes(
+            ndim=self.image_layer.data.ndim,
+            name="splines",
+            edge_color="green"
+        )
 
     def set_layers(self, image_layer: napari.layers.Image):
         self.image_layer = image_layer
@@ -237,7 +243,8 @@ class SplineAnnotator(ThreeDeeModel):
         )
         if self.points_layer is not None:
             self.points_layer.events.data.disconnect(
-                self._on_point_data_changed)
+                self._on_point_data_changed
+            )
         self.viewer.bind_key('n', None)
 
     def _on_point_data_changed(self, event=None):

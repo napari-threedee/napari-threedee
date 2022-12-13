@@ -4,7 +4,7 @@ from qtpy.QtWidgets import QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QLabe
 from qtpy.QtCore import Qt
 from superqt.sliders import QLabeledDoubleSlider
 
-from ..._backend.threedee_widget_model import QtThreeDeeWidgetBase
+from ..._backend.threedee_widget_base import QtThreeDeeWidgetBase
 from napari_threedee.visualization.camera_spline import CameraSpline, CameraSplineMode
 
 

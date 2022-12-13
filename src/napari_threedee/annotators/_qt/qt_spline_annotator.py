@@ -2,7 +2,7 @@ import napari
 from napari.utils.events import Event
 from qtpy.QtWidgets import QPushButton, QGroupBox, QVBoxLayout, QCheckBox, QSpinBox, QLabel, QHBoxLayout
 
-from napari_threedee._backend.threedee_widget_model import QtThreeDeeWidgetBase
+from napari_threedee._backend.threedee_widget_base import QtThreeDeeWidgetBase
 
 from napari_threedee.annotators.spline_annotator import SplineAnnotator
 
@@ -18,12 +18,12 @@ class QtSplineAnnotatorWidget(QtThreeDeeWidgetBase):
         self.fit_spline_button.pressed.connect(self._on_spline_fit)
 
         spinbox_layout = QHBoxLayout()
-        self.current_spline_index_spinbox = QSpinBox()
-        self.current_spline_index_spinbox.setMinimum(0)
-        self.current_spline_index_spinbox.setValue(self.model.current_spline_id)
-        self.current_spline_index_spinbox.valueChanged.connect(self._on_current_filament_id_changed)
+        self.active_spline_index_spinbox = QSpinBox()
+        self.active_spline_index_spinbox.setMinimum(0)
+        self.active_spline_index_spinbox.setValue(self.model.active_spline_id)
+        self.active_spline_index_spinbox.valueChanged.connect(self._on_current_filament_id_changed)
         spinbox_layout.addWidget(QLabel("current spline index:"))
-        spinbox_layout.addWidget(self.current_spline_index_spinbox)
+        spinbox_layout.addWidget(self.active_spline_index_spinbox)
 
         # add the instructions widget
 
@@ -41,11 +41,11 @@ class QtSplineAnnotatorWidget(QtThreeDeeWidgetBase):
         self.layout().addWidget(self.fitting_group_box)
 
         # connect events to sync changes in the model to the UI
-        self.model.events.current_spline_id.connect(self._update_current_spline_id)
+        self.model.events.active_spline_id.connect(self._update_active_spline_id)
 
     def _on_spline_fit(self):
         # update splines from points
-        self.model._update_splines()
+        self.model._update_spheres()
 
         # draw splines
         self.model._draw_splines()
@@ -55,7 +55,7 @@ class QtSplineAnnotatorWidget(QtThreeDeeWidgetBase):
         self.model.auto_fit_spline = self.auto_fit_checkbox.isChecked()
 
     def _on_current_filament_id_changed(self, event: Event):
-        self.model.current_spline_id = self.current_spline_index_spinbox.value()
+        self.model.active_spline_id = self.active_spline_index_spinbox.value()
 
     def on_activate_button_click(self, event: Event):
         """Callback function when the activate button is clicked"""
@@ -68,8 +68,8 @@ class QtSplineAnnotatorWidget(QtThreeDeeWidgetBase):
             self.activate_button.setText('activate')
             self.fitting_group_box.setVisible(False)
 
-    def _update_current_spline_id(self):
+    def _update_active_spline_id(self):
         """Update the spline id spinbox when the model has changed value"""
-        self.current_spline_index_spinbox.setValue(self.model.current_spline_id)
+        self.active_spline_index_spinbox.setValue(self.model.active_spline_id)
 
 
