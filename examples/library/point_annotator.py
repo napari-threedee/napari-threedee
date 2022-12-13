@@ -22,7 +22,7 @@ plane_layer = viewer.add_image(
     rendering='average',
     name='plane',
     colormap='bop orange',
-    blending='additive',
+    blending='translucent',
     opacity=0.5,
     experimental_slicing_plane=plane_parameters
 )
