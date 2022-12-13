@@ -173,7 +173,7 @@ class SplineAnnotator(ThreeDeeModel):
         if self.points_layer is not None:
             self.points_layer.selected_data = {}
             self.points_layer.current_properties = {
-                self.SPLINE_ID_FEATURES_KEY: self.current_spline_id
+                self.SPLINE_ID_FEATURES_KEY: self.active_spline_id
             }
         self.events.active_spline_id()
 
