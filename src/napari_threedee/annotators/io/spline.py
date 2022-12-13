@@ -30,7 +30,8 @@ def validate_spline_zarr(n3d_zarr: zarr.Array):
         raise ValueError(f"{SplineAnnotator.SPLINE_ID_FEATURES_KEY} not found.")
 
 
-def layer_to_n3d_zarr(layer: napari.layers.Points, path: os.PathLike) -> zarr.Array:
+def layer_to_n3d_zarr(layer: napari.layers.Points,
+                      path: os.PathLike) -> zarr.Array:
     """Convert a napari points layer into an n3d zarr array."""
     validate_spline_layer(layer)
     n3d_zarr = zarr.open_array(
