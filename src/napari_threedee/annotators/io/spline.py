@@ -11,11 +11,14 @@ from ..spline_annotator import SplineAnnotator
 
 def validate_spline_layer(layer: napari.layers.Points):
     """Ensure a spline layer matches the spline layer specification."""
-    if SplineAnnotator.SPLINE_ID_FEATURES_KEY not in layer.features:
-        error = f"{SplineAnnotator.SPLINE_ID_FEATURES_KEY} not in layer features."
+    if N3D_METADATA_KEY not in layer.metadata:
+        raise ValueError(f"{N3D_METADATA_KEY} not in layer metadata.")
+    n3d_metadata = layer.metadata[N3D_METADATA_KEY]
+    if n3d_metadata[ANNOTATION_TYPE_KEY] != SplineAnnotator.ANNOTATION_TYPE:
+        error = f"Annotation type is not {SplineAnnotator.ANNOTATION_TYPE}"
         raise ValueError(error)
-    elif SplineAnnotator.SPLINES_KEY not in layer.metadata[N3D_METADATA_KEY]:
-        error = f"{SplineAnnotator.SPLINES_KEY} not in n3d metadata entry."
+    elif SplineAnnotator.SPLINE_ID_FEATURES_KEY not in layer.features:
+        error = f"{SplineAnnotator.SPLINE_ID_FEATURES_KEY} not in layer features."
         raise ValueError(error)
 
 
@@ -54,8 +57,10 @@ def n3d_zarr_to_layer_data_tuple(n3d_zarr: zarr.Array) -> LayerDataTuple:
     spline_id = n3d_zarr.attrs[SplineAnnotator.SPLINE_ID_FEATURES_KEY]
     layer_kwargs = {
         "features": {SplineAnnotator.SPLINE_ID_FEATURES_KEY: spline_id},
-        "metadata": {N3D_METADATA_KEY: {
-            ANNOTATION_TYPE_KEY, SplineAnnotator.ANNOTATION_TYPE,
-        }}
+        "metadata": {
+            N3D_METADATA_KEY: {
+                ANNOTATION_TYPE_KEY: SplineAnnotator.ANNOTATION_TYPE,
+            }
+        }
     }
     return (np.array(n3d_zarr), layer_kwargs, "points")

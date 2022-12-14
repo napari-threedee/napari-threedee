@@ -16,10 +16,14 @@ IMPLEMENTATIONS: dict = {
     SphereAnnotator.ANNOTATION_TYPE: {
         'reader': sphere_io.n3d_zarr_to_layer_data_tuple,
         'writer': sphere_io.layer_to_n3d_zarr,
+        'layer_validator': sphere_io.validate_sphere_layer,
+        'zarr_validator': sphere_io.validate_sphere_zarr,
     },
     SplineAnnotator.ANNOTATION_TYPE: {
         'reader': spline_io.n3d_zarr_to_layer_data_tuple,
         'writer': spline_io.layer_to_n3d_zarr,
+        'layer_validator': spline_io.validate_spline_layer,
+        'zarr_validator': spline_io.validate_spline_zarr,
     }
 }
 
