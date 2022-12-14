@@ -8,6 +8,9 @@ can contain multiple splines.
 - `Points.data` is an `(n, d)` array of n d-dimensional points.
 - `Points.features` is a table which will contain a column called 
   `spline_id`, an integer id for each point.
+- `Points.metadata["n3d_metadata"]` is a dictionary with the following 
+  key/value pairs
+   - `annotation_type`: `spline`
 
 ## Zarr Array Specification
 The following assumes an `n3d` file has been read into a variable called 
