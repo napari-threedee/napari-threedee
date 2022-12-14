@@ -5,23 +5,24 @@ import numpy as np
 import zarr
 from napari.types import LayerDataTuple
 
-from napari_threedee.annotators import SphereAnnotator
+from napari_threedee.annotators import PointAnnotator
 from napari_threedee.annotators.io import ANNOTATION_TYPE_KEY, N3D_METADATA_KEY
 
 
 def validate_layer(layer: napari.layers.Points):
     """Ensure a sphere layer matches the specification."""
-    for feature in (SphereAnnotator.SPHERE_ID_FEATURES_KEY,
-                    SphereAnnotator.SPHERE_RADIUS_FEATURES_KEY):
-        if feature not in layer.features:
-            raise ValueError(f"{feature} not in layer features.")
+    if N3D_METADATA_KEY not in layer.metadata:
+        raise ValueError(f"{N3D_METADATA_KEY} not found")
+    n3d_metadata = layer.metadata[N3D_METADATA_KEY]
+    if n3d_metadata[ANNOTATION_TYPE_KEY] != PointAnnotator.ANNOTATION_TYPE:
+        raise ValueError("Cannot read as n3d points layer.")
 
 
 def validate_zarr(n3d_zarr: zarr.Array):
-    """Ensure an n3d zarr array contains data for n3d sphere points layer."""
+    """Ensure an n3d zarr array contains data for n3d points layer."""
     if ANNOTATION_TYPE_KEY not in n3d_zarr.attrs:
         raise ValueError("cannot read as n3d sphere.")
-    if n3d_zarr.attrs[ANNOTATION_TYPE_KEY] != SphereAnnotator.ANNOTATION_TYPE:
+    if n3d_zarr.attrs[ANNOTATION_TYPE_KEY] != PointAnnotator.ANNOTATION_TYPE:
         raise ValueError("cannot read as n3d sphere.")
 
 
@@ -35,28 +36,16 @@ def layer_to_n3d_zarr(layer: napari.layers.Points, path: os.PathLike) -> zarr.Ar
         mode="w"
     )
     n3d_zarr[...] = layer.data
-    n3d_zarr.attrs[ANNOTATION_TYPE_KEY] = SphereAnnotator.ANNOTATION_TYPE
-
-    # get sphere id and radius from layer features
-    id_key = SphereAnnotator.SPHERE_ID_FEATURES_KEY
-    n3d_zarr.attrs[id_key] = list(layer.features[id_key])
-    radius_key = SphereAnnotator.SPHERE_RADIUS_FEATURES_KEY
-    n3d_zarr.attrs[radius_key] = list(layer.features[radius_key])
+    n3d_zarr.attrs[ANNOTATION_TYPE_KEY] = PointAnnotator.ANNOTATION_TYPE
     return n3d_zarr
 
 
 def n3d_zarr_to_layer_data_tuple(n3d_zarr: zarr.Array) -> LayerDataTuple:
     """Convert an n3d zarr array into an n3d sphere points layer data tuple."""
     validate_zarr(n3d_zarr)
-    id = n3d_zarr.attrs[SphereAnnotator.SPHERE_ID_FEATURES_KEY]
-    radii = n3d_zarr.attrs[SphereAnnotator.SPHERE_RADIUS_FEATURES_KEY]
     layer_kwargs = {
-        "features": {
-            SphereAnnotator.SPHERE_ID_FEATURES_KEY: id,
-            SphereAnnotator.SPHERE_RADIUS_FEATURES_KEY: radii,
-        },
         "metadata": {N3D_METADATA_KEY: {
-            ANNOTATION_TYPE_KEY: SphereAnnotator.ANNOTATION_TYPE,
+            ANNOTATION_TYPE_KEY: PointAnnotator.ANNOTATION_TYPE,
         }},
     }
     return (np.array(n3d_zarr), layer_kwargs, "points")

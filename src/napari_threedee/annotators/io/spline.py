@@ -9,7 +9,7 @@ from .constants import ANNOTATION_TYPE_KEY, N3D_METADATA_KEY
 from ..spline_annotator import SplineAnnotator
 
 
-def validate_spline_layer(layer: napari.layers.Points):
+def validate_layer(layer: napari.layers.Points):
     """Ensure a spline layer matches the spline layer specification."""
     if N3D_METADATA_KEY not in layer.metadata:
         raise ValueError(f"{N3D_METADATA_KEY} not in layer metadata.")
@@ -22,7 +22,7 @@ def validate_spline_layer(layer: napari.layers.Points):
         raise ValueError(error)
 
 
-def validate_spline_zarr(n3d_zarr: zarr.Array):
+def validate_zarr(n3d_zarr: zarr.Array):
     """Ensure an n3d zarr array can be converted to a n3d spline points
     layer."""
     if ANNOTATION_TYPE_KEY not in n3d_zarr.attrs:
@@ -36,7 +36,7 @@ def validate_spline_zarr(n3d_zarr: zarr.Array):
 def layer_to_n3d_zarr(layer: napari.layers.Points,
                       path: os.PathLike) -> zarr.Array:
     """Convert a napari points layer into an n3d zarr array."""
-    validate_spline_layer(layer)
+    validate_layer(layer)
     n3d_zarr = zarr.open_array(
         store=path,
         shape=layer.data.shape,
@@ -53,7 +53,7 @@ def layer_to_n3d_zarr(layer: napari.layers.Points,
 
 def n3d_zarr_to_layer_data_tuple(n3d_zarr: zarr.Array) -> LayerDataTuple:
     """Convert an n3d zarr array to an n3d spline points layer data tuple."""
-    validate_spline_zarr(n3d_zarr)
+    validate_zarr(n3d_zarr)
     spline_id = n3d_zarr.attrs[SplineAnnotator.SPLINE_ID_FEATURES_KEY]
     layer_kwargs = {
         "features": {SplineAnnotator.SPLINE_ID_FEATURES_KEY: spline_id},
