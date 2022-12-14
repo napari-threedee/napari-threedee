@@ -17,8 +17,7 @@ theme:
   name: material
   palette:
     # Palette toggle for light mode
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
+    - scheme: default
       primary: indigo
       accent: indigo
       toggle:
@@ -26,13 +25,13 @@ theme:
         name: Switch to dark mode
 
     # Palette toggle for dark mode
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
+    - scheme: slate
       primary: blue grey
       accent: blue grey
       toggle:
         icon: material/toggle-switch-off-outline
         name: Switch to light mode
+
   features:
     - navigation.instant
     #- navigation.tabs
