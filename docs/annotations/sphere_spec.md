@@ -9,6 +9,10 @@ can contain multiple splines.
 - `Points.features` is a table which will contain column called 
     - `sphere_id`, an integer id for each sphere.
     - `radius`, a radius for each sphere.
+- `Points.metadata["n3d_metadata"]` is a dictionary with the following 
+  key/value pairs
+   - `annotation_type`: `sphere`
+
 
 
 ## Zarr Array Specification
