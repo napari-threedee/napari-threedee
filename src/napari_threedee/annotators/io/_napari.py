@@ -1,5 +1,5 @@
 import os
-from typing import List, Callable, Optional, Union
+from typing import List, Callable, Optional
 
 import numpy as np
 import zarr
@@ -9,21 +9,29 @@ from napari.types import LayerDataTuple
 from . import N3D_METADATA_KEY, ANNOTATION_TYPE_KEY
 from ..spline_annotator import SplineAnnotator
 from ..sphere_annotator import SphereAnnotator
+from ..point_annotator import PointAnnotator
 import napari_threedee.annotators.io.sphere as sphere_io
 import napari_threedee.annotators.io.spline as spline_io
+import napari_threedee.annotators.io.point as point_io
 
 IMPLEMENTATIONS: dict = {
     SphereAnnotator.ANNOTATION_TYPE: {
         'reader': sphere_io.n3d_zarr_to_layer_data_tuple,
         'writer': sphere_io.layer_to_n3d_zarr,
-        'layer_validator': sphere_io.validate_sphere_layer,
-        'zarr_validator': sphere_io.validate_sphere_zarr,
+        'layer_validator': sphere_io.validate_layer,
+        'zarr_validator': sphere_io.validate_zarr,
     },
     SplineAnnotator.ANNOTATION_TYPE: {
         'reader': spline_io.n3d_zarr_to_layer_data_tuple,
         'writer': spline_io.layer_to_n3d_zarr,
-        'layer_validator': spline_io.validate_spline_layer,
-        'zarr_validator': spline_io.validate_spline_zarr,
+        'layer_validator': spline_io.validate_layer,
+        'zarr_validator': spline_io.validate_zarr,
+    },
+    PointAnnotator.ANNOTATION_TYPE: {
+        'reader': point_io.n3d_zarr_to_layer_data_tuple,
+        'writer': point_io.layer_to_n3d_zarr,
+        'layer_validator': point_io.validate_layer,
+        'zarr_validator': point_io.validate_zarr,
     }
 }
 

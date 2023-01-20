@@ -6,13 +6,18 @@ import pytest
 import zarr
 from napari.layers import Points
 
-from napari_threedee.annotators import SplineAnnotator, SphereAnnotator
+from napari_threedee.annotators import SplineAnnotator, SphereAnnotator, \
+    PointAnnotator
 from napari_threedee.annotators.io import N3D_METADATA_KEY, ANNOTATION_TYPE_KEY
 
 
 @pytest.fixture
 def valid_n3d_layers() -> List[napari.layers.Layer]:
-    return [_valid_n3d_spline_layer(), _valid_n3d_sphere_layer()]
+    return [
+        _valid_n3d_spline_layer(),
+        _valid_n3d_sphere_layer(),
+        _valid_n3d_point_layer(),
+    ]
 
 
 def _valid_n3d_spline_layer() -> napari.layers.Points:
@@ -75,3 +80,29 @@ def _valid_n3d_sphere_zarr() -> zarr.Array:
 @pytest.fixture
 def valid_n3d_sphere_zarr() -> zarr.Array:
     return _valid_n3d_sphere_zarr()
+
+
+def _valid_n3d_point_layer() -> napari.layers.Points:
+    layer = Points(
+        data=np.random.normal(size=(2, 3)),
+        metadata={N3D_METADATA_KEY: {
+            ANNOTATION_TYPE_KEY: PointAnnotator.ANNOTATION_TYPE
+        }}
+    )
+    return layer
+
+
+@pytest.fixture
+def valid_n3d_point_layer() -> napari.layers.Points:
+    return _valid_n3d_point_layer()
+
+
+def _valid_n3d_point_zarr() -> zarr.Array:
+    n3d_zarr = zarr.array(np.random.normal(size=(2, 3)))
+    n3d_zarr.attrs[ANNOTATION_TYPE_KEY] = PointAnnotator.ANNOTATION_TYPE
+    return n3d_zarr
+
+
+@pytest.fixture
+def valid_n3d_point_zarr() -> zarr.Array:
+    return _valid_n3d_point_zarr()
