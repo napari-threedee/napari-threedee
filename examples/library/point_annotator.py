@@ -34,7 +34,9 @@ points_layer = viewer.add_points(
 annotator = PointAnnotator(
     viewer=viewer,
     image_layer=plane_layer,
-    points_layer=points_layer
+    points_layer=points_layer,
+    enabled=True,
 )
-
+viewer.layers.selection = [plane_layer]
+viewer.camera.set_view_direction([-1, -1, 1])
 napari.run()
