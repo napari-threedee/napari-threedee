@@ -8,7 +8,7 @@ import numpy as np
 from psygnal import EventedModel
 from pydantic import validator, PrivateAttr
 from scipy.interpolate import splprep, splev
-from typing import Tuple, Union, Optional
+from typing import Tuple, Union, Optional, Dict
 
 from napari_threedee._backend.threedee_model import ThreeDeeModel
 from ..mouse_callbacks import add_point_on_plane
@@ -130,6 +130,7 @@ class SplineAnnotator(ThreeDeeModel):
     ANNOTATION_TYPE = "spline"
     # keys for data stored in features table
     SPLINE_ID_FEATURES_KEY = "spline_id"
+    SPLINE_COLOR_FEATURES_KEY = "spline_color"
 
     # metadata and associated keys
     SPLINES_KEY = "splines"
@@ -255,7 +256,8 @@ class SplineAnnotator(ThreeDeeModel):
 
     def _update_splines(self):
         grouped_points_features = self.points_layer.features.groupby(
-            self.SPLINE_ID_FEATURES_KEY)
+            self.SPLINE_ID_FEATURES_KEY
+        )
         splines = dict()
         for spline_name, spline_df in grouped_points_features:
             point_indices = spline_df.index.tolist()
@@ -263,12 +265,24 @@ class SplineAnnotator(ThreeDeeModel):
                 # the number of points must be greater than the spline order to properly fit
                 spline_coordinates = self.points_layer.data[point_indices]
                 splines[spline_name] = _NDimensionalFilament(
-                    points=spline_coordinates, k=self.SPLINE_ORDER)
+                    points=spline_coordinates, k=self.SPLINE_ORDER
+                )
         metadata = {
             self.SPLINES_KEY: splines
         }
         self.points_layer.metadata[N3D_METADATA_KEY].update(metadata)
         self.events.splines_updated()
+
+    def _get_spline_colors(self) -> Dict[int, np.ndarray]:
+        self.points_layer.features[self.SPLINE_COLOR_FEATURES_KEY] = \
+            list(self.points_layer.face_color)
+        grouped_points_features = self.points_layer.features.groupby(
+            self.SPLINE_ID_FEATURES_KEY
+        )
+        spline_colors = dict()
+        for spline_id, spline_df in grouped_points_features:
+            spline_colors[spline_id] = spline_df[self.SPLINE_COLOR_FEATURES_KEY].iloc[0]
+        return spline_colors
 
     def _clear_shapes_layer(self):
         """Delete all shapes in the shapes layer."""
@@ -281,8 +295,10 @@ class SplineAnnotator(ThreeDeeModel):
     def _draw_splines(self):
         self._clear_shapes_layer()
         splines = self.points_layer.metadata[N3D_METADATA_KEY][self.SPLINES_KEY]
-        for spline_name, spline_object in splines.items():
+        spline_colors = self._get_spline_colors()
+        for spline_id, spline_object in splines.items():
             spline_points = spline_object._sample_backbone(
-                u=np.linspace(0, 1, 50)
+                u=np.linspace(0, 1, 1000)
             )
-            self.shapes_layer.add_paths(spline_points)
+            spline_color = spline_colors[spline_id]
+            self.shapes_layer.add_paths(spline_points, edge_color=spline_color)

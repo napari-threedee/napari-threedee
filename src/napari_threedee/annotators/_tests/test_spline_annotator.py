@@ -32,3 +32,15 @@ def test_add_point(spline_annotator):
     points_layer.add([2, 3, 4, 5])
     assert points_layer.features[label][1] == spline_annotator.active_spline_id
 
+
+def test_get_colors(spline_annotator):
+    """Test getting spline colors from the annotator."""
+    points_layer = spline_annotator.points_layer
+    spline_annotator.active_spline_id = 0
+    points_layer.add([1, 2, 3, 4])
+    spline_annotator.active_spline_id = 1
+    points_layer.add([2, 3, 4, 5])
+
+    spline_colors = spline_annotator._get_spline_colors()
+    for spline_id in (0, 1):
+        assert spline_id in spline_colors
