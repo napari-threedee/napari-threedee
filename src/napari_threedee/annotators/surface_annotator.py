@@ -305,9 +305,14 @@ class SurfaceAnnotator(ThreeDeeModel):
             for _, df in grouped_features
         ]
         surface = GriddedSplineSurface(points=surface_levels, separation=3)
+        surface_points, triangle_idx = surface.mesh()
+        valid_triangle_idx = np.all(np.isin(triangle_idx, np.argwhere(surface.mask)),
+                                 axis=1)
+        triangle_idx = triangle_idx[valid_triangle_idx]
+
         if self.surface_layer is None:
             self.surface_layer = self.viewer.add_surface(
-                data=surface.mesh(),
+                data=(surface_points, triangle_idx),
                 shading='flat'
             )
         else:
