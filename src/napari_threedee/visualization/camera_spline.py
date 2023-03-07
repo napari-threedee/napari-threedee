@@ -298,7 +298,7 @@ class CameraSpline(ThreeDeeModel):
         self.spline_annotator_model.enabled = True
 
         # disable the key binding to switch to the next spline index
-        self.viewer.bind_key('n', None)
+        self.viewer.bind_key('n', None, overwrite=True)
 
     def stop_spline_annotation(self):
         """Callback called when exiting ANNOTATION mode."""
