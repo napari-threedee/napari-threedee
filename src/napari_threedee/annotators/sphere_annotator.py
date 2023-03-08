@@ -223,8 +223,12 @@ class SphereAnnotator(ThreeDeeModel):
                 callback=self._mouse_callback
             )
             self.points_layer.events.data.connect(self._on_point_data_changed)
-            self.viewer.bind_key('r', self._set_radius_from_mouse_event)
-            self.viewer.bind_key('n', self._enable_add_mode)
+            self.viewer.bind_key(
+                'r', self._set_radius_from_mouse_event, overwrite=True
+            )
+            self.viewer.bind_key(
+                'n', self._enable_add_mode, overwrite=True
+            )
             self.viewer.layers.selection.active = self.image_layer
 
     def _on_disable(self):
@@ -234,7 +238,7 @@ class SphereAnnotator(ThreeDeeModel):
         )
         if self.points_layer is not None:
             self.points_layer.events.data.disconnect(self._on_point_data_changed)
-        self.viewer.bind_key('n', None)
+        self.viewer.bind_key('n', None, overwrite=True)
 
     def _on_point_data_changed(self, event=None):
         self._update_spheres()

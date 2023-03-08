@@ -229,7 +229,7 @@ class SurfaceAnnotator(ThreeDeeModel):
                 self.viewer.mouse_drag_callbacks, self._mouse_callback
             )
             self.points_layer.events.data.connect(self._on_point_data_changed)
-            self.viewer.bind_key('n', self.next_spline)
+            self.viewer.bind_key('n', self.next_spline, overwrite=True)
             self.viewer.layers.selection.active = self.image_layer
 
     def _on_disable(self):
@@ -240,7 +240,7 @@ class SurfaceAnnotator(ThreeDeeModel):
             self.points_layer.events.data.disconnect(
                 self._on_point_data_changed
             )
-        self.viewer.bind_key('n', None)
+        self.viewer.bind_key('n', None, overwrite=True)
 
     def _on_point_data_changed(self, event=None):
         if self.auto_fit_spline is True:
