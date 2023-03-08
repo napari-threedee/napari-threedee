@@ -60,6 +60,7 @@ class SphereAnnotator(ThreeDeeModel):
         self.viewer = viewer
         self.image_layer = image_layer
         self.points_layer = None
+        self.surface_layer = None
         self.enabled = enabled
         self.mode = SphereAnnotatorMode.ADD
 
@@ -180,9 +181,10 @@ class SphereAnnotator(ThreeDeeModel):
             }
 
     def _create_points_layer(self) -> Optional[Points]:
+        ndim = self.image_layer.data.ndim if self.image_layer is not None else 3
         layer = Points(
-            data=[0] * self.image_layer.data.ndim,
-            ndim=self.image_layer.data.ndim,
+            data=[0] * ndim,
+            ndim=ndim,
             name="sphere centers",
             size=7,
             features={
@@ -271,8 +273,8 @@ class SphereAnnotator(ThreeDeeModel):
 
     def _draw_spheres(self):
         n3d_metadata = self.points_layer.metadata[N3D_METADATA_KEY]
-        sphere_data = n3d_metadata[self.SPHERE_MESH_METADATA_KEY]
-        if sphere_data is None:
+        if self.surface_layer is None:
             self.surface_layer = self._create_surface_layer()
+            self.viewer.layers.append(self.surface_layer)
         else:
             self.surface_layer.data = n3d_metadata[self.SPHERE_MESH_METADATA_KEY]
