@@ -13,7 +13,7 @@ from .._backend import ThreeDeeModel
 from ..mouse_callbacks import add_point_on_plane
 from ..utils.napari_utils import add_mouse_callback_safe, \
     remove_mouse_callback_safe
-from .io import N3D_METADATA_KEY, ANNOTATION_TYPE_KEY
+from .constants import N3D_METADATA_KEY, ANNOTATION_TYPE_KEY
 
 
 class SphereAnnotatorMode(Enum):
