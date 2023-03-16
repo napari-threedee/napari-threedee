@@ -1,3 +1,4 @@
+import os
 from abc import abstractmethod
 
 import napari
@@ -21,9 +22,9 @@ class N3dDataModel(BaseModel):
 
     @classmethod
     @abstractmethod
-    def from_n3d_zarr(self, zarr: zarr.Array):
+    def from_n3d_zarr(self, path: os.PathLike):
         pass
 
     @abstractmethod
-    def as_n3d_zarr(self) -> zarr.Array:
+    def to_n3d_zarr(self, path: os.PathLike) -> None:
         pass

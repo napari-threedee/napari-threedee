@@ -1,6 +1,6 @@
 from napari.layers import Points
 
-from napari_threedee.annotators.point_annotator import PointAnnotator
+from napari_threedee.annotators.points import PointAnnotator
 
 
 def test_plane_point_annotator_instantiation(viewer_with_plane_and_points_3d):

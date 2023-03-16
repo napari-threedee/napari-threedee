@@ -1,5 +1,6 @@
-from napari_threedee.annotators._qt.qt_sphere_annotator import \
-    QtSphereAnnotatorWidget
+import numpy as np
+
+from napari_threedee.annotators.spheres import SphereAnnotator, N3dSpheres
 
 import napari
 from skimage import data
@@ -25,8 +26,15 @@ plane_layer = viewer.add_image(
     plane=plane_parameters,
 )
 
-annotator = QtSphereAnnotatorWidget(
-    viewer=viewer
+centers = np.random.uniform(0, 64, size=(10, 3))
+radii = np.random.uniform(1, 10, size=(10, ))
+points_layer = N3dSpheres(centers=centers, radii=radii).as_layer()
+viewer.add_layer(points_layer)
+
+annotator = SphereAnnotator(
+    viewer=viewer,
+    image_layer=plane_layer,
+    points_layer=points_layer,
+    enabled=True
 )
-viewer.window.add_dock_widget(annotator)
 napari.run()

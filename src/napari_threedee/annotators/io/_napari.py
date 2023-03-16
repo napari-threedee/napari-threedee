@@ -8,8 +8,8 @@ from napari.types import LayerDataTuple
 
 from . import N3D_METADATA_KEY, ANNOTATION_TYPE_KEY
 from ..spline_annotator import SplineAnnotator
-from ..sphere_annotator import SphereAnnotator
-from ..point_annotator import PointAnnotator
+from ..spheres import SphereAnnotator
+from ..points import PointAnnotator
 import napari_threedee.annotators.io.sphere as sphere_io
 import napari_threedee.annotators.io.spline as spline_io
 import napari_threedee.annotators.io.point as point_io
@@ -31,7 +31,7 @@ IMPLEMENTATIONS: dict = {
         'reader': point_io.n3d_zarr_to_layer_data_tuple,
         'writer': point_io.layer_to_n3d_zarr,
         'layer_validator': point_io.validate_layer,
-        'zarr_validator': point_io.validate_zarr,
+        'zarr_validator': point_io.validate_n3d_zarr,
     }
 }
 

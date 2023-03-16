@@ -9,10 +9,13 @@ from pydantic import validator
 
 from napari_threedee._backend.threedee_model import ThreeDeeModel
 from .base import N3dDataModel
-from .constants import N3D_METADATA_KEY, ANNOTATION_TYPE_KEY, POINT_ANNOTATION_TYPE_KEY
+from .constants import N3D_METADATA_KEY, ANNOTATION_TYPE_KEY
 from ..mouse_callbacks import add_point_on_plane
 from napari_threedee.utils.napari_utils import add_mouse_callback_safe, \
     remove_mouse_callback_safe
+
+
+POINT_ANNOTATION_TYPE_KEY = "points"
 
 
 def validate_layer(layer: napari.layers.Points):
@@ -47,11 +50,11 @@ class N3dPoints(N3dDataModel):
 
     @classmethod
     def from_n3d_zarr(cls, path: os.PathLike):
-        n3d_zarr = zarr.open(path)
+        n3d_zarr = zarr.load(path)
         validate_n3d_zarr(n3d_zarr)
         return cls(data=np.array(n3d_zarr))
 
-    def to_n3d_zarr(self, path: os.PathLike):
+    def to_n3d_zarr(self, path: os.PathLike) -> None:
         n3d_zarr = zarr.open_array(
             store=path,
             shape=self.data.shape,
@@ -60,7 +63,6 @@ class N3dPoints(N3dDataModel):
         )
         n3d_zarr[...] = self.data
         n3d_zarr.attrs[ANNOTATION_TYPE_KEY] = POINT_ANNOTATION_TYPE_KEY
-        return n3d_zarr
 
     @validator('data', pre=True)
     def ensure_2d_float32_array(cls, value):

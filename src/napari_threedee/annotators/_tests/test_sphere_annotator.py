@@ -1,5 +1,5 @@
 from napari_threedee.annotators import SphereAnnotator
-from napari_threedee.annotators.sphere_annotator import SphereAnnotatorMode
+from napari_threedee.annotators.spheres import SphereAnnotatorMode
 
 
 def test_sphere_annotator_instantiation(viewer_with_plane_and_points_3d):

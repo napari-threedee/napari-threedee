@@ -9,22 +9,6 @@ from napari_threedee.annotators import SphereAnnotator
 from napari_threedee.annotators.io import ANNOTATION_TYPE_KEY, N3D_METADATA_KEY
 
 
-def validate_layer(layer: napari.layers.Points):
-    """Ensure a sphere layer matches the specification."""
-    for feature in (SphereAnnotator.SPHERE_ID_FEATURES_KEY,
-                    SphereAnnotator.SPHERE_RADIUS_FEATURES_KEY):
-        if feature not in layer.features:
-            raise ValueError(f"{feature} not in layer features.")
-
-
-def validate_zarr(n3d_zarr: zarr.Array):
-    """Ensure an n3d zarr array contains data for n3d sphere points layer."""
-    if ANNOTATION_TYPE_KEY not in n3d_zarr.attrs:
-        raise ValueError("cannot read as n3d sphere.")
-    if n3d_zarr.attrs[ANNOTATION_TYPE_KEY] != SphereAnnotator.ANNOTATION_TYPE:
-        raise ValueError("cannot read as n3d sphere.")
-
-
 def layer_to_n3d_zarr(layer: napari.layers.Points, path: os.PathLike) -> zarr.Array:
     """Convert an n3d sphere points layer into an n3d zarr array."""
     validate_layer(layer)
