@@ -130,6 +130,7 @@ plugins:
   - mkdocs-video:
       is_video: True
       video_autoplay: True
+      video_loop: True
 
 extra_css:
   - stylesheets/extra.css
