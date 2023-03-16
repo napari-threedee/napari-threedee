@@ -1,18 +1,16 @@
 # This workflows will upload a Python Package using Twine when a release is created
 # For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
 
-name: tests
+name: test_and_deploy
 
-on: 
+on:
   push:
     branches:
-      - main
       - main
     tags:
       - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
   pull_request:
     branches:
-      - main
       - main
   workflow_dispatch:
 
@@ -62,6 +60,32 @@ jobs:
 
       - name: Coverage
         uses: codecov/codecov-action@v2
+
+  docs:
+    needs: [test]  # runs only after the other CI tests pass
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    # Install dependencies
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+    # Build the book
+    - name: Build the book
+      run: |
+        mkdocs build
+    # Push the book's HTML to github-pages whenever the main repo branch changes
+    - name: GitHub Pages action
+      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      uses: peaceiris/actions-gh-pages@v3.8.0
+      with:
+        deploy_key: ${{ secrets.DOCS_DEPLOY_TOKEN }}
+        external_repository: napari-threedee/napari-threedee.github.io
+        publish_dir: ./site
 
   deploy:
     # this will run when you have tagged a commit, starting with "v*"
