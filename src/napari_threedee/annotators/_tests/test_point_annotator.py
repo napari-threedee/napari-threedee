@@ -24,4 +24,4 @@ def test_plane_point_annotator_auto_creation_of_points_layer(viewer_with_plane_a
         points_layer=None
     )
     assert isinstance(annotator.points_layer, Points)
-    assert annotator.points_layer.ndim == 3
+    assert annotator.points_layer.ndim == 3   # matches ndim of image layer

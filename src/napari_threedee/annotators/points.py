@@ -44,7 +44,12 @@ class N3dPoints(N3dDataModel):
 
     def as_layer(self) -> napari.layers.Points:
         metadata = {N3D_METADATA_KEY: {ANNOTATION_TYPE_KEY: POINT_ANNOTATION_TYPE_KEY}}
-        layer = napari.layers.Points(data=self.data, metadata=metadata)
+        layer = napari.layers.Points(
+            data=self.data,
+            metadata=metadata,
+            name='n3d points',
+            ndim=self.data.shape[-1],
+        )
         validate_layer(layer)
         return layer
 
@@ -78,8 +83,10 @@ class PointAnnotator(ThreeDeeModel):
         enabled: bool = False
     ):
         self.viewer = viewer
-        self.points_layer = points_layer
         self.image_layer = image_layer
+        if points_layer is None:
+            points_layer = self._create_points_layer()
+        self.points_layer = points_layer
         self.enabled = enabled
 
     def _mouse_callback(self, viewer, event):
@@ -91,6 +98,10 @@ class PointAnnotator(ThreeDeeModel):
             points_layer=self.points_layer,
             plane_layer=self.image_layer
         )
+
+    def _create_points_layer(self) -> napari.layers.Points:
+        ndim = self.image_layer.ndim if self.image_layer is not None else 3
+        return N3dPoints(data=np.empty(shape=(0, ndim))).as_layer()
 
     def set_layers(
         self,

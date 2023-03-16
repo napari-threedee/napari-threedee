@@ -71,7 +71,7 @@ class N3dSpheres(N3dDataModel):
         }
         layer = napari.layers.Points(
             data=self.centers,
-            name="sphere centers",
+            name="n3d spheres",
             metadata=metadata,
             features=features,
             face_color=SPHERE_ID_FEATURES_KEY,
@@ -266,7 +266,7 @@ class SphereAnnotator(ThreeDeeModel):
     def _create_surface_layer(self) -> Surface:
         return Surface(
             data=(np.array([[0, 0, 0]]), np.array([[0, 0, 0]])),
-            name="spheres",
+            name="sphere meshes",
             opacity=0.7,
         )
 
