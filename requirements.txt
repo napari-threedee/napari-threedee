@@ -2,4 +2,4 @@
 # Requirements of your napari plugin should be listed in setup.cfg
 # See also: https://caremad.io/posts/2013/07/setup-vs-requirement/
 
--e .
+-e ".[dev]"
