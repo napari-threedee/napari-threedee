@@ -88,6 +88,7 @@ nav:
       - 'interactively position layers': how_to/layer_manipulator.md
       - 'annotate points in 3D': how_to/point_annotator.md
       - 'annotate spheres in 3D': how_to/sphere_annotator.md
+      - 'annotate splines in 3D': how_to/spline_annotator.md
   - 'Explanations':
       - dev_guides/core_concepts.md
       - dev_guides/manipulators.md
