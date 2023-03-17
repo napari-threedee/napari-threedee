@@ -3,7 +3,7 @@
 ## Summary
 Annotating points in 3D can be useful for picking particles in CryoET and annotating locations of landmarks. However, doing so on a 2D computer screen is challenging. Here we demonstrate how to use the point annotator, which annotates points on arbitrary slicing planes.
 
-![select layer](https://user-images.githubusercontent.com/1120672/225956459-2da07c2d-b7c4-4e61-aa7e-11d11cc06e79.mov)
+![type:video](https://user-images.githubusercontent.com/1120672/225956459-2da07c2d-b7c4-4e61-aa7e-11d11cc06e79.mov)
 
 ## Instructions
 
