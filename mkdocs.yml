@@ -94,6 +94,9 @@ nav:
   - 'Annotations':
       - annotations/specifications.md
       - annotations/io.md
+      - annotations/point_spec.md
+      - annotations/sphere_spec.md
+      - annotations/spline_spec.md
   - 'API':
       - api/napari_utilities.md
       - api/selection_utilities.md
