@@ -4,7 +4,7 @@ from qtpy.QtWidgets import QPushButton, QGroupBox, QVBoxLayout, QCheckBox, QSpin
 
 from napari_threedee._backend.threedee_widget_base import QtThreeDeeWidgetBase
 
-from napari_threedee.annotators.spline_annotator import SplineAnnotator
+from napari_threedee.annotators.splines import SplineAnnotator
 
 
 class QtSplineAnnotatorWidget(QtThreeDeeWidgetBase):
@@ -44,10 +44,10 @@ class QtSplineAnnotatorWidget(QtThreeDeeWidgetBase):
         self.model.events.active_spline_id.connect(self._update_active_spline_id)
 
     def _on_spline_fit(self):
-        # update splines from points
+        # update data from points
         self.model._update_spheres()
 
-        # draw splines
+        # draw data
         self.model._draw_splines()
 
     def _on_auto_fit(self):

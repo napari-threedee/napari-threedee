@@ -7,9 +7,9 @@ from napari.utils.events.event import EmitterGroup, Event
 from napari.utils.geometry import rotation_matrix_from_vectors_3d
 import numpy as np
 
-from .._backend.threedee_model import ThreeDeeModel
-from ..annotators.spline_annotator import SplineAnnotator
-from ..annotators.io import N3D_METADATA_KEY
+from .._backend.threedee_model import N3dComponent
+from ..annotators.splines import SplineAnnotator
+from ..annotators.constants import N3D_METADATA_KEY
 
 
 class CameraSplineMode(Enum):
@@ -18,7 +18,7 @@ class CameraSplineMode(Enum):
     ANNOTATE = "annotate"
 
 
-class CameraSpline(ThreeDeeModel):
+class CameraSpline(N3dComponent):
     """Model for a spline that is used to direct the camera path."""
     COLOR_CYCLE = [
         '#1f77b4',

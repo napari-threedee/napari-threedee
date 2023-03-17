@@ -4,7 +4,7 @@ from qtpy.QtWidgets import QPushButton, QGroupBox, QVBoxLayout, QSpinBox, QLabel
 
 from napari_threedee._backend.threedee_widget_base import QtThreeDeeWidgetBase
 
-from napari_threedee.annotators.surface_annotator import SurfaceAnnotator
+from napari_threedee.annotators.surfaces.annotator import SurfaceAnnotator
 
 
 

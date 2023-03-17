@@ -1,0 +1,3 @@
+from ..constants import N3D_METADATA_KEY, ANNOTATION_TYPE_KEY
+
+POINT_ANNOTATION_TYPE_KEY = "points"

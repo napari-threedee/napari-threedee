@@ -1,112 +1,21 @@
-import os
 import warnings
 from enum import Enum, auto
 from typing import Optional, Union
 
 import napari
 import numpy as np
-import zarr
 from napari.layers import Image, Points, Surface
 from napari.utils.events import EmitterGroup, Event
 from napari.layers.utils.layer_utils import features_to_pandas_dataframe
-from pydantic import validator
 from vispy.geometry import create_sphere
 
-from .._backend import ThreeDeeModel
-from ..mouse_callbacks import add_point_on_plane
-from ..utils.napari_utils import add_mouse_callback_safe, \
+from napari_threedee._backend import N3dComponent
+from napari_threedee.annotators.spheres.constants import SPHERE_ID_FEATURES_KEY, SPHERE_RADIUS_FEATURES_KEY, SPHERE_MESH_METADATA_KEY
+from napari_threedee.annotators.spheres.data_model import N3dSpheres
+from napari_threedee.mouse_callbacks import add_point_on_plane
+from napari_threedee.utils.napari_utils import add_mouse_callback_safe, \
     remove_mouse_callback_safe
-from .constants import N3D_METADATA_KEY, ANNOTATION_TYPE_KEY
-from .base import N3dDataModel
-
-SPHERE_ANNOTATION_TYPE_KEY = "spheres"
-SPHERE_ID_FEATURES_KEY: str = "sphere_id"
-SPHERE_RADIUS_FEATURES_KEY: str = "radius"
-SPHERE_MESH_METADATA_KEY: str = "mesh_data"
-DEFAULT_SPHERE_RADIUS = 5
-COLOR_CYCLE = [
-    '#1f77b4',
-    '#ff7f0e',
-    '#2ca02c',
-    '#d62728',
-    '#9467bd',
-    '#8c564b',
-    '#e377c2',
-    '#7f7f7f',
-    '#bcbd22',
-    '#17becf',
-]
-
-
-def validate_layer(layer: napari.layers.Points):
-    """Ensure a sphere layer matches the specification."""
-    for feature in (SPHERE_ID_FEATURES_KEY, SPHERE_RADIUS_FEATURES_KEY):
-        if feature not in layer.features:
-            raise ValueError(f"{feature} not in layer features.")
-
-
-def validate_n3d_zarr(n3d_zarr: zarr.Array):
-    """Ensure an n3d zarr array contains data for n3d sphere points layer."""
-    if ANNOTATION_TYPE_KEY not in n3d_zarr.attrs:
-        raise ValueError("cannot read as n3d sphere.")
-    if n3d_zarr.attrs[ANNOTATION_TYPE_KEY] != SPHERE_ANNOTATION_TYPE_KEY:
-        raise ValueError("cannot read as n3d sphere.")
-
-
-class N3dSpheres(N3dDataModel):
-    centers: np.ndarray
-    radii: np.ndarray
-
-    @classmethod
-    def from_layer(cls, layer: napari.layers.Points):
-        centers = np.array(layer.data, dtype=np.float32)
-        radii = np.array(layer.features[SPHERE_RADIUS_FEATURES_KEY], dtype=np.float32)
-        cls(centers=centers, radii=radii)
-
-    def as_layer(self) -> napari.layers.Points:
-        metadata = {N3D_METADATA_KEY: {ANNOTATION_TYPE_KEY: SPHERE_ANNOTATION_TYPE_KEY}}
-        features = {
-            SPHERE_RADIUS_FEATURES_KEY: self.radii,
-            SPHERE_ID_FEATURES_KEY: np.arange(len(self.centers))
-        }
-        layer = napari.layers.Points(
-            data=self.centers,
-            name="n3d spheres",
-            metadata=metadata,
-            features=features,
-            face_color=SPHERE_ID_FEATURES_KEY,
-            face_color_cycle=COLOR_CYCLE,
-        )
-        validate_layer(layer)
-        return layer
-
-    @classmethod
-    def from_n3d_zarr(cls, path: os.PathLike):
-        n3d_zarr = zarr.load(path)
-        validate_n3d_zarr(n3d_zarr)
-        centers = np.array(n3d_zarr, dtype=np.float32)
-        radii = np.array(n3d_zarr.attrs[SPHERE_RADIUS_FEATURES_KEY], dtype=np.float32)
-        return cls(centers=centers, radii=radii)
-
-    def to_n3d_zarr(self, path: os.PathLike) -> None:
-        n3d_zarr = zarr.open_array(
-            store=path,
-            shape=self.centers.shape,
-            dtype=self.centers.dtype,
-            mode="w"
-        )
-        n3d_zarr[...] = self.centers
-        n3d_zarr.attrs[ANNOTATION_TYPE_KEY] = SPHERE_ANNOTATION_TYPE_KEY
-        n3d_zarr.attrs[SPHERE_RADIUS_FEATURES_KEY] = list(self.radii)
-
-    @validator('centers', 'radii', pre=True)
-    def ensure_float32_ndarray(cls, value):
-        return np.asarray(value, dtype=np.float32)
-
-    @validator('centers')
-    def ensure_at_least_2d(cls, value):
-        return np.atleast_2d(value)
-
+from napari_threedee.annotators.constants import N3D_METADATA_KEY
 
 
 class SphereAnnotatorMode(Enum):
@@ -114,7 +23,7 @@ class SphereAnnotatorMode(Enum):
     EDIT = auto()
 
 
-class SphereAnnotator(ThreeDeeModel):
+class SphereAnnotator(N3dComponent):
     def __init__(
         self,
         viewer: napari.Viewer,
@@ -310,7 +219,8 @@ class SphereAnnotator(ThreeDeeModel):
     def _update_spheres(self):
         n3d_metadata = self.points_layer.metadata[N3D_METADATA_KEY]
         n3d_metadata[SPHERE_MESH_METADATA_KEY] = None
-        grouped_points_features = self.points_layer.features.groupby(SPHERE_ID_FEATURES_KEY)
+        grouped_points_features = self.points_layer.features.groupby(
+            SPHERE_ID_FEATURES_KEY)
         sphere_vertices = []
         sphere_faces = []
         face_index_offset = 0

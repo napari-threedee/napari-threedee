@@ -1,6 +1,7 @@
 from napari.layers import Points
 
-from napari_threedee.annotators.spline_annotator import SplineAnnotator
+import napari_threedee.annotators.splines.constants
+from napari_threedee.annotators.splines import SplineAnnotator
 
 
 def test_spline_annotator_instantiation(make_napari_viewer, blobs_layer_4d_plane):
@@ -11,13 +12,13 @@ def test_spline_annotator_instantiation(make_napari_viewer, blobs_layer_4d_plane
         image_layer=plane_layer,
     )
     assert isinstance(annotator.points_layer, Points)
-    assert annotator.SPLINE_ID_FEATURES_KEY in annotator.points_layer.features
+    assert napari_threedee.annotators.splines.constants.SPLINE_ID_FEATURES_KEY in annotator.points_layer.features
     assert len(annotator.points_layer.data) == 0
 
 
 def test_add_point(spline_annotator):
     points_layer = spline_annotator.points_layer
-    label = spline_annotator.SPLINE_ID_FEATURES_KEY
+    label = napari_threedee.annotators.splines.constants.SPLINE_ID_FEATURES_KEY
 
     # start empty
     assert len(points_layer.data) == 0
