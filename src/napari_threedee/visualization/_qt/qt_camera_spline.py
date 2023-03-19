@@ -169,12 +169,14 @@ class QtCameraSpline(QtThreeDeeWidgetBase):
     def activate(self):
         """Activate the spline widget"""
         self.model.enabled = True
+        self.activate_button.setChecked(True)
         self.activate_button.setText(self.DISABLE_STRING)
         self.spline_widget.setVisible(True)
 
     def deactivate(self):
         """Deactivate the spline widget"""
         self.model.enabled = False
+        self.activate_button.setChecked(False)
         self.activate_button.setText(self.ENABLE_STRING)
         self.spline_widget.setVisible(False)
 
