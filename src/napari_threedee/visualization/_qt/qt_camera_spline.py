@@ -166,13 +166,21 @@ class QtCameraSpline(QtThreeDeeWidgetBase):
         self.spline_widget.setVisible(False)
         self.layout().addWidget(self.spline_widget)
 
+    def activate(self):
+        """Activate the spline widget"""
+        self.model.enabled = True
+        self.activate_button.setText(self.DISABLE_STRING)
+        self.spline_widget.setVisible(True)
+
+    def deactivate(self):
+        """Deactivate the spline widget"""
+        self.model.enabled = False
+        self.activate_button.setText(self.ENABLE_STRING)
+        self.spline_widget.setVisible(False)
+
     def on_activate_button_click(self, event: Event):
         """Callback function when the activate button is clicked"""
         if self.activate_button.isChecked() is True:
-            self.model.enabled = True
-            self.activate_button.setText(self.DISABLE_STRING)
-            self.spline_widget.setVisible(True)
+            self.activate()
         else:
-            self.model.enabled = False
-            self.activate_button.setText(self.ENABLE_STRING)
-            self.spline_widget.setVisible(False)
+            self.deactivate()
