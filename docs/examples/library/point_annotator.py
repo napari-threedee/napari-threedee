@@ -1,3 +1,10 @@
+"""
+Point annotator example (library)
+=================================
+
+An example controlling the point annotator,
+using napari-threedee as a library.
+"""
 from napari_threedee.annotators import PointAnnotator
 
 import napari

@@ -1,3 +1,10 @@
+"""
+Sphere annotator example (library)
+==================================
+
+An example controlling the sphere annotator,
+using napari-threedee as a library.
+"""
 from napari_threedee.annotators._qt.qt_sphere_annotator import \
     QtSphereAnnotatorWidget
 

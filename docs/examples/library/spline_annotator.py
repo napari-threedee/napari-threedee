@@ -1,3 +1,10 @@
+"""
+Spline annotator example (library)
+==================================
+
+An example controlling the spline annotator,
+using napari-threedee as a library.
+"""
 import napari
 import skimage
 

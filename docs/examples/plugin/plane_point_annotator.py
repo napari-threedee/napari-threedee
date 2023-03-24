@@ -1,3 +1,10 @@
+"""
+Plane point annotator (plugin)
+==============================
+
+An example controlling the plane point annotator,
+using napari-threedee as a napari plugin.
+"""
 import napari
 import skimage
 

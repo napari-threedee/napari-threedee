@@ -1,3 +1,10 @@
+"""
+Layer manipulator example (library)
+===================================
+
+An example controlling the layer manipulator,
+using napari-threedee as a library.
+"""
 import napari
 import numpy as np
 

@@ -1,3 +1,10 @@
+"""
+Mesh headlight example (library)
+================================
+
+An example controlling the mesh headlight,
+using napari-threedee as a library.
+"""
 from nilearn import datasets
 from nilearn import surface
 

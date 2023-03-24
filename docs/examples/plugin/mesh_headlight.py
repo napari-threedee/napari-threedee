@@ -1,3 +1,10 @@
+"""
+Mesh headlight example (plugin)
+===============================
+
+An example controlling the mesh headlight,
+using napari-threedee as a napari plugin.
+"""
 try:
     from nilearn import datasets
     from nilearn import surface
