@@ -133,9 +133,18 @@ plugins:
       video_autoplay: True
   - gallery:
       conf_script: docs/gallery_conf.py
-      examples_dirs: docs/examples
-      gallery_dirs: docs/generated/gallery
+      examples_dirs: [
+        docs/examples,
+        docs/examples/library,
+        docs/examples/plugin
+      ]
+      gallery_dirs: [
+        docs/generated/gallery,
+        docs/generated/gallery/library,
+        docs/generated/gallery/plugin
+      ]
       filename_pattern: /*.py  # which scripts will be executed for the docs
+      ignore_pattern: /mesh_headlight*
       run_stale_examples: True
 
 extra_css:
