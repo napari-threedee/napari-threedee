@@ -2,7 +2,7 @@
 Plane point annotator (plugin)
 ==============================
 
-An example controlling the plane point annotator,
+An example controlling the point annotator,
 using napari-threedee as a napari plugin.
 """
 import napari
@@ -51,7 +51,7 @@ viewer.add_image(
 viewer.add_points([], ndim=4, face_color='cornflowerblue')
 
 viewer.window.add_plugin_dock_widget(
-    plugin_name="napari-threedee", widget_name="plane point annotator"
+    plugin_name="napari-threedee", widget_name="point annotator"
 )
 
 viewer.camera.angles = (60, 60, 60)

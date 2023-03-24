@@ -92,6 +92,7 @@ nav:
   - 'Annotations':
       - annotations/specifications.md
       - annotations/io.md
+  - 'Examples gallery': generated/gallery  # This node will automatically be named and have sub-nodes.
   - 'API':
       - api/napari_utilities.md
       - api/selection_utilities.md
@@ -130,6 +131,12 @@ plugins:
   - mkdocs-video:
       is_video: True
       video_autoplay: True
+  - gallery:
+      conf_script: docs/gallery_conf.py
+      examples_dirs: docs/examples
+      gallery_dirs: docs/generated/gallery
+      filename_pattern: /*.py  # which scripts will be executed for the docs
+      run_stale_examples: True
 
 extra_css:
   - stylesheets/extra.css
