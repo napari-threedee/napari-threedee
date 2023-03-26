@@ -1,3 +1,3 @@
-# napari-threedee used as a library
+# Library examples
 
 Examples where napari-threedee is used as a library.
