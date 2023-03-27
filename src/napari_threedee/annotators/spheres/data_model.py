@@ -1,4 +1,5 @@
 import os
+from typing import Tuple
 
 import napari
 import numpy as np
@@ -66,3 +67,22 @@ class N3dSpheres(N3dDataModel):
     @validator('centers')
     def ensure_at_least_2d(cls, value):
         return np.atleast_2d(value)
+
+    def to_mesh(self) -> Tuple[np.ndarray, np.ndarray]:
+        from vispy.geometry import create_sphere
+        sphere_vertices = []
+        sphere_faces = []
+        face_index_offset = 0
+        for idx, (center, radius) in enumerate(zip(self.centers, self.radii)):
+            mesh_data = create_sphere(radius=radius, rows=20, cols=20)
+            vertex_data = mesh_data.get_vertices() + center
+            sphere_vertices.append(vertex_data)
+            sphere_faces.append(mesh_data.get_faces() + face_index_offset)
+            face_index_offset += len(vertex_data)
+        if len(sphere_vertices) > 0:
+            sphere_vertices = np.concatenate(sphere_vertices, axis=0)
+            sphere_faces = np.concatenate(sphere_faces, axis=0)
+        else:
+            sphere_vertices, sphere_faces = np.array([]), np.array([])
+        return sphere_vertices, sphere_faces
+
