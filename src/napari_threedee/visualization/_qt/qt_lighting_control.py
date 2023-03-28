@@ -1,6 +1,9 @@
+import igl
+
 import napari
-from magicgui import magicgui
-from qtpy.QtWidgets import QPushButton, QWidget, QVBoxLayout
+from napari.qt.threading import FunctionWorker, thread_worker
+from magicgui import magicgui, widgets
+from qtpy.QtWidgets import QPushButton, QWidget, QVBoxLayout, QCheckBox
 
 from napari_threedee.visualization.lighting_control import LightingControl
 
@@ -33,6 +36,11 @@ class QtLightingControlWidget(QWidget):
             self._layer_selection_widget.reset_choices
         )
 
+        # self._ambient_occlusion_checkbox = QCheckBox("ambient occlusion")
+        # self._ambient_occlusion_checkbox.setChecked(self.model.ambient_occlusion)
+        # self._ambient_occlusion_checkbox.clicked.connect(self._on_ambient_occlusion_clicked)
+        self._ambient_occlusion_widget = magicgui(self._set_ambient_occlusion, pbar={'visible': False, 'max': 0, 'label': 'working...'})
+
         # create set lighing widget
         self._lighting_button = QPushButton(self._ENABLE_TEXT, self)
         self._lighting_button.setChecked(False)
@@ -41,6 +49,8 @@ class QtLightingControlWidget(QWidget):
 
         self.setLayout(QVBoxLayout())
         self.layout().addWidget(self._layer_selection_widget.native)
+        # self.layout().addWidget(self._ambient_occlusion_checkbox)
+        self.layout().addWidget(self._ambient_occlusion_widget.native)
         self.layout().addWidget(self._lighting_button)
 
     def _update_lighting_button(self):
@@ -65,3 +75,14 @@ class QtLightingControlWidget(QWidget):
 
     def _get_layers(self, widget):
         return [layer for layer in self._viewer.layers if isinstance(layer, napari.layers.Surface)]
+
+    def _set_ambient_occlusion(self, pbar: widgets.ProgressBar,  ambient_occlusion: bool=False) -> FunctionWorker[None]:
+
+        vertices, faces, values = self._viewer.layers[0].data
+
+        @thread_worker(connect={'returned': pbar.hide})
+        def _set_ambient_occlusion():
+            vertex_normals = igl.per_vertex_normals(vertices, faces)
+            ao = igl.ambient_occlusion(vertices, faces, vertices, vertex_normals, 20)
+        pbar.show()
+        return _set_ambient_occlusion()
