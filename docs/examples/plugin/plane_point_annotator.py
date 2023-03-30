@@ -33,7 +33,7 @@ viewer.add_image(
     name='orange plane',
     rendering='average',
     colormap='bop orange',
-    blending='additive',
+    blending='translucent',
     opacity=0.5,
     depiction='plane',
     plane=plane_parameters_z)
@@ -48,7 +48,7 @@ viewer.add_image(
     depiction='plane',
     plane=plane_parameters_y)
 
-viewer.add_points([], ndim=4, face_color='cornflowerblue')
+viewer.add_points([], ndim=4, face_color='cornflowerblue',  size=2)
 
 viewer.window.add_plugin_dock_widget(
     plugin_name="napari-threedee", widget_name="point annotator"

@@ -1,5 +1,7 @@
 import numpy as np
 
+from napari_threedee.utils.napari_utils import get_dims_displayed
+
 
 def point_in_bounding_box(point: np.ndarray, bounding_box: np.ndarray) -> bool:
     """Determine whether an nD point is inside an nD bounding box.
@@ -17,7 +19,8 @@ def point_in_bounding_box(point: np.ndarray, bounding_box: np.ndarray) -> bool:
 
 
 def point_in_layer_bounding_box(point, layer):
-    bbox = layer._display_bounding_box(layer._dims_displayed).T
+    dims_displayed = get_dims_displayed(self.layer)
+    bbox = layer._display_bounding_box(dims_displayed).T
     if np.any(point < bbox[0]) or np.any(point > bbox[1]):
         return False
     else:

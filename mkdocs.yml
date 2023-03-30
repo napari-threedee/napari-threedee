@@ -86,13 +86,22 @@ nav:
       - 'interactively position a render plane': how_to/render_plane_manipulator.md
       - 'interactively position points': how_to/point_manipulator.md
       - 'interactively position layers': how_to/layer_manipulator.md
+      - 'annotate points in 3D': how_to/point_annotator.md
+      - 'annotate spheres in 3D': how_to/sphere_annotator.md
+      - 'annotate splines in 3D': how_to/spline_annotator.md
   - 'Explanations':
       - dev_guides/core_concepts.md
       - dev_guides/manipulators.md
   - 'Annotations':
       - annotations/specifications.md
       - annotations/io.md
+<<<<<<< HEAD
   - 'Examples gallery': generated/gallery  # This node will automatically be named and have sub-nodes.
+=======
+      - annotations/point_spec.md
+      - annotations/sphere_spec.md
+      - annotations/spline_spec.md
+>>>>>>> main
   - 'API':
       - api/napari_utilities.md
       - api/selection_utilities.md
@@ -131,6 +140,7 @@ plugins:
   - mkdocs-video:
       is_video: True
       video_autoplay: True
+      video_loop: True
   - gallery:
       conf_script: docs/gallery_conf.py
       examples_dirs: [

@@ -2,6 +2,7 @@ import napari
 import numpy as np
 
 from napari_threedee.manipulators.base_manipulator import BaseManipulator
+from napari_threedee.utils.napari_utils import get_dims_displayed
 
 
 class LayerManipulator(BaseManipulator):
@@ -18,7 +19,8 @@ class LayerManipulator(BaseManipulator):
         self.origin = np.asarray((0, 0, 0))
 
     def _pre_drag(self):
-        self.translate_start = self.layer.translate[self.layer._dims_displayed].copy()
+        dims_displayed = get_dims_displayed(self.layer)
+        self.translate_start = self.layer.translate[dims_displayed].copy()
 
     def _while_dragging_translator(self):
         new_translate = self.translate_start + self.origin

@@ -1,7 +1,7 @@
+import napari
 import platform
 from typing import Tuple
 
-import napari
 import numpy as np
 import pytest
 
@@ -10,18 +10,18 @@ from napari_threedee.annotators.io import N3D_METADATA_KEY
 from napari_threedee.visualization.camera_spline import CameraSpline, CameraSplineMode
 
 
-def test_initialize_camera_spline():
+def test_initialize_camera_spline(make_napari_viewer):
     """Test creation of an empty CameraSpline model."""
-    viewer = napari.Viewer()
+    viewer = make_napari_viewer()
     camera_spline = CameraSpline(viewer=viewer)
 
     assert camera_spline.image_layer is None
     assert camera_spline.enabled is False
 
 
-def test_setting_camera_spline_mode():
+def test_setting_camera_spline_mode(make_napari_viewer):
     """Test setting camera spline mode with strings and Enum"""
-    viewer = napari.Viewer()
+    viewer = make_napari_viewer()
     camera_spline = CameraSpline(viewer=viewer)
 
     # default mode
@@ -47,10 +47,9 @@ class FakeMouseEvent:
     modifiers: Tuple[str] = ("Alt",)
 
 
-@pytest.mark.skipif(platform.system() == 'Windows', reason="fails on CI")
-def test_annotate_spline():
+def test_annotate_spline(make_napari_viewer):
     """Test annotating a spline in the CameraSpline model."""
-    viewer = napari.Viewer()
+    viewer = make_napari_viewer()
     camera_spline = CameraSpline(viewer=viewer)
 
     # add an image layer to the viewer
@@ -79,10 +78,9 @@ def test_annotate_spline():
     assert len(n3d_metadata[SplineAnnotator.SPLINES_KEY]) == 1
 
 
-@pytest.mark.skipif(platform.system() == 'Windows', reason="fails on CI")
-def test_spline_explore():
+def test_spline_explore(make_napari_viewer):
     """Test moving the camera along the spline"""
-    viewer = napari.Viewer()
+    viewer = make_napari_viewer()
     viewer.dims.ndisplay = 3
     camera_spline = CameraSpline(viewer=viewer)
 
