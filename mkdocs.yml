@@ -151,7 +151,7 @@ plugins:
         docs/generated/gallery/plugin
       ]
       filename_pattern: /*.py  # which scripts will be executed for the docs
-      ignore_pattern: /mesh_headlight*
+      ignore_pattern: /__init__.py  # ignore these examle files completely
       run_stale_examples: True
 
 extra_css:
