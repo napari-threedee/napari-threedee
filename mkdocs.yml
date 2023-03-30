@@ -95,13 +95,10 @@ nav:
   - 'Annotations':
       - annotations/specifications.md
       - annotations/io.md
-<<<<<<< HEAD
-  - 'Examples gallery': generated/gallery  # This node will automatically be named and have sub-nodes.
-=======
       - annotations/point_spec.md
       - annotations/sphere_spec.md
       - annotations/spline_spec.md
->>>>>>> main
+  - 'Examples gallery': generated/gallery  # This node will automatically be named and have sub-nodes.
   - 'API':
       - api/napari_utilities.md
       - api/selection_utilities.md
