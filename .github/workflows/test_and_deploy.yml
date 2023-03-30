@@ -66,6 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - uses: tlambert03/setup-qt-libs@v1
     # Install dependencies
     - name: Set up Python 3.8
       uses: actions/setup-python@v2
