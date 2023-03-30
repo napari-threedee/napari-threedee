@@ -79,8 +79,8 @@ jobs:
     # Build the book
     - name: Build the book
       uses: aganders3/headless-gui@v1
-      run: |
-        mkdocs build
+      with:
+        run: mkdocs build
     # Push the book's HTML to github-pages whenever the main repo branch changes
     - name: GitHub Pages action
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
