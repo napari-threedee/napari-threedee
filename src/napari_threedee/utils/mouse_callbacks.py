@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from napari.layers.utils.interactivity_utils import drag_data_to_projected_distance
 import numpy as np
 
-from .geometry_utils import point_in_bounding_box
+from napari_threedee.utils.geometry import point_in_bounding_box
 
 if TYPE_CHECKING:
     import napari

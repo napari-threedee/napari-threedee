@@ -11,7 +11,7 @@ from napari.layers.utils.layer_utils import features_to_pandas_dataframe
 from napari_threedee._backend import N3dComponent
 from napari_threedee.annotators.spheres.constants import SPHERE_ID_FEATURES_KEY, \
     SPHERE_RADIUS_FEATURES_KEY, SPHERE_MESH_METADATA_KEY
-from napari_threedee.mouse_callbacks import add_point_on_plane
+from napari_threedee.utils.mouse_callbacks import add_point_on_plane
 from napari_threedee.utils.napari_utils import add_mouse_callback_safe, \
     remove_mouse_callback_safe
 from napari_threedee.annotators.constants import N3D_METADATA_KEY

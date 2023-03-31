@@ -12,7 +12,7 @@ from typing import Tuple, Union, Optional, Dict
 from morphosamplers.surface_spline import GriddedSplineSurface
 
 from napari_threedee._backend.threedee_model import N3dComponent
-from napari_threedee.mouse_callbacks import add_point_on_plane
+from napari_threedee.utils.mouse_callbacks import add_point_on_plane
 from napari_threedee.utils.napari_utils import add_mouse_callback_safe, \
     remove_mouse_callback_safe
 from .constants import (
