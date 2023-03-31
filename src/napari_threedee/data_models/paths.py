@@ -22,15 +22,10 @@ from napari_threedee.annotators.paths.constants import (
 
 class N3dPath(BaseModel):
     data: np.ndarray
-    sampler: Optional[SplineSampler]
 
     class Config:
-        allow_mutation = True
+        allow_mutation = False
         arbitrary_types_allowed = True
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.sampler = SplineSampler(points=self.data)
 
     @property
     def ndim(self) -> int:
@@ -42,7 +37,8 @@ class N3dPath(BaseModel):
 
     def sample(self, n: int = 10000) -> np.ndarray:
         """Sample equidistant points between data points."""
-        return self.sampler._sample_backbone(u=np.linspace(0, 1, num=n))
+        sampler = SplineSampler(points=self.data)
+        return sampler(u=np.linspace(0, 1, num=n))
 
     @validator('data', pre=True)
     def ensure_float32_ndarray(cls, value):

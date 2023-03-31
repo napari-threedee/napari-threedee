@@ -5,10 +5,12 @@ import numpy as np
 from typing import Optional, Dict
 
 from napari_threedee._backend.threedee_model import N3dComponent
-from napari_threedee.annotators.paths.constants import PATH_ANNOTATION_TYPE_KEY, \
-    COLOR_CYCLE, PATH_ID_FEATURES_KEY, PATH_COLOR_FEATURES_KEY, \
-    SPLINES_METADATA_KEY, SPLINE_ORDER
-from napari_threedee.data_models.spline_sampler import SplineSampler
+from napari_threedee.annotators.paths.constants import (
+    PATH_ANNOTATION_TYPE_KEY,
+    PATH_ID_FEATURES_KEY,
+    PATH_COLOR_FEATURES_KEY,
+    COLOR_CYCLE,
+)
 from napari_threedee.mouse_callbacks import add_point_on_plane
 from napari_threedee.utils.napari_utils import add_mouse_callback_safe, \
     remove_mouse_callback_safe
@@ -84,7 +86,6 @@ class PathAnnotator(N3dComponent):
             metadata={
                 N3D_METADATA_KEY: {
                     ANNOTATION_TYPE_KEY: PATH_ANNOTATION_TYPE_KEY,
-                    SPLINES_METADATA_KEY: dict,
                 }
             }
         )
@@ -164,4 +165,3 @@ class PathAnnotator(N3dComponent):
             spline_color = spline_colors[spline_id]
             points = path.sample(n=2000)
             self.shapes_layer.add_paths(points, edge_color=spline_color)
-
