@@ -77,7 +77,7 @@ jobs:
     # Build the book
     - name: Build the book
       run: |
-        mkdocs build
+        mkdocs build --strict
     # Push the book's HTML to github-pages whenever the main repo branch changes
     - name: GitHub Pages action
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
