@@ -46,7 +46,6 @@ class PointAnnotator(N3dComponent):
         image_layer: napari.layers.Image,
         points_layer: napari.layers.Points
     ):
-        validate_layer(points_layer)
         self.image_layer = image_layer
         self.points_layer = points_layer
 
