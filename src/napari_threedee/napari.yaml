@@ -59,7 +59,7 @@ contributions:
       display_name: point annotator
 
     - command: napari-threedee.QtPathAnnotatorWidget
-      display_name: spline annotator
+      display_name: path annotator
 
     # Manipulators
     - command: napari-threedee.QtRenderPlaneManipulatorWidget
