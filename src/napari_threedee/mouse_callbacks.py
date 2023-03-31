@@ -16,21 +16,21 @@ def add_point_on_plane(
         viewer: napari.viewer.Viewer,
         event: Event,
         points_layer: napari.layers.Points = None,
-        plane_layer: napari.layers.Image = None,
+        image_layer: napari.layers.Image = None,
         replace_selected: bool = False,
 ):
     # Early exit if not alt-clicked
     if 'Alt' not in event.modifiers:
         return
 
-    # Early exit if plane_layer isn't visible
-    if not plane_layer.visible:
+    # Early exit if image_layer isn't visible
+    if image_layer.visible is False or image_layer.depiction != 'plane':
         return
 
     # Calculate intersection of click with plane through data in displayed data (scene) coordinates
     displayed_dims = np.asarray(viewer.dims.displayed)[list(viewer.dims.displayed_order)]
     cursor_position_3d = np.asarray(event.position)[displayed_dims]
-    intersection_3d = plane_layer.plane.intersect_with_line(
+    intersection_3d = image_layer.plane.intersect_with_line(
         line_position=cursor_position_3d,
         line_direction=event.view_direction[displayed_dims]
     )
@@ -39,7 +39,7 @@ def add_point_on_plane(
 
     # Check if click was on plane by checking if intersection occurs within
     # data bounding box. If not, exit early.
-    if not point_in_bounding_box(intersection_nd, plane_layer.extent.data):
+    if not point_in_bounding_box(intersection_nd, image_layer.extent.data):
         return
 
     if replace_selected:

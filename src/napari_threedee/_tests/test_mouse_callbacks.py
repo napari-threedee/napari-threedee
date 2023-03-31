@@ -17,7 +17,7 @@ def test_add_point_on_plane_3d(viewer_with_plane_and_points_3d):
         viewer=viewer_with_plane_and_points_3d,
         event=DummyMouseEvent,
         points_layer=points_layer,
-        plane_layer=plane_layer,
+        image_layer=plane_layer,
     )
     assert len(points_layer.data) == 1
     np.testing.assert_array_almost_equal(points_layer.data[0], (14, 14, 14))
@@ -37,7 +37,7 @@ def test_add_point_on_plane_4d(viewer_with_plane_and_points_4d):
         viewer=viewer_with_plane_and_points_4d,
         event=DummyMouseEvent,
         points_layer=points_layer,
-        plane_layer=plane_layer,
+        image_layer=plane_layer,
     )
     assert len(points_layer.data) == 1
     np.testing.assert_array_almost_equal(points_layer.data[0], (14, 14, 14, 14))

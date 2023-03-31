@@ -74,7 +74,7 @@ class PathAnnotator(N3dComponent):
             viewer=viewer,
             event=event,
             points_layer=self.points_layer,
-            plane_layer=self.image_layer
+            image_layer=self.image_layer
         )
 
     def _create_points_layer(self) -> Optional[Points]:

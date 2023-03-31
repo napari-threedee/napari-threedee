@@ -109,7 +109,7 @@ class SphereAnnotator(N3dComponent):
                 viewer=viewer,
                 event=event,
                 points_layer=self.points_layer,
-                plane_layer=self.image_layer,
+                image_layer=self.image_layer,
                 replace_selected=replace_selected,
             )
         self.mode = SphereAnnotatorMode.EDIT

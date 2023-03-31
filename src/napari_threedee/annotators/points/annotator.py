@@ -5,7 +5,6 @@ import napari.types
 import numpy as np
 
 from napari_threedee._backend.threedee_model import N3dComponent
-from napari_threedee.data_models import N3dPoints
 from napari_threedee.annotators.points.validation import validate_layer
 from napari_threedee.mouse_callbacks import add_point_on_plane
 from napari_threedee.utils.napari_utils import add_mouse_callback_safe, \
@@ -34,10 +33,11 @@ class PointAnnotator(N3dComponent):
             viewer=viewer,
             event=event,
             points_layer=self.points_layer,
-            plane_layer=self.image_layer
+            image_layer=self.image_layer
         )
 
     def _create_points_layer(self) -> napari.layers.Points:
+        from napari_threedee.data_models import N3dPoints
         ndim = self.image_layer.ndim if self.image_layer is not None else 3
         return N3dPoints(data=np.empty(shape=(0, ndim))).as_layer()
 
