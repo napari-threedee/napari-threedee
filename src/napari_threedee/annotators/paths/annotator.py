@@ -8,7 +8,7 @@ from napari_threedee._backend.threedee_model import N3dComponent
 from napari_threedee.annotators.paths.constants import PATH_ANNOTATION_TYPE_KEY, \
     COLOR_CYCLE, PATH_ID_FEATURES_KEY, PATH_COLOR_FEATURES_KEY, \
     SPLINES_METADATA_KEY, SPLINE_ORDER
-from napari_threedee.annotators.paths.sampler import SplineSampler
+from napari_threedee.data_models.spline_sampler import SplineSampler
 from napari_threedee.mouse_callbacks import add_point_on_plane
 from napari_threedee.utils.napari_utils import add_mouse_callback_safe, \
     remove_mouse_callback_safe
@@ -26,7 +26,6 @@ class PathAnnotator(N3dComponent):
         self.events = EmitterGroup(
             source=self,
             active_spline_id=Event,
-            splines_updated=Event,
         )
 
         self.viewer = viewer
@@ -37,10 +36,6 @@ class PathAnnotator(N3dComponent):
         self.shapes_layer = None
 
         self.auto_fit_spline = True
-
-        # storage for the spline objects
-        # each spline is in its own object
-        self._splines = dict()
 
         if image_layer is not None:
             self.set_layers(self.image_layer)
@@ -116,8 +111,7 @@ class PathAnnotator(N3dComponent):
                 self.shapes_layer = self._create_shapes_layer()
             if self.shapes_layer not in self.viewer.layers:
                 self.viewer.add_layer(self.shapes_layer)
-            self._update_splines()
-            self._draw_splines()
+            self._draw_paths()
 
     def _on_enable(self):
         if self.points_layer is not None:
@@ -140,27 +134,7 @@ class PathAnnotator(N3dComponent):
 
     def _on_point_data_changed(self, event=None):
         if self.auto_fit_spline is True:
-            self._update_splines()
-            self._draw_splines()
-
-    def _update_splines(self):
-        grouped_points_features = self.points_layer.features.groupby(
-            PATH_ID_FEATURES_KEY
-        )
-        splines = dict()
-        for spline_name, spline_df in grouped_points_features:
-            point_indices = spline_df.index.tolist()
-            if len(point_indices) > SPLINE_ORDER:
-                # the number of points must be greater than the spline order to properly fit
-                spline_coordinates = self.points_layer.data[point_indices]
-                splines[spline_name] = SplineSampler(
-                    points=spline_coordinates, k=SPLINE_ORDER
-                )
-        metadata = {
-            SPLINES_METADATA_KEY: splines
-        }
-        self.points_layer.metadata[N3D_METADATA_KEY].update(metadata)
-        self.events.splines_updated()
+            self._draw_paths()
 
     def _get_spline_colors(self) -> Dict[int, np.ndarray]:
         self.points_layer.features[PATH_COLOR_FEATURES_KEY] = \
@@ -181,13 +155,13 @@ class PathAnnotator(N3dComponent):
         self.shapes_layer.selected_data = set(np.arange(n_shapes))
         self.shapes_layer.remove_selected()
 
-    def _draw_splines(self):
-        self._clear_shapes_layer()
-        splines = self.points_layer.metadata[N3D_METADATA_KEY][SPLINES_METADATA_KEY]
+    def _draw_paths(self):
+        from napari_threedee.data_models import N3dPaths
+        paths = N3dPaths.from_layer(self.points_layer)
         spline_colors = self._get_spline_colors()
-        for spline_id, spline_object in splines.items():
-            spline_points = spline_object._sample_backbone(
-                u=np.linspace(0, 1, 1000)
-            )
+        self._clear_shapes_layer()
+        for spline_id, path in enumerate(paths):
             spline_color = spline_colors[spline_id]
-            self.shapes_layer.add_paths(spline_points, edge_color=spline_color)
+            points = path.sample(n=2000)
+            self.shapes_layer.add_paths(points, edge_color=spline_color)
+

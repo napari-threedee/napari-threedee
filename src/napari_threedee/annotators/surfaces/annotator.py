@@ -129,7 +129,7 @@ class SurfaceAnnotator(N3dComponent):
         self,
         viewer: napari.Viewer,
         image_layer: Optional[Image] = None,
-        enabled: bool = False
+        enabled: bool = True
     ):
         self.events = EmitterGroup(
             source=self,
@@ -212,7 +212,7 @@ class SurfaceAnnotator(N3dComponent):
         layer = Points(
             data=[0] * self.image_layer.data.ndim,
             ndim=self.image_layer.data.ndim,
-            name="spline control points",
+            name="n3d surfaces",
             size=10,
             features={
                 SURFACE_ID_FEATURES_KEY: [0],
@@ -235,17 +235,20 @@ class SurfaceAnnotator(N3dComponent):
     def _create_shapes_layer(self) -> Shapes:
         return Shapes(
             ndim=self.image_layer.data.ndim,
-            name="paths",
+            name="n3d surfaces (paths)",
             edge_color="green"
         )
 
     def set_layers(self, image_layer: napari.layers.Image):
+        original_enabled_state = self.enabled
+        self.enabled = False
         self.image_layer = image_layer
         if self.points_layer is None and self.image_layer is not None:
             self.points_layer = self._create_points_layer()
             self.viewer.add_layer(self.points_layer)
             self.shapes_layer = self._create_shapes_layer()
             self.viewer.add_layer(self.shapes_layer)
+        self.enabled = original_enabled_state
 
     def _on_enable(self):
         if self.points_layer is not None:

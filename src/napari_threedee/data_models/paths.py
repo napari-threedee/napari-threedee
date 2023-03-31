@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, Optional
 
 import napari
 import numpy as np
@@ -8,7 +8,7 @@ from pydantic import BaseModel, validator
 
 from napari_threedee.annotators.base import N3dDataModel
 from napari_threedee.annotators.constants import N3D_METADATA_KEY, ANNOTATION_TYPE_KEY
-from napari_threedee.annotators.paths.sampler import SplineSampler
+from napari_threedee.data_models.spline_sampler import SplineSampler
 from napari_threedee.annotators.paths.validation import (
     validate_layer,
     validate_n3d_zarr,
@@ -22,9 +22,15 @@ from napari_threedee.annotators.paths.constants import (
 
 class N3dPath(BaseModel):
     data: np.ndarray
+    sampler: Optional[SplineSampler]
 
     class Config:
+        allow_mutation = True
         arbitrary_types_allowed = True
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.sampler = SplineSampler(points=self.data)
 
     @property
     def ndim(self) -> int:
@@ -34,10 +40,9 @@ class N3dPath(BaseModel):
     def n_points(self) -> int:
         return self.data.shape[0]
 
-    def interpolate(self, n: int = 10000) -> np.ndarray:
+    def sample(self, n: int = 10000) -> np.ndarray:
         """Sample equidistant points between data points."""
-        sampler = SplineSampler(points=self.data)
-        return sampler._sample_backbone(u=np.linspace(0, 1, num=n))
+        return self.sampler._sample_backbone(u=np.linspace(0, 1, num=n))
 
     @validator('data', pre=True)
     def ensure_float32_ndarray(cls, value):

@@ -12,7 +12,7 @@ def test_single_path_instantiation():
 
 def test_single_path_interpolation():
     path = N3dPath(data=np.random.uniform(0, 10, size=(10, 3)))
-    result = path.interpolate(n=10000)
+    result = path.sample(n=10000)
     assert result.shape == (10000, 3)
 
 
