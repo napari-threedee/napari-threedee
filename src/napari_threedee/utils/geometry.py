@@ -1,7 +1,10 @@
 import numpy as np
 
+from napari_threedee.utils.napari_utils import get_dims_displayed
 
-def signed_angle_between_vectors(vector_0, vector_1, rotation_axis: np.ndarray) -> float:
+
+def signed_angle_between_vectors(vector_0, vector_1,
+                                 rotation_axis: np.ndarray) -> float:
     """ Returns the angle in radians between vectors 'v1' and 'v2'.
 
     Parameters
@@ -56,17 +59,17 @@ def rotation_matrix_around_vector_3d(angle: float, vector: np.ndarray) -> np.nda
     sine_term = np.sin(angle)
 
     rotation_matrix = np.zeros((3, 3))
-    rotation_matrix[0, 0] = np.cos(angle) + (u_0**2) * cos_term
+    rotation_matrix[0, 0] = np.cos(angle) + (u_0 ** 2) * cos_term
     rotation_matrix[0, 1] = (u_0 * u_1 * cos_term) - u_2 * sine_term
     rotation_matrix[0, 2] = (u_0 * u_2 * cos_term) + u_1 * sine_term
 
     rotation_matrix[1, 0] = (u_1 * u_0 * cos_term) + u_2 * sine_term
-    rotation_matrix[1, 1] = np.cos(angle) + (u_1**2) * cos_term
+    rotation_matrix[1, 1] = np.cos(angle) + (u_1 ** 2) * cos_term
     rotation_matrix[1, 2] = (u_1 * u_2 * cos_term) - u_0 * sine_term
 
     rotation_matrix[2, 0] = (u_0 * u_2 * cos_term) - u_1 * sine_term
     rotation_matrix[2, 1] = u_1 * u_2 * cos_term + u_0 * sine_term
-    rotation_matrix[2, 2] = np.cos(angle) + (u_2**2) * cos_term
+    rotation_matrix[2, 2] = np.cos(angle) + (u_2 ** 2) * cos_term
 
     return rotation_matrix
 
@@ -87,7 +90,8 @@ def point_in_bounding_box(point: np.ndarray, bounding_box: np.ndarray) -> bool:
 
 
 def point_in_layer_bounding_box(point, layer):
-    bbox = layer._display_bounding_box(layer._dims_displayed).T
+    dims_displayed = get_dims_displayed(layer)
+    bbox = layer._display_bounding_box(dims_displayed).T
     if np.any(point < bbox[0]) or np.any(point > bbox[1]):
         return False
     else:
