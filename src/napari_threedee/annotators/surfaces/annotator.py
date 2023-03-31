@@ -295,12 +295,12 @@ class SurfaceAnnotator(N3dComponent):
         from napari_threedee.data_models import N3dSurfaces, N3dPath
         surfaces = N3dSurfaces.from_layer(self.points_layer)
         self._clear_shapes_layer()
-        path_color = self._get_path_colors()
+        path_colors = self._get_path_colors()
         for idx, surface in enumerate(surfaces):
             for level_points in surface:
                 if len(level_points) >= 2:
                     path = N3dPath(data=level_points).sample(n=1000)
-                    path_color = path_color[idx]
+                    path_color = path_colors[idx]
                     self.shapes_layer.add_paths(path, edge_color=path_color)
 
     def _draw_surface(self):
