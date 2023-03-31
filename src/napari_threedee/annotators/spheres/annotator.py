@@ -7,7 +7,6 @@ import numpy as np
 from napari.layers import Image, Points, Surface
 from napari.utils.events import EmitterGroup, Event
 from napari.layers.utils.layer_utils import features_to_pandas_dataframe
-from vispy.geometry import create_sphere
 
 from napari_threedee._backend import N3dComponent
 from napari_threedee.annotators.spheres.constants import SPHERE_ID_FEATURES_KEY, \
@@ -217,28 +216,11 @@ class SphereAnnotator(N3dComponent):
         self._update_spheres()
 
     def _update_spheres(self):
+        from napari_threedee.data_models import N3dSpheres
+        vertices, faces = N3dSpheres.from_layer(self.points_layer).to_mesh()
         n3d_metadata = self.points_layer.metadata[N3D_METADATA_KEY]
-        n3d_metadata[SPHERE_MESH_METADATA_KEY] = None
-        grouped_points_features = self.points_layer.features.groupby(
-            SPHERE_ID_FEATURES_KEY)
-        sphere_vertices = []
-        sphere_faces = []
-        face_index_offset = 0
-        for sphere_id, sphere_df in grouped_points_features:
-            point_index = int(sphere_df.index.values[0])
-            position = self.points_layer.data[point_index]
-            radius = float(sphere_df[SPHERE_RADIUS_FEATURES_KEY].iloc[0])
-            mesh_data = create_sphere(radius=radius, rows=20, cols=20)
-            vertex_data = mesh_data.get_vertices() + position
-            sphere_vertices.append(vertex_data)
-            sphere_faces.append(mesh_data.get_faces() + face_index_offset)
-            face_index_offset += len(vertex_data)
-        if len(sphere_vertices) > 0:
-            sphere_vertices = np.concatenate(sphere_vertices, axis=0)
-            sphere_faces = np.concatenate(sphere_faces, axis=0)
-            n3d_metadata[SPHERE_MESH_METADATA_KEY] = (
-                sphere_vertices, sphere_faces
-            )
+        if len(vertices) > 0:
+            n3d_metadata[SPHERE_MESH_METADATA_KEY] = (vertices, faces)
             self._draw_spheres()
         else:
             n3d_metadata[SPHERE_MESH_METADATA_KEY] = None
