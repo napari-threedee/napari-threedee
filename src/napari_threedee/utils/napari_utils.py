@@ -67,6 +67,14 @@ def get_layers_of_type(*args, viewer: napari.Viewer, layer_type):
     return [layer for layer in viewer.layers if isinstance(layer, layer_type)]
 
 
+def get_dims_displayed(layer):
+    # layer._dims_displayed was removed in
+    # https://github.com/napari/napari/pull/5003
+    if hasattr(layer, "_slice_input"):
+        return layer._slice_input.displayed
+    return layer._dims_displayed
+
+
 def generate_populated_layer_selection_widget(func, viewer) -> FunctionGui:
     parameters = inspect.signature(func).parameters
     magicgui_parameter_arguments = {

@@ -13,7 +13,7 @@ viewer.add_image(
     name='orange plane',
     rendering='average',
     colormap='bop orange',
-    blending='additive',
+    blending='translucent',
     opacity=0.5,
     depiction='plane',
     plane={

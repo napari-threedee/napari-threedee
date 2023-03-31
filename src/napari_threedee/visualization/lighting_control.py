@@ -4,7 +4,10 @@ import numpy as np
 import napari
 
 from napari_threedee._backend.threedee_model import N3dComponent
-from napari_threedee.utils.napari_utils import get_napari_visual
+from napari_threedee.utils.napari_utils import (
+    get_napari_visual,
+    get_dims_displayed,
+)
 
 
 class LightingControl(N3dComponent):
@@ -52,7 +55,7 @@ class LightingControl(N3dComponent):
         view_direction = np.asarray(self._viewer.camera.view_direction)
 
         for layer, visual in zip(self.selected_layers, self.selected_layer_visuals):
-            dims_displayed = layer._dims_displayed
+            dims_displayed = get_dims_displayed(layer)
             layer_view_direction = np.asarray(layer._world_to_data_ray(view_direction))[dims_displayed]
             visual.node.shading_filter.light_dir = layer_view_direction[::-1]
 
