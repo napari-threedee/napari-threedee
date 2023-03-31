@@ -1,5 +1,5 @@
 import os
-from typing import List, Optional
+from typing import List
 
 import napari
 import numpy as np
