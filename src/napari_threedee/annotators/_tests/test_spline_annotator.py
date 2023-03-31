@@ -42,6 +42,6 @@ def test_get_colors(spline_annotator):
     spline_annotator.active_level_id = 1
     points_layer.add([2, 3, 4, 5])
 
-    spline_colors = spline_annotator._get_spline_colors()
+    spline_colors = spline_annotator._get_path_colors()
     for spline_id in (0, 1):
         assert spline_id in spline_colors

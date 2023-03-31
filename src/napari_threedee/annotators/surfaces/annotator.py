@@ -23,7 +23,7 @@ from .constants import (
     LEVEL_ID_FEATURES_KEY,
     SPLINES_METADATA_KEY,
     SPLINE_COLOR_FEATURES_KEY,
-    SPLINE_ORDER, COLOR_CYCLE,
+    COLOR_CYCLE,
 )
 
 
@@ -135,7 +135,6 @@ class SurfaceAnnotator(N3dComponent):
             source=self,
             active_surface_id=Event,
             active_level_id=Event,
-            splines_updated=Event,
         )
 
         self.viewer = viewer
@@ -271,29 +270,9 @@ class SurfaceAnnotator(N3dComponent):
 
     def _on_point_data_changed(self, event=None):
         if self.auto_fit_spline is True:
-            self._update_splines()
             self._draw_splines()
 
-    def _update_splines(self):
-        grouped_points_features = self.points_layer.features.groupby(
-            LEVEL_ID_FEATURES_KEY
-        )
-        splines = dict()
-        for spline_name, spline_df in grouped_points_features:
-            point_indices = spline_df.index.tolist()
-            if len(point_indices) > SPLINE_ORDER:
-                # the number of points must be greater than the spline order to properly fit
-                spline_coordinates = self.points_layer.data[point_indices]
-                splines[spline_name] = _NDimensionalFilament(
-                    points=spline_coordinates, k=SPLINE_ORDER
-                )
-        metadata = {
-            SPLINES_METADATA_KEY: splines
-        }
-        self.points_layer.metadata[N3D_METADATA_KEY].update(metadata)
-        self.events.splines_updated()
-
-    def _get_spline_colors(self) -> Dict[int, np.ndarray]:
+    def _get_path_colors(self) -> Dict[int, np.ndarray]:
         self.points_layer.features[SPLINE_COLOR_FEATURES_KEY] = \
             list(self.points_layer.face_color)
         grouped_points_features = self.points_layer.features.groupby(
@@ -313,15 +292,16 @@ class SurfaceAnnotator(N3dComponent):
         self.shapes_layer.remove_selected()
 
     def _draw_splines(self):
+        from napari_threedee.data_models import N3dSurfaces, N3dPath
+        surfaces = N3dSurfaces.from_layer(self.points_layer)
         self._clear_shapes_layer()
-        splines = self.points_layer.metadata[N3D_METADATA_KEY][SPLINES_METADATA_KEY]
-        spline_colors = self._get_spline_colors()
-        for spline_id, spline_object in splines.items():
-            spline_points = spline_object._sample_backbone(
-                u=np.linspace(0, 1, 1000)
-            )
-            spline_color = spline_colors[spline_id]
-            self.shapes_layer.add_paths(spline_points, edge_color=spline_color)
+        path_color = self._get_path_colors()
+        for idx, surface in enumerate(surfaces):
+            for level_points in surface:
+                if len(level_points) >= 2:
+                    path = N3dPath(data=level_points).sample(n=1000)
+                    path_color = path_color[idx]
+                    self.shapes_layer.add_paths(path, edge_color=path_color)
 
     def _draw_surface(self):
         grouped_features = self.points_layer.features.groupby(

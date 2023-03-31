@@ -44,6 +44,9 @@ class N3dPath(BaseModel):
     def ensure_float32_ndarray(cls, value):
         return np.asarray(value, dtype=np.float32)
 
+    def __len__(self) -> int:
+        return len(self.data)
+
 
 class N3dPaths(N3dDataModel):
     data: List[N3dPath]

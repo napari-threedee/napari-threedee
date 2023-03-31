@@ -55,6 +55,9 @@ class N3dSurface(BaseModel):
         ]
         return np.concatenate(level_ids)
 
+    def __iter__(self) -> np.ndarray:
+        yield from self.data
+
 
 class N3dSurfaces(N3dDataModel):
     data: List[N3dSurface]
@@ -165,3 +168,9 @@ class N3dSurfaces(N3dDataModel):
         n3d_zarr.attrs[ANNOTATION_TYPE_KEY] = SURFACE_ANNOTATION_TYPE_KEY
         n3d_zarr.attrs[SURFACE_ID_FEATURES_KEY] = list(self.surface_ids)
         n3d_zarr.attrs[LEVEL_ID_FEATURES_KEY] = list(self.level_ids)
+
+    def __getitem__(self, idx: int) -> N3dSurface:
+        return self.data[idx]
+
+    def __iter__(self) -> N3dSurface:
+        yield from self.data

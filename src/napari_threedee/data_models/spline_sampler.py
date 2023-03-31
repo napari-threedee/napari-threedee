@@ -45,17 +45,18 @@ class SplineSampler(EventedModel):
             self._prepare_splines()
 
     def _prepare_splines(self):
-        self._calculate_backbone_spline_parameters()
-        self._calculate_equidistant_spline_parameters()
+        spline_order = 3 if len(self.points) > 3 else len(self.points) - 1
+        self._calculate_backbone_spline_parameters(k=spline_order)
+        self._calculate_equidistant_spline_parameters(k=spline_order)
 
-    def _calculate_backbone_spline_parameters(self):
+    def _calculate_backbone_spline_parameters(self, k: int):
         """Spline parametrisation mapping [0, 1] to a smooth curve through filament points.
         Note: equidistant sampling of this spline parametrisation will not yield equidistant
         samples in Euclidean space.
         """
-        self._raw_spline_tck, _ = splprep(self.points.T, s=0, k=3)
+        self._raw_spline_tck, _ = splprep(self.points.T, s=0, k=k)
 
-    def _calculate_equidistant_spline_parameters(self):
+    def _calculate_equidistant_spline_parameters(self, k: int):
         """Calculate a mapping of normalised cumulative distance to linear samples range [0, 1].
         * Normalised cumulative distance is the cumulative euclidean distance along the filament
           rescaled to a range of [0, 1].
@@ -80,7 +81,7 @@ class SplineSampler(EventedModel):
         # prepend a zero, no distance has been covered at start of spline parametrisation
         cumulative_distance = np.r_[[0], cumulative_distance]
         self._equidistant_spline_tck, _ = splprep(
-            [u], u=cumulative_distance, s=0, k=3
+            [u], u=cumulative_distance, s=0, k=k
         )
 
     def _sample_backbone(
