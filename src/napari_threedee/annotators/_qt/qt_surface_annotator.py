@@ -54,7 +54,6 @@ class QtSurfaceAnnotatorWidget(QtThreeDeeWidgetBase):
         self.model.events.active_level_id.connect(self._update_active_level)
 
     def _draw_surface(self):
-        self.model._update_splines()
         self.model._draw_splines()
         self.model._draw_surface()
 
