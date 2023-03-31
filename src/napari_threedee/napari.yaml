@@ -61,6 +61,9 @@ contributions:
     - command: napari-threedee.QtPathAnnotatorWidget
       display_name: path annotator
 
+    - command: napari-threedee.QtSphereAnnotatorWidget
+      display_name: sphere annotator
+
     # Manipulators
     - command: napari-threedee.QtRenderPlaneManipulatorWidget
       display_name: render plane manipulator
