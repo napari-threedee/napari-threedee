@@ -7,9 +7,9 @@ contributions:
       title: Create point annotator
       python_name: napari_threedee.dock_widgets:QtPointAnnotatorWidget
 
-    - id: napari-threedee.QtSplineAnnotatorWidget
+    - id: napari-threedee.QtPathAnnotatorWidget
       title: Create filament annotator
-      python_name: napari_threedee.dock_widgets:QtSplineAnnotatorWidget
+      python_name: napari_threedee.dock_widgets:QtPathAnnotatorWidget
 
     # Manipulators
     - id: napari-threedee.QtRenderPlaneManipulatorWidget
@@ -50,7 +50,7 @@ contributions:
     - command: napari-threedee.QtPointAnnotatorWidget
       display_name: point annotator
 
-    - command: napari-threedee.QtSplineAnnotatorWidget
+    - command: napari-threedee.QtPathAnnotatorWidget
       display_name: spline annotator
 
     # Manipulators

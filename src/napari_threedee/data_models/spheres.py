@@ -7,11 +7,18 @@ import zarr
 from pydantic import validator
 
 from napari_threedee.annotators.base import N3dDataModel
-from napari_threedee.annotators.constants import N3D_METADATA_KEY, ANNOTATION_TYPE_KEY
-from napari_threedee.annotators.spheres.constants import SPHERE_RADIUS_FEATURES_KEY, \
-    SPHERE_ANNOTATION_TYPE_KEY, SPHERE_ID_FEATURES_KEY, COLOR_CYCLE
-from napari_threedee.annotators.spheres.validation import validate_layer, \
-    validate_n3d_zarr
+from napari_threedee.annotators.spheres.validation import (
+    validate_layer,
+    validate_n3d_zarr,
+)
+from napari_threedee.annotators.spheres.constants import (
+    N3D_METADATA_KEY,
+    ANNOTATION_TYPE_KEY,
+    SPHERE_ANNOTATION_TYPE_KEY,
+    SPHERE_RADIUS_FEATURES_KEY,
+    SPHERE_ID_FEATURES_KEY,
+    COLOR_CYCLE,
+)
 
 
 class N3dSpheres(N3dDataModel):
@@ -85,4 +92,3 @@ class N3dSpheres(N3dDataModel):
         else:
             sphere_vertices, sphere_faces = np.array([]), np.array([])
         return sphere_vertices, sphere_faces
-

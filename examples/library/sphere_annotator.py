@@ -1,6 +1,7 @@
 import numpy as np
 
-from napari_threedee.annotators.spheres import SphereAnnotator, N3dSpheresData
+from napari_threedee.annotators.spheres import SphereAnnotator
+from napari_threedee.data_models import N3dSpheres
 
 import napari
 from skimage import data
@@ -28,7 +29,7 @@ plane_layer = viewer.add_image(
 
 centers = np.random.uniform(0, 64, size=(10, 3))
 radii = np.random.uniform(1, 10, size=(10, ))
-points_layer = N3dSpheresData(centers=centers, radii=radii).as_layer()
+points_layer = N3dSpheres(centers=centers, radii=radii).as_layer()
 viewer.add_layer(points_layer)
 
 annotator = SphereAnnotator(
@@ -37,4 +38,5 @@ annotator = SphereAnnotator(
     points_layer=points_layer,
     enabled=True
 )
+
 napari.run()

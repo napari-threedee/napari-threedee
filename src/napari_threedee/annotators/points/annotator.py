@@ -5,7 +5,7 @@ import napari.types
 import numpy as np
 
 from napari_threedee._backend.threedee_model import N3dComponent
-from napari_threedee.annotators.points.data_model import N3dPoints
+from napari_threedee.data_models import N3dPoints
 from napari_threedee.annotators.points.validation import validate_layer
 from napari_threedee.mouse_callbacks import add_point_on_plane
 from napari_threedee.utils.napari_utils import add_mouse_callback_safe, \

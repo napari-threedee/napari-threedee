@@ -5,7 +5,7 @@ import napari
 import numpy as np
 import pytest
 
-from napari_threedee.annotators import SplineAnnotator
+from napari_threedee.annotators import PathAnnotator
 from napari_threedee.annotators.io import N3D_METADATA_KEY
 from napari_threedee.visualization.camera_spline import CameraSpline, CameraSplineMode
 
@@ -76,7 +76,7 @@ def test_annotate_spline():
     points_layer.add(np.random.random((4, 3)))
     assert camera_spline.spline_valid is True
     n3d_metadata = points_layer.metadata[N3D_METADATA_KEY]
-    assert len(n3d_metadata[SplineAnnotator.SPLINES_KEY]) == 1
+    assert len(n3d_metadata[PathAnnotator.SPLINES_KEY]) == 1
 
 
 @pytest.mark.skipif(platform.system() == 'Windows', reason="fails on CI")

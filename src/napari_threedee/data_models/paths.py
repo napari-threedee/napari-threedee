@@ -8,15 +8,19 @@ from pydantic import BaseModel, validator
 
 from napari_threedee.annotators.base import N3dDataModel
 from napari_threedee.annotators.constants import N3D_METADATA_KEY, ANNOTATION_TYPE_KEY
-from napari_threedee.annotators.splines.constants import SPLINE_ID_FEATURES_KEY, \
-    SPLINE_ANNOTATION_TYPE_KEY, COLOR_CYCLE
+from napari_threedee.annotators.paths.sampler import SplineSampler
+from napari_threedee.annotators.paths.validation import (
+    validate_layer,
+    validate_n3d_zarr,
+)
+from napari_threedee.annotators.paths.constants import (
+    PATH_ID_FEATURES_KEY,
+    PATH_ANNOTATION_TYPE_KEY,
+    COLOR_CYCLE,
+)
 
-from napari_threedee.annotators.splines.sampler import SplineSampler
-from napari_threedee.annotators.splines.validation import validate_layer, \
-    validate_n3d_zarr
 
-
-class _N3dSpline(BaseModel):
+class N3dPath(BaseModel):
     data: np.ndarray
 
     class Config:
@@ -25,6 +29,10 @@ class _N3dSpline(BaseModel):
     @property
     def ndim(self) -> int:
         return self.data.shape[-1]
+
+    @property
+    def n_points(self) -> int:
+        return self.data.shape[0]
 
     def interpolate(self, n: int = 10000) -> np.ndarray:
         """Sample equidistant points between data points."""
@@ -36,12 +44,12 @@ class _N3dSpline(BaseModel):
         return np.asarray(value, dtype=np.float32)
 
 
-class N3dSplines(N3dDataModel):
-    data: List[_N3dSpline]
+class N3dPaths(N3dDataModel):
+    data: List[N3dPath]
 
     @property
     def n_points(self) -> int:
-        return np.sum([len(spline.data) for spline in self.data])
+        return np.sum([path.n_points for path in self])
 
     @property
     def ndim(self) -> int:
@@ -54,9 +62,9 @@ class N3dSplines(N3dDataModel):
 
     @classmethod
     def from_layer(cls, layer: napari.layers.Layer):
-        grouped_points_features = layer.features.groupby(SPLINE_ID_FEATURES_KEY)
+        grouped_points_features = layer.features.groupby(PATH_ID_FEATURES_KEY)
         splines = [
-            _N3dSpline(data=layer.data[df.index.tolist()])
+            N3dPath(data=layer.data[df.index.tolist()])
             for name, df in grouped_points_features
         ]
         return cls(data=splines)
@@ -65,17 +73,17 @@ class N3dSplines(N3dDataModel):
         data = np.concatenate([spline.data for spline in self.data])
         metadata = {
             N3D_METADATA_KEY: {
-                ANNOTATION_TYPE_KEY: SPLINE_ANNOTATION_TYPE_KEY,
+                ANNOTATION_TYPE_KEY: PATH_ANNOTATION_TYPE_KEY,
             }
         }
-        features = {SPLINE_ID_FEATURES_KEY: self.spline_ids}
+        features = {PATH_ID_FEATURES_KEY: self.spline_ids}
         layer = napari.layers.Points(
             data=data,
             metadata=metadata,
             features=features,
-            face_color=SPLINE_ID_FEATURES_KEY,
+            face_color=PATH_ID_FEATURES_KEY,
             face_color_cycle=COLOR_CYCLE,
-            name='n3d splines',
+            name='n3d paths',
             ndim=data.shape[-1],
         )
         validate_layer(layer)
@@ -86,9 +94,9 @@ class N3dSplines(N3dDataModel):
         n3d_zarr = zarr.open(path)
         validate_n3d_zarr(n3d_zarr)
         points = np.asarray(n3d_zarr)
-        spline_ids = n3d_zarr.attrs[SPLINE_ID_FEATURES_KEY]
+        spline_ids = n3d_zarr.attrs[PATH_ID_FEATURES_KEY]
         splines = [
-            _N3dSpline(data=points[spline_ids == idx])
+            N3dPath(data=points[spline_ids == idx])
             for idx in np.unique(spline_ids)
         ]
         return cls(data=splines)
@@ -101,5 +109,11 @@ class N3dSplines(N3dDataModel):
             mode="w",
         )
         n3d_zarr[...] = np.concatenate([spline.data for spline in self.data])
-        n3d_zarr.attrs[ANNOTATION_TYPE_KEY] = SPLINE_ANNOTATION_TYPE_KEY
-        n3d_zarr.attrs[SPLINE_ID_FEATURES_KEY] = list(self.spline_ids)
+        n3d_zarr.attrs[ANNOTATION_TYPE_KEY] = PATH_ANNOTATION_TYPE_KEY
+        n3d_zarr.attrs[PATH_ID_FEATURES_KEY] = list(self.spline_ids)
+
+    def __getitem__(self, idx: int) -> N3dPath:
+        return self.data[idx]
+
+    def __iter__(self) -> N3dPath:
+        yield from self.data

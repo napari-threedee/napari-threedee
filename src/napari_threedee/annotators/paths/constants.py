@@ -1,5 +1,5 @@
 from ..constants import N3D_METADATA_KEY, ANNOTATION_TYPE_KEY
-SPLINE_ANNOTATION_TYPE_KEY = "data"
+PATH_ANNOTATION_TYPE_KEY = "path"
 COLOR_CYCLE = [
     '#1f77b4',
     '#ff7f0e',
@@ -12,7 +12,7 @@ COLOR_CYCLE = [
     '#bcbd22',
     '#17becf',
 ]
-SPLINE_ID_FEATURES_KEY = "spline_id"
-SPLINE_COLOR_FEATURES_KEY = "spline_color"
+PATH_ID_FEATURES_KEY = "path_id"
+PATH_COLOR_FEATURES_KEY = "spline_color"
 SPLINES_METADATA_KEY = "data"
 SPLINE_ORDER = 3

@@ -8,7 +8,7 @@ from napari.utils.geometry import rotation_matrix_from_vectors_3d
 import numpy as np
 
 from .._backend.threedee_model import N3dComponent
-from ..annotators.splines import SplineAnnotator
+from ..annotators.paths import PathAnnotator
 from ..annotators.constants import N3D_METADATA_KEY
 
 
@@ -56,7 +56,7 @@ class CameraSpline(N3dComponent):
         self._view_direction_transformation = np.eye(3)
         self._current_spline_coordinate = 0
 
-        self.spline_annotator_model = SplineAnnotator(viewer=viewer, image_layer=None, enabled=False)
+        self.spline_annotator_model = PathAnnotator(viewer=viewer, image_layer=None, enabled=False)
         self.spline_annotator_model.events.splines_updated.connect(self._check_if_spline_valid)
 
         self._check_if_spline_valid()
@@ -188,7 +188,7 @@ class CameraSpline(N3dComponent):
     def calculate_transform_from_spline_tangent_to_view_direction(self):
         current_view_direction = self.viewer.camera.view_direction
         n3d_metadata = self.spline_annotator_model.points_layer.metadata[N3D_METADATA_KEY]
-        spline_dict = n3d_metadata[SplineAnnotator.SPLINES_KEY]
+        spline_dict = n3d_metadata[PathAnnotator.SPLINES_KEY]
 
         # only one spline
         spline_object = spline_dict[0]
@@ -209,7 +209,7 @@ class CameraSpline(N3dComponent):
             self.spline_valid = False
             return
         n3d_metadata = spline_points_layer.metadata[N3D_METADATA_KEY]
-        spline_dict = n3d_metadata[SplineAnnotator.SPLINES_KEY]
+        spline_dict = n3d_metadata[PathAnnotator.SPLINES_KEY]
         spline_object = spline_dict.get(0, None)
         if spline_object is None:
             self.spline_valid = False
@@ -259,7 +259,7 @@ class CameraSpline(N3dComponent):
             # do not do anything if there isn't a valid spline
             return
         n3d_metadata = self.spline_annotator_model.points_layer.metadata[N3D_METADATA_KEY]
-        spline_dict = n3d_metadata[SplineAnnotator.SPLINES_KEY]
+        spline_dict = n3d_metadata[PathAnnotator.SPLINES_KEY]
 
         # only one spline
         spline_object = spline_dict[0]

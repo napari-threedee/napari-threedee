@@ -8,8 +8,10 @@ from pydantic import validator
 from napari_threedee.annotators.base import N3dDataModel
 from napari_threedee.annotators.constants import N3D_METADATA_KEY, ANNOTATION_TYPE_KEY
 from napari_threedee.annotators.points.constants import POINT_ANNOTATION_TYPE_KEY
-from napari_threedee.annotators.points.validation import validate_layer, \
-    validate_n3d_zarr
+from napari_threedee.annotators.points.validation import (
+    validate_layer,
+    validate_n3d_zarr,
+)
 
 
 class N3dPoints(N3dDataModel):

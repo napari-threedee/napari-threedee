@@ -1,7 +1,7 @@
 import numpy as np
 import zarr
 
-from napari_threedee.annotators.points.data_model import N3dPoints
+from napari_threedee.data_models import N3dPoints
 from napari_threedee.annotators.points.validation import validate_layer, validate_n3d_zarr
 
 

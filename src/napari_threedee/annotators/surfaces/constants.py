@@ -1,9 +1,4 @@
 from ..constants import N3D_METADATA_KEY, ANNOTATION_TYPE_KEY
-SPHERE_ANNOTATION_TYPE_KEY = "spheres"
-SPHERE_ID_FEATURES_KEY: str = "sphere_id"
-SPHERE_RADIUS_FEATURES_KEY: str = "radius"
-SPHERE_MESH_METADATA_KEY: str = "mesh_data"
-DEFAULT_SPHERE_RADIUS = 5
 COLOR_CYCLE = [
     '#1f77b4',
     '#ff7f0e',
@@ -16,3 +11,9 @@ COLOR_CYCLE = [
     '#bcbd22',
     '#17becf',
 ]
+SURFACE_ANNOTATION_TYPE_KEY = "surface"
+SURFACE_ID_FEATURES_KEY = "surface_id"
+LEVEL_ID_FEATURES_KEY = "level_id"
+SPLINE_COLOR_FEATURES_KEY = "spline_color"
+SPLINES_METADATA_KEY = "paths"
+SPLINE_ORDER = 3

@@ -5,17 +5,17 @@ import numpy as np
 from typing import Optional, Dict
 
 from napari_threedee._backend.threedee_model import N3dComponent
-from napari_threedee.annotators.splines.constants import SPLINE_ANNOTATION_TYPE_KEY, \
-    COLOR_CYCLE, SPLINE_ID_FEATURES_KEY, SPLINE_COLOR_FEATURES_KEY, \
+from napari_threedee.annotators.paths.constants import PATH_ANNOTATION_TYPE_KEY, \
+    COLOR_CYCLE, PATH_ID_FEATURES_KEY, PATH_COLOR_FEATURES_KEY, \
     SPLINES_METADATA_KEY, SPLINE_ORDER
-from napari_threedee.annotators.splines.sampler import SplineSampler
+from napari_threedee.annotators.paths.sampler import SplineSampler
 from napari_threedee.mouse_callbacks import add_point_on_plane
 from napari_threedee.utils.napari_utils import add_mouse_callback_safe, \
     remove_mouse_callback_safe
 from napari_threedee.annotators.constants import N3D_METADATA_KEY, ANNOTATION_TYPE_KEY
 
 
-class SplineAnnotator(N3dComponent):
+class PathAnnotator(N3dComponent):
     def __init__(
         self,
         viewer: napari.Viewer,
@@ -30,13 +30,13 @@ class SplineAnnotator(N3dComponent):
         )
 
         self.viewer = viewer
-        self.image_layer = image_layer
-        self.points_layer = None
-        self.shapes_layer = None
-        self.auto_fit_spline = True
-        self.enabled = enabled
+        self._active_spline_id: int = 0
 
-        self.active_spline_id: int = 0
+        self.image_layer = image_layer
+        self.points_layer = points_layer
+        self.shapes_layer = None
+
+        self.auto_fit_spline = True
 
         # storage for the spline objects
         # each spline is in its own object
@@ -44,6 +44,8 @@ class SplineAnnotator(N3dComponent):
 
         if image_layer is not None:
             self.set_layers(self.image_layer)
+
+        self.enabled = enabled
 
     @property
     def active_spline_id(self):
@@ -55,7 +57,7 @@ class SplineAnnotator(N3dComponent):
         if self.points_layer is not None:
             self.points_layer.selected_data = {}
             self.points_layer.current_properties = {
-                SPLINE_ID_FEATURES_KEY: self.active_spline_id
+                PATH_ID_FEATURES_KEY: self.active_spline_id
             }
         self.events.active_spline_id()
 
@@ -79,14 +81,14 @@ class SplineAnnotator(N3dComponent):
         layer = Points(
             data=[0] * self.image_layer.data.ndim,
             ndim=self.image_layer.data.ndim,
-            name="spline control points",
+            name="n3d paths (control points)",
             size=3,
-            features={SPLINE_ID_FEATURES_KEY: [0]},
-            face_color=SPLINE_ID_FEATURES_KEY,
+            features={PATH_ID_FEATURES_KEY: [0]},
+            face_color=PATH_ID_FEATURES_KEY,
             face_color_cycle=COLOR_CYCLE,
             metadata={
                 N3D_METADATA_KEY: {
-                    ANNOTATION_TYPE_KEY: SPLINE_ANNOTATION_TYPE_KEY,
+                    ANNOTATION_TYPE_KEY: PATH_ANNOTATION_TYPE_KEY,
                     SPLINES_METADATA_KEY: dict,
                 }
             }
@@ -99,17 +101,23 @@ class SplineAnnotator(N3dComponent):
     def _create_shapes_layer(self) -> Shapes:
         return Shapes(
             ndim=self.image_layer.data.ndim,
-            name="data",
+            name="n3d paths (smooth fit)",
             edge_color="green"
         )
 
     def set_layers(self, image_layer: napari.layers.Image):
         self.image_layer = image_layer
-        if self.points_layer is None and self.image_layer is not None:
-            self.points_layer = self._create_points_layer()
-            self.viewer.add_layer(self.points_layer)
-            self.shapes_layer = self._create_shapes_layer()
-            self.viewer.add_layer(self.shapes_layer)
+        if self.image_layer is not None:
+            if self.points_layer is None:
+                self.points_layer = self._create_points_layer()
+            if self.points_layer not in self.viewer.layers:
+                self.viewer.add_layer(self.points_layer)
+            if self.shapes_layer is None:
+                self.shapes_layer = self._create_shapes_layer()
+            if self.shapes_layer not in self.viewer.layers:
+                self.viewer.add_layer(self.shapes_layer)
+            self._update_splines()
+            self._draw_splines()
 
     def _on_enable(self):
         if self.points_layer is not None:
@@ -137,7 +145,7 @@ class SplineAnnotator(N3dComponent):
 
     def _update_splines(self):
         grouped_points_features = self.points_layer.features.groupby(
-            SPLINE_ID_FEATURES_KEY
+            PATH_ID_FEATURES_KEY
         )
         splines = dict()
         for spline_name, spline_df in grouped_points_features:
@@ -155,14 +163,14 @@ class SplineAnnotator(N3dComponent):
         self.events.splines_updated()
 
     def _get_spline_colors(self) -> Dict[int, np.ndarray]:
-        self.points_layer.features[SPLINE_COLOR_FEATURES_KEY] = \
+        self.points_layer.features[PATH_COLOR_FEATURES_KEY] = \
             list(self.points_layer.face_color)
         grouped_points_features = self.points_layer.features.groupby(
-            SPLINE_ID_FEATURES_KEY
+            PATH_ID_FEATURES_KEY
         )
         spline_colors = dict()
         for spline_id, spline_df in grouped_points_features:
-            spline_colors[spline_id] = spline_df[SPLINE_COLOR_FEATURES_KEY].iloc[0]
+            spline_colors[spline_id] = spline_df[PATH_COLOR_FEATURES_KEY].iloc[0]
         return spline_colors
 
     def _clear_shapes_layer(self):

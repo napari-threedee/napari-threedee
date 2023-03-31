@@ -1,1 +1,0 @@
-from .annotator import SplineAnnotator

@@ -10,8 +10,8 @@ from napari.layers.utils.layer_utils import features_to_pandas_dataframe
 from vispy.geometry import create_sphere
 
 from napari_threedee._backend import N3dComponent
-from napari_threedee.annotators.spheres.constants import SPHERE_ID_FEATURES_KEY, SPHERE_RADIUS_FEATURES_KEY, SPHERE_MESH_METADATA_KEY
-from napari_threedee.annotators.spheres.data_model import N3dSpheres
+from napari_threedee.annotators.spheres.constants import SPHERE_ID_FEATURES_KEY, \
+    SPHERE_RADIUS_FEATURES_KEY, SPHERE_MESH_METADATA_KEY
 from napari_threedee.mouse_callbacks import add_point_on_plane
 from napari_threedee.utils.napari_utils import add_mouse_callback_safe, \
     remove_mouse_callback_safe
@@ -52,7 +52,7 @@ class SphereAnnotator(N3dComponent):
     def active_sphere_id(self) -> Union[int, None]:
         if self.points_layer is None:
             return None
-        elif self.points_layer.selected_data != {}:
+        elif list(self.points_layer.selected_data) != []:
             return int(list(self.points_layer.selected_data)[0])
         else:
             return None
@@ -99,23 +99,20 @@ class SphereAnnotator(N3dComponent):
                 new_sphere_id = np.max(sphere_ids) + 1
             self._update_current_properties(sphere_id=new_sphere_id)
 
-    def _enable_add_mode(self, event=None):
-        """Callback for enabling add mode."""
-        self.mode = SphereAnnotatorMode.ADD
-
     def _mouse_callback(self, viewer, event):
         if (self.image_layer is None) or (self.points_layer is None):
             return
-        if 'Alt' not in event.modifiers:
+        if ('Alt' not in event.modifiers):
             return
         replace_selected = True if self.mode == SphereAnnotatorMode.EDIT else False
-        add_point_on_plane(
-            viewer=viewer,
-            event=event,
-            points_layer=self.points_layer,
-            plane_layer=self.image_layer,
-            replace_selected=replace_selected,
-        )
+        with self.points_layer.events.highlight.blocker():
+            add_point_on_plane(
+                viewer=viewer,
+                event=event,
+                points_layer=self.points_layer,
+                plane_layer=self.image_layer,
+                replace_selected=replace_selected,
+            )
         self.mode = SphereAnnotatorMode.EDIT
 
     def _set_radius_from_mouse_event(self, event: Event = None):
@@ -145,7 +142,8 @@ class SphereAnnotator(N3dComponent):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore")
             self.points_layer.features[SPHERE_RADIUS_FEATURES_KEY].iloc[
-                self._active_sphere_index] = radius
+                self._active_sphere_index
+            ] = radius
 
     def _update_current_properties(
         self,
@@ -166,6 +164,7 @@ class SphereAnnotator(N3dComponent):
             }
 
     def _create_points_layer(self) -> Optional[Points]:
+        from napari_threedee.data_models.spheres import N3dSpheres
         ndim = self.image_layer.data.ndim if self.image_layer is not None else 3
         layer = N3dSpheres(centers=[0] * ndim, radii=[0]).as_layer()
         layer.selected_data = {0}
@@ -195,6 +194,7 @@ class SphereAnnotator(N3dComponent):
                 callback=self._mouse_callback
             )
             self.points_layer.events.data.connect(self._on_point_data_changed)
+            self.points_layer.events.highlight.connect(self._on_highlight_change)
             self.viewer.bind_key(
                 'r', self._set_radius_from_mouse_event, overwrite=True
             )
@@ -247,5 +247,15 @@ class SphereAnnotator(N3dComponent):
         n3d_metadata = self.points_layer.metadata[N3D_METADATA_KEY]
         if self.surface_layer is None:
             self.surface_layer = self._create_surface_layer()
+        if self.surface_layer not in self.viewer.layers:
             self.viewer.layers.append(self.surface_layer)
         self.surface_layer.data = n3d_metadata[SPHERE_MESH_METADATA_KEY]
+
+    def _enable_add_mode(self, event=None):
+        """Callback for enabling add mode."""
+        self.mode = SphereAnnotatorMode.ADD
+
+    def _on_highlight_change(self, event=None):
+        """Callback for enabling edit mode."""
+        self.mode = SphereAnnotatorMode.EDIT
+

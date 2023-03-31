@@ -46,6 +46,5 @@ viewer.add_image(
 spline_annotator = QtSurfaceAnnotatorWidget(viewer=viewer)
 viewer.window.add_dock_widget(spline_annotator)
 
-
 viewer.camera.angles = (60, 60, 60)
 napari.run()

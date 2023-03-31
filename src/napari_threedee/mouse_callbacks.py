@@ -44,4 +44,6 @@ def add_point_on_plane(
 
     if replace_selected:
         points_layer.remove_selected()
+    if points_layer.data.shape[-1] < len(intersection_nd):
+        intersection_nd = intersection_3d
     points_layer.add(intersection_nd)

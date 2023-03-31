@@ -1,3 +1,3 @@
 from .qt_point_annotator import QtPointAnnotatorWidget
-from .qt_spline_annotator import QtSplineAnnotatorWidget
+from .qt_path_annotator import QtPathAnnotatorWidget
 from .qt_surface_annotator import QtSurfaceAnnotatorWidget

@@ -1,3 +1,3 @@
 from .points import PointAnnotator
-from .splines import SplineAnnotator
+from .paths import PathAnnotator
 from .spheres import SphereAnnotator
