@@ -100,9 +100,9 @@ nav:
       - annotations/spline_spec.md
   - 'Examples gallery': generated/gallery  # This node will automatically be named and have sub-nodes.
   - 'API':
-      - api/napari_utilities.md
-      - api/selection_utilities.md
-      - api/geometry_utilities.md
+      - API/napari_utilities.md
+      - API/selection_utilities.md
+      - API/geometry_utilities.md
 
 plugins:
   - search
