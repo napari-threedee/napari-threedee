@@ -140,16 +140,8 @@ plugins:
       video_loop: True
   - gallery:
       conf_script: docs/gallery_conf.py
-      examples_dirs: [
-        docs/examples,
-        docs/examples/library,
-        docs/examples/plugin
-      ]
-      gallery_dirs: [
-        docs/generated/gallery,
-        docs/generated/gallery/library,
-        docs/generated/gallery/plugin
-      ]
+      examples_dirs: [docs/examples]
+      gallery_dirs: [docs/generated/gallery]
       filename_pattern: /*.py  # which scripts will be executed for the docs
       ignore_pattern: /__init__.py  # ignore these examle files completely
       run_stale_examples: True
