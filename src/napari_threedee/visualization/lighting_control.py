@@ -58,22 +58,26 @@ class LightingControl(ThreeDeeModel):
         for layer, visual in zip(self._selected_layers, self._selected_layer_visuals):
             vertices, faces, vertex_values = layer.data
             self._pre_ambient_occlusion_values.append(vertex_values)
+            attenuation_factor = self._calculate_attenuation_factor(vertices=vertices, faces=faces)
+            self._attenutation_factors.append(attenuation_factor)
             vertex_normals = igl.per_vertex_normals(vertices, faces)
             ao = igl.ambient_occlusion(vertices, faces, vertices, vertex_normals, 20)
             attenuation_factor = 1 - ao
 
-            #
+            # attenuate the vertex values
             attenuated_values = vertex_values * attenuation_factor
 
             # set the data
-            # meshdata = visual.node._meshdata
-            # meshdata.set_vertex_values(attenuated_values)
-            # visual.node.set_data(meshdata=meshdata)
+            meshdata = visual.node._meshdata
+            meshdata.set_vertex_values(attenuated_values)
+            visual.node.set_data(meshdata=meshdata)
 
-    def _calc(self, vertices, faces, vertex_values):
+    def _calculate_attenuation_factors(self, vertices, faces):
         vertex_normals = igl.per_vertex_normals(vertices, faces)
         ao = igl.ambient_occlusion(vertices, faces, vertices, vertex_normals, 20)
-        attenuation_factor = 1 - ao
+        return 1 - ao
+
+
     def _deactivate_ambient_occlusion(self):
         # restore the values
         for values, layer, visual in zip(
