@@ -1,8 +1,14 @@
-"""Example of using the points manipulator to re-position points.
+"""
+Points manipulator example (plugin)
+===================================
+
+Example of using the points manipulator to re-position points,
+using napari-threedee as a napari plugin.
 
 Enter the point selection mode and click on a point to activate the manipulator.
 Click and drag the arms of the manipulator to move the point.
 When a point is selected, hold space to rotate the view without losing the selection.
+
 """
 
 import numpy as np

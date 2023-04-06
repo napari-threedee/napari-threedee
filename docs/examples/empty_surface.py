@@ -1,3 +1,10 @@
+"""
+Empty surface
+=============
+
+This example generates sphere mesh data and displays it with napari.
+
+"""
 import napari
 from vispy.geometry import create_sphere
 

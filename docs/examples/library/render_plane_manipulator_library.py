@@ -1,3 +1,10 @@
+"""
+Render plane manipulator example (library)
+==========================================
+
+An example controlling the render plane manipulator,
+using napari-threedee as a library.
+"""
 from napari_threedee.manipulators._qt import QtRenderPlaneManipulatorWidget
 
 import napari
