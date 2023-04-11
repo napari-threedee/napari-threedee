@@ -1,3 +1,11 @@
+"""
+Path point annotator (library)
+==============================
+
+An example controlling the path annotator,
+using napari-threedee as a library.
+"""
+
 import napari
 import numpy as np
 from skimage import data

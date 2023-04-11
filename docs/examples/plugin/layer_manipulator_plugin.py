@@ -1,3 +1,10 @@
+"""
+Layer manipulator (plugin)
+==================================
+
+An example controlling the layer manipulator,
+using napari-threedee as a napari plugin.
+"""
 import napari
 
 try:

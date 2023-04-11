@@ -10,6 +10,8 @@ import numpy as np
 from .._backend.threedee_model import N3dComponent
 from ..annotators.paths import PathAnnotator
 from ..annotators.constants import N3D_METADATA_KEY
+from ..data_models import N3dPaths
+from ..data_models.spline_sampler import SplineSampler
 
 
 class CameraSplineMode(Enum):
@@ -57,7 +59,7 @@ class CameraSpline(N3dComponent):
         self._current_spline_coordinate = 0
 
         self.spline_annotator_model = PathAnnotator(viewer=viewer, image_layer=None, enabled=False)
-        self.spline_annotator_model.events.splines_updated.connect(self._check_if_spline_valid)
+        self.spline_annotator_model.events.paths_updated.connect(self._check_if_spline_valid)
 
         self._check_if_spline_valid()
         self.enabled = enabled
@@ -204,17 +206,19 @@ class CameraSpline(N3dComponent):
 
     def _check_if_spline_valid(self, event=None):
         """Check if there is a valid spline to slice along"""
+        from napari_threedee.data_models import N3dPaths
         spline_points_layer = self.spline_annotator_model.points_layer
+
         if spline_points_layer is None:
+            # if the points layer isn't set, the path can't be valid
             self.spline_valid = False
             return
-        n3d_metadata = spline_points_layer.metadata[N3D_METADATA_KEY]
-        spline_dict = n3d_metadata[PathAnnotator.SPLINES_KEY]
-        spline_object = spline_dict.get(0, None)
-        if spline_object is None:
-            self.spline_valid = False
-        else:
+
+        paths = N3dPaths.from_layer(spline_points_layer)
+        if len(paths.data) > 0:
             self.spline_valid = True
+        else:
+            self.spline_valid = False
 
     @property
     def image_layer(self) -> Image:
@@ -258,15 +262,15 @@ class CameraSpline(N3dComponent):
         if self.spline_valid is False:
             # do not do anything if there isn't a valid spline
             return
-        n3d_metadata = self.spline_annotator_model.points_layer.metadata[N3D_METADATA_KEY]
-        spline_dict = n3d_metadata[PathAnnotator.SPLINES_KEY]
+        paths = N3dPaths.from_layer(self.spline_annotator_model.points_layer)
 
         # only one spline
-        spline_object = spline_dict[0]
-        spline_point = spline_object._sample_backbone(u=[spline_coordinate])
+        spline_object = paths[0]
+        spline_sampler = SplineSampler(points=spline_object.data)
+        spline_point = spline_sampler(u=[spline_coordinate], derivative=0)
         self.viewer.camera.center = np.squeeze(spline_point)
 
-        view_direction = np.squeeze(spline_object._sample_backbone(u=[spline_coordinate], derivative=1))
+        view_direction = np.squeeze(spline_sampler(u=[spline_coordinate], derivative=1))
         view_direction_displayed = view_direction[list(self.viewer.dims.displayed)]
 
         view_direction_transformed = tuple(self._transform_view_direction(view_direction_displayed))

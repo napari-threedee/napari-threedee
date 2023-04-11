@@ -1,3 +1,10 @@
+"""
+Surface annotator (library)
+===================================
+
+An example controlling the surface annotator,
+using napari-threedee as a library.
+"""
 import napari
 from skimage import data
 

@@ -35,10 +35,10 @@ class N3dPath(BaseModel):
     def n_points(self) -> int:
         return self.data.shape[0]
 
-    def sample(self, n: int = 10000) -> np.ndarray:
+    def sample(self, n: int = 10000, derivative:int = 0) -> np.ndarray:
         """Sample equidistant points between data points."""
         sampler = SplineSampler(points=self.data)
-        return sampler(u=np.linspace(0, 1, num=n))
+        return sampler(u=np.linspace(0, 1, num=n), derivative=derivative)
 
     @validator('data', pre=True)
     def ensure_float32_ndarray(cls, value):

@@ -1,3 +1,10 @@
+"""
+Sphere annotator (library)
+==================================
+
+An example controlling the sphere annotator,
+using napari-threedee as a library.
+"""
 import napari
 import numpy as np
 from skimage import data

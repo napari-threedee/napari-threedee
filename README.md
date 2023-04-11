@@ -34,6 +34,9 @@ To install latest development version :
     pip install git+https://github.com/alisterburt/napari-threedee.git
 
 ## Example applications
+
+See the full list of [example gallery scripts here on our website](https://napari-threedee.github.io/generated/gallery/).
+
 <table border="0">
 <tr><td>
 

@@ -1,3 +1,10 @@
+"""
+Camera spline (library)
+===============================
+
+An example controlling the camera spline,
+using napari-threedee as a library.
+"""
 import napari
 import skimage
 

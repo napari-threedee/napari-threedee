@@ -1,12 +1,11 @@
 import napari
-import platform
 from typing import Tuple
 
 import numpy as np
-import pytest
 
 from napari_threedee.annotators import PathAnnotator
-from napari_threedee.annotators.io import N3D_METADATA_KEY
+from napari_threedee.annotators.constants import N3D_METADATA_KEY
+from napari_threedee.data_models import N3dPaths
 from napari_threedee.visualization.camera_spline import CameraSpline, CameraSplineMode
 
 
@@ -74,8 +73,9 @@ def test_annotate_spline(make_napari_viewer):
     # add 4 points and check that the spline was created
     points_layer.add(np.random.random((4, 3)))
     assert camera_spline.spline_valid is True
-    n3d_metadata = points_layer.metadata[N3D_METADATA_KEY]
-    assert len(n3d_metadata[PathAnnotator.SPLINES_KEY]) == 1
+
+    paths = N3dPaths.from_layer(points_layer)
+    assert len(paths.data) == 1
 
 
 def test_spline_explore(make_napari_viewer):

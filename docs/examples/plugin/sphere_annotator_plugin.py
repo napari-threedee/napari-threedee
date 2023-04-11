@@ -1,26 +1,33 @@
+"""
+Sphere annotator (plugin)
+=================================
+
+An example controlling the sphere annotator,
+using napari-threedee as a napari plugin.
+"""
 import napari
 from skimage import data
 
-# create a napari viewer
+# create napari viewer
 viewer = napari.Viewer(ndisplay=3)
 
 # generate image data
-blobs = data.binary_blobs(length=64, volume_fraction=0.1, n_dim=4).astype(float)
+blobs = data.binary_blobs(length=64, volume_fraction=0.1, n_dim=3).astype(float)
 
-# add two image layers and a points layer to the viewer
+# add two image layers to viewer
 viewer.add_image(
     blobs,
     name='orange plane',
     rendering='average',
     colormap='bop orange',
-    blending='additive',
+    blending='translucent',
     opacity=0.5,
     depiction='plane',
     plane={
-        'position': (32, 32, 32),
-        'normal': (1, 0, 0),
-        'thickness': 10,
-    })
+    'position': (32, 32, 32),
+    'normal': (1, 0, 0),
+    'thickness': 10,
+})
 
 viewer.add_image(
     blobs,
@@ -31,17 +38,14 @@ viewer.add_image(
     opacity=0.5,
     depiction='plane',
     plane={
-        'position': (32, 32, 32),
-        'normal': (0, 1, 0),
-        'thickness': 10,
-    })
+    'position': (32, 32, 32),
+    'normal': (0, 1, 0),
+    'thickness': 10,
+})
 
-# add an empty points layer to the viewer
-viewer.add_points([], ndim=4, face_color='cornflowerblue', size=3)
-
-# add the plugin dock widget to the viewer
+# add plugin dock widget to viewer
 viewer.window.add_plugin_dock_widget(
-    plugin_name="napari-threedee", widget_name="point annotator",
+    plugin_name="napari-threedee", widget_name="sphere annotator"
 )
 
 # run napari
