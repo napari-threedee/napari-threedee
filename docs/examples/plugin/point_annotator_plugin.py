@@ -1,3 +1,10 @@
+"""
+Plane point annotator (plugin)
+==============================
+
+An example controlling the point annotator,
+using napari-threedee as a napari plugin.
+"""
 import napari
 from skimage import data
 
@@ -5,9 +12,9 @@ from skimage import data
 viewer = napari.Viewer(ndisplay=3)
 
 # generate image data
-blobs = data.binary_blobs(length=64, volume_fraction=0.1, n_dim=3).astype(float)
+blobs = data.binary_blobs(length=64, volume_fraction=0.1, n_dim=4).astype(float)
 
-# add an image layers to the viewer
+# add two image layers to viewer
 viewer.add_image(
     blobs,
     name='orange plane',
@@ -22,9 +29,23 @@ viewer.add_image(
     'thickness': 10,
 })
 
+viewer.add_image(
+    blobs,
+    name='blue plane',
+    rendering='average',
+    colormap='bop blue',
+    blending='additive',
+    opacity=0.5,
+    depiction='plane',
+    plane={
+    'position': (32, 32, 32),
+    'normal': (0, 1, 0),
+    'thickness': 10,
+})
+
 # add plugin dock widget to viewer
 viewer.window.add_plugin_dock_widget(
-    plugin_name="napari-threedee", widget_name="surface annotator"
+    plugin_name="napari-threedee", widget_name="point annotator"
 )
 
 # run napari

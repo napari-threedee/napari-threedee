@@ -1,3 +1,10 @@
+"""
+Render plane manipulator (plugin)
+=========================================
+
+An example controlling the render plane manipulator,
+using napari-threedee as a napari plugin.
+"""
 import napari
 from skimage import data
 

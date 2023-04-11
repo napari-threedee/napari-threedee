@@ -28,6 +28,7 @@ class PathAnnotator(N3dComponent):
         self.events = EmitterGroup(
             source=self,
             active_spline_id=Event,
+            paths_updated=Event
         )
 
         self.viewer = viewer
@@ -136,6 +137,7 @@ class PathAnnotator(N3dComponent):
     def _on_point_data_changed(self, event=None):
         if self.auto_fit_spline is True:
             self._draw_paths()
+        self.events.paths_updated()
 
     def _get_spline_colors(self) -> Dict[int, np.ndarray]:
         self.points_layer.features[PATH_COLOR_FEATURES_KEY] = \

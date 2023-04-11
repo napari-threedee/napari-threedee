@@ -1,3 +1,10 @@
+"""
+Point annotator (library)
+=================================
+
+An example controlling the point annotator,
+using napari-threedee as a library.
+"""
 import napari
 from skimage import data
 

@@ -1,8 +1,13 @@
+"""
+Mesh headlight (plugin)
+===============================
+
+An example controlling the mesh headlight,
+using napari-threedee as a napari plugin.
+"""
 import napari
 import numpy as np
 from vispy.io import load_data_file, read_mesh
-
-from napari_threedee.visualization._qt.qt_lighting_control import QtLightingControlWidget
 
 
 # Fetch datasets - this will download dataset if datasets are not found
@@ -19,7 +24,9 @@ viewer = napari.Viewer(ndisplay=3)
 # add the mesh
 viewer.add_surface((vertices, faces, vertex_values), name='triceratops')
 
-lighting_control_widget = QtLightingControlWidget(viewer=viewer)
-viewer.window.add_dock_widget(widget=lighting_control_widget)
+# open the plugin
+viewer.window.add_plugin_dock_widget(
+    plugin_name="napari-threedee", widget_name="mesh lighting controls"
+)
 
 napari.run()

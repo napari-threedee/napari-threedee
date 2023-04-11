@@ -57,7 +57,7 @@ class CameraSpline(N3dComponent):
         self._current_spline_coordinate = 0
 
         self.spline_annotator_model = PathAnnotator(viewer=viewer, image_layer=None, enabled=False)
-        self.spline_annotator_model.events.splines_updated.connect(self._check_if_spline_valid)
+        self.spline_annotator_model.events.paths_updated.connect(self._check_if_spline_valid)
 
         self._check_if_spline_valid()
         self.enabled = enabled

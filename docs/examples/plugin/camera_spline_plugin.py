@@ -1,3 +1,10 @@
+"""
+Camera spline (plugin)
+==============================
+
+An example controlling the camera spline,
+using napari-threedee as a napari plugin.
+"""
 import napari
 import skimage
 
