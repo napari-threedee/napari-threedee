@@ -1,5 +1,5 @@
 """
-Mesh headlight example (library)
+Mesh headlight (library)
 ================================
 
 An example controlling the mesh headlight,

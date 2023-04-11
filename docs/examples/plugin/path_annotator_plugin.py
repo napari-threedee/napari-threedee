@@ -1,8 +1,8 @@
 """
-Plane point annotator (plugin)
+Path point annotator (plugin)
 ==============================
 
-An example controlling the point annotator,
+An example controlling the path annotator,
 using napari-threedee as a napari plugin.
 """
 import napari
@@ -24,10 +24,11 @@ viewer.add_image(
     opacity=0.5,
     depiction='plane',
     plane={
-    'position': (32, 32, 32),
-    'normal': (1, 0, 0),
-    'thickness': 10,
-})
+        'position': (32, 32, 32),
+        'normal': (1, 0, 0),
+        'thickness': 10,
+    }
+)
 
 viewer.add_image(
     blobs,
@@ -38,14 +39,15 @@ viewer.add_image(
     opacity=0.5,
     depiction='plane',
     plane={
-    'position': (32, 32, 32),
-    'normal': (0, 1, 0),
-    'thickness': 10,
-})
+        'position': (32, 32, 32),
+        'normal': (0, 1, 0),
+        'thickness': 10,
+    }
+)
 
 # add plugin dock widget to viewer
 viewer.window.add_plugin_dock_widget(
-    plugin_name="napari-threedee", widget_name="point annotator"
+    plugin_name="napari-threedee", widget_name="path annotator"
 )
 
 # run napari

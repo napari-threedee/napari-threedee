@@ -1,5 +1,5 @@
 """
-Render plane manipulator example (plugin)
+Render plane manipulator (plugin)
 =========================================
 
 An example controlling the render plane manipulator,

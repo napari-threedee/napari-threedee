@@ -1,5 +1,5 @@
 """
-Layer manipulator example (plugin)
+Layer manipulator (plugin)
 ==================================
 
 An example controlling the layer manipulator,

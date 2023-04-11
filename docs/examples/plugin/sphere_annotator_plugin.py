@@ -1,8 +1,8 @@
 """
-Plane point annotator (plugin)
-==============================
+Sphere annotator (plugin)
+=================================
 
-An example controlling the point annotator,
+An example controlling the sphere annotator,
 using napari-threedee as a napari plugin.
 """
 import napari
@@ -12,7 +12,7 @@ from skimage import data
 viewer = napari.Viewer(ndisplay=3)
 
 # generate image data
-blobs = data.binary_blobs(length=64, volume_fraction=0.1, n_dim=4).astype(float)
+blobs = data.binary_blobs(length=64, volume_fraction=0.1, n_dim=3).astype(float)
 
 # add two image layers to viewer
 viewer.add_image(
@@ -45,7 +45,7 @@ viewer.add_image(
 
 # add plugin dock widget to viewer
 viewer.window.add_plugin_dock_widget(
-    plugin_name="napari-threedee", widget_name="point annotator"
+    plugin_name="napari-threedee", widget_name="sphere annotator"
 )
 
 # run napari

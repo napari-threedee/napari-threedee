@@ -1,5 +1,5 @@
 """
-Render plane manipulator example (library)
+Render plane manipulator (library)
 ==========================================
 
 An example controlling the render plane manipulator,

@@ -1,5 +1,5 @@
 """
-Mesh headlight example (plugin)
+Mesh headlight (plugin)
 ===============================
 
 An example controlling the mesh headlight,

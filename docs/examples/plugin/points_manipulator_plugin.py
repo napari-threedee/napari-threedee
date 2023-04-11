@@ -1,5 +1,5 @@
 """
-Points manipulator example (plugin)
+Points manipulator (plugin)
 ===================================
 
 Example of using the points manipulator to re-position points,

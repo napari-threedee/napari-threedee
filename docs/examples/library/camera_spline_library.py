@@ -1,5 +1,5 @@
 """
-Camera spline example (library)
+Camera spline (library)
 ===============================
 
 An example controlling the camera spline,
