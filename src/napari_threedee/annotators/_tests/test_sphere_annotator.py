@@ -1,5 +1,6 @@
 from napari_threedee.annotators import SphereAnnotator
-from napari_threedee.annotators.sphere_annotator import SphereAnnotatorMode
+from napari_threedee.annotators.spheres import SphereAnnotatorMode, \
+    SPHERE_ID_FEATURES_KEY, SPHERE_RADIUS_FEATURES_KEY
 
 
 def test_sphere_annotator_instantiation(viewer_with_plane_and_points_3d):
@@ -19,18 +20,16 @@ def test_sphere_annotator_layer_creation(sphere_annotator):
 
 def test_sphere_annotator_update_current_properties(sphere_annotator):
     sphere_annotator._update_current_properties(sphere_id=1, radius=None)
-    assert sphere_annotator.points_layer.current_properties[SphereAnnotator.SPHERE_ID_FEATURES_KEY] == 1
+    assert sphere_annotator.points_layer.current_properties[SPHERE_ID_FEATURES_KEY] == 1
 
     sphere_annotator._update_current_properties(sphere_id=0, radius=1)
-    assert sphere_annotator.points_layer.current_properties[SphereAnnotator.SPHERE_ID_FEATURES_KEY] == 0
-    assert sphere_annotator.points_layer.current_properties[
-               SphereAnnotator.SPHERE_RADIUS_FEATURES_KEY] == 1
+    assert sphere_annotator.points_layer.current_properties[SPHERE_ID_FEATURES_KEY] == 0
+    assert sphere_annotator.points_layer.current_properties[SPHERE_RADIUS_FEATURES_KEY] == 1
 
     # passing none should have no effect
     sphere_annotator._update_current_properties(sphere_id=None, radius=None)
-    assert sphere_annotator.points_layer.current_properties[SphereAnnotator.SPHERE_ID_FEATURES_KEY] == 0
-    assert sphere_annotator.points_layer.current_properties[
-               SphereAnnotator.SPHERE_RADIUS_FEATURES_KEY] == 1
+    assert sphere_annotator.points_layer.current_properties[SPHERE_ID_FEATURES_KEY] == 0
+    assert sphere_annotator.points_layer.current_properties[SPHERE_RADIUS_FEATURES_KEY] == 1
 
 
 def test_sphere_annotator_enable_add_mode_side_effects(sphere_annotator):
@@ -45,4 +44,4 @@ def test_sphere_annotator_enable_add_mode_side_effects(sphere_annotator):
     assert sphere_annotator.points_layer.selected_data == set()
 
     # check sphere id for next point updated
-    assert sphere_annotator.points_layer.current_properties[sphere_annotator.SPHERE_ID_FEATURES_KEY] == 1
+    assert sphere_annotator.points_layer.current_properties[SPHERE_ID_FEATURES_KEY] == 1

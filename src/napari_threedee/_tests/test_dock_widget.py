@@ -7,7 +7,7 @@ MY_WIDGET_NAMES = [
     "point manipulator",
     "layer manipulator",
     "point annotator",
-    "spline annotator",
+    "path annotator",
     "mesh lighting controls",
     "camera spline control"
 ]

@@ -1,3 +1,4 @@
-from .point_annotator import PointAnnotator
-from .spline_annotator import SplineAnnotator
-from .sphere_annotator import SphereAnnotator
+from .points import PointAnnotator
+from .paths import PathAnnotator
+from .spheres import SphereAnnotator
+from .surfaces import SurfaceAnnotator

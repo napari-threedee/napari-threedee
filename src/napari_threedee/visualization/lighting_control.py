@@ -3,14 +3,14 @@ from typing import List
 import numpy as np
 import napari
 
-from napari_threedee._backend.threedee_model import ThreeDeeModel
+from napari_threedee._backend.threedee_model import N3dComponent
 from napari_threedee.utils.napari_utils import (
-    get_dims_displayed,
     get_napari_visual,
+    get_dims_displayed,
 )
 
 
-class LightingControl(ThreeDeeModel):
+class LightingControl(N3dComponent):
     def __init__(self, viewer: napari.Viewer):
         self._viewer = viewer
         self._selected_layers = []

@@ -1,4 +1,3 @@
-
 import einops
 
 import napari
@@ -10,11 +9,22 @@ from pydantic import validator, PrivateAttr
 from scipy.interpolate import splprep, splev
 from typing import Tuple, Union, Optional, Dict
 
-from napari_threedee._backend.threedee_model import ThreeDeeModel
-from ..mouse_callbacks import add_point_on_plane
+from morphosamplers.surface_spline import GriddedSplineSurface
+
+from napari_threedee._backend.threedee_model import N3dComponent
+from napari_threedee.utils.mouse_callbacks import add_point_on_plane
 from napari_threedee.utils.napari_utils import add_mouse_callback_safe, \
     remove_mouse_callback_safe
-from .io import N3D_METADATA_KEY, ANNOTATION_TYPE_KEY
+from .constants import (
+    N3D_METADATA_KEY,
+    ANNOTATION_TYPE_KEY,
+    SURFACE_ANNOTATION_TYPE_KEY,
+    SURFACE_ID_FEATURES_KEY,
+    LEVEL_ID_FEATURES_KEY,
+    SPLINES_METADATA_KEY,
+    SPLINE_COLOR_FEATURES_KEY,
+    COLOR_CYCLE,
+)
 
 
 class _NDimensionalFilament(EventedModel):
@@ -44,7 +54,7 @@ class _NDimensionalFilament(EventedModel):
 
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
-        if name == 'points':  # ensure splines stay in sync
+        if name == 'points':  # ensure paths stay in sync
             self._prepare_splines()
 
     def _prepare_splines(self):
@@ -114,48 +124,29 @@ class _NDimensionalFilament(EventedModel):
         return self._sample_backbone(u, derivative=calculate_derivative)
 
 
-class SplineAnnotator(ThreeDeeModel):
-    COLOR_CYCLE = [
-        '#1f77b4',
-        '#ff7f0e',
-        '#2ca02c',
-        '#d62728',
-        '#9467bd',
-        '#8c564b',
-        '#e377c2',
-        '#7f7f7f',
-        '#bcbd22',
-        '#17becf',
-    ]
-    ANNOTATION_TYPE = "spline"
-    # keys for data stored in features table
-    SPLINE_ID_FEATURES_KEY = "spline_id"
-    SPLINE_COLOR_FEATURES_KEY = "spline_color"
-
-    # metadata and associated keys
-    SPLINES_KEY = "splines"
-    SPLINE_ORDER = 3
-
+class SurfaceAnnotator(N3dComponent):
     def __init__(
         self,
         viewer: napari.Viewer,
         image_layer: Optional[Image] = None,
-        enabled: bool = False
+        enabled: bool = True
     ):
         self.events = EmitterGroup(
             source=self,
-            active_spline_id=Event,
-            splines_updated=Event,
+            active_surface_id=Event,
+            active_level_id=Event,
         )
 
         self.viewer = viewer
         self.image_layer = image_layer
         self.points_layer = None
         self.shapes_layer = None
+        self.surface_layer = None
         self.auto_fit_spline = True
         self.enabled = enabled
 
-        self.active_spline_id: int = 0
+        self.active_surface_id: int = 0
+        self.active_level_id: int = 0
 
         # storage for the spline objects
         # each spline is in its own object
@@ -165,24 +156,46 @@ class SplineAnnotator(ThreeDeeModel):
             self.set_layers(self.image_layer)
 
     @property
-    def active_spline_id(self):
+    def active_surface_id(self):
+        return self._active_surface_id
+
+    @active_surface_id.setter
+    def active_surface_id(self, id: int):
+        self._active_surface_id = np.clip(id, 0, None)
+        if self.points_layer is not None:
+            self.points_layer.selected_data = {}
+            self.points_layer.current_properties = {
+                SURFACE_ID_FEATURES_KEY: self.active_surface_id,
+                LEVEL_ID_FEATURES_KEY: self.active_level_id,
+            }
+        self.events.active_surface_id()
+
+    @property
+    def active_level_id(self):
         return self._active_spline_id
 
-    @active_spline_id.setter
-    def active_spline_id(self, id: int):
+    @active_level_id.setter
+    def active_level_id(self, id: int):
         self._active_spline_id = np.clip(id, 0, None)
         if self.points_layer is not None:
             self.points_layer.selected_data = {}
             self.points_layer.current_properties = {
-                self.SPLINE_ID_FEATURES_KEY: self.active_spline_id
+                SURFACE_ID_FEATURES_KEY: self.active_surface_id,
+                LEVEL_ID_FEATURES_KEY: self.active_level_id,
             }
-        self.events.active_spline_id()
+        self.events.active_level_id()
 
     def next_spline(self, event=None):
-        self.active_spline_id += 1
+        self.active_level_id += 1
 
     def previous_spline(self, event=None):
-        self.active_spline_id -= 1
+        self.active_level_id -= 1
+
+    def next_surface(self, event=None):
+        self.active_surface_id += 1
+
+    def previous_surface(self, event=None):
+        self.active_surface_id -= 1
 
     def _mouse_callback(self, viewer, event):
         if (self.image_layer is None) or (self.points_layer is None):
@@ -191,44 +204,50 @@ class SplineAnnotator(ThreeDeeModel):
             viewer=viewer,
             event=event,
             points_layer=self.points_layer,
-            plane_layer=self.image_layer
+            image_layer=self.image_layer
         )
 
     def _create_points_layer(self) -> Optional[Points]:
         layer = Points(
             data=[0] * self.image_layer.data.ndim,
             ndim=self.image_layer.data.ndim,
-            name="spline control points",
-            size=3,
-            features={self.SPLINE_ID_FEATURES_KEY: [0]},
-            face_color=self.SPLINE_ID_FEATURES_KEY,
-            face_color_cycle=self.COLOR_CYCLE,
+            name="n3d surfaces",
+            size=10,
+            features={
+                SURFACE_ID_FEATURES_KEY: [0],
+                LEVEL_ID_FEATURES_KEY: [0],
+            },
+            face_color=SURFACE_ID_FEATURES_KEY,
+            face_color_cycle=COLOR_CYCLE,
             metadata={
                 N3D_METADATA_KEY: {
-                    ANNOTATION_TYPE_KEY: self.ANNOTATION_TYPE,
-                    self.SPLINES_KEY: dict,
+                    ANNOTATION_TYPE_KEY: SURFACE_ANNOTATION_TYPE_KEY,
+                    SPLINES_METADATA_KEY: dict,
                 }
             }
         )
         layer.selected_data = {0}
         layer.remove_selected()
-        self.active_spline_id = self.active_spline_id
+        self.active_level_id = self.active_level_id
         return layer
 
     def _create_shapes_layer(self) -> Shapes:
         return Shapes(
             ndim=self.image_layer.data.ndim,
-            name="splines",
+            name="n3d surfaces (paths)",
             edge_color="green"
         )
 
     def set_layers(self, image_layer: napari.layers.Image):
+        original_enabled_state = self.enabled
+        self.enabled = False
         self.image_layer = image_layer
         if self.points_layer is None and self.image_layer is not None:
             self.points_layer = self._create_points_layer()
             self.viewer.add_layer(self.points_layer)
             self.shapes_layer = self._create_shapes_layer()
             self.viewer.add_layer(self.shapes_layer)
+        self.enabled = original_enabled_state
 
     def _on_enable(self):
         if self.points_layer is not None:
@@ -251,37 +270,17 @@ class SplineAnnotator(ThreeDeeModel):
 
     def _on_point_data_changed(self, event=None):
         if self.auto_fit_spline is True:
-            self._update_splines()
             self._draw_splines()
 
-    def _update_splines(self):
-        grouped_points_features = self.points_layer.features.groupby(
-            self.SPLINE_ID_FEATURES_KEY
-        )
-        splines = dict()
-        for spline_name, spline_df in grouped_points_features:
-            point_indices = spline_df.index.tolist()
-            if len(point_indices) > self.SPLINE_ORDER:
-                # the number of points must be greater than the spline order to properly fit
-                spline_coordinates = self.points_layer.data[point_indices]
-                splines[spline_name] = _NDimensionalFilament(
-                    points=spline_coordinates, k=self.SPLINE_ORDER
-                )
-        metadata = {
-            self.SPLINES_KEY: splines
-        }
-        self.points_layer.metadata[N3D_METADATA_KEY].update(metadata)
-        self.events.splines_updated()
-
-    def _get_spline_colors(self) -> Dict[int, np.ndarray]:
-        self.points_layer.features[self.SPLINE_COLOR_FEATURES_KEY] = \
+    def _get_path_colors(self) -> Dict[int, np.ndarray]:
+        self.points_layer.features[SPLINE_COLOR_FEATURES_KEY] = \
             list(self.points_layer.face_color)
         grouped_points_features = self.points_layer.features.groupby(
-            self.SPLINE_ID_FEATURES_KEY
+            LEVEL_ID_FEATURES_KEY
         )
         spline_colors = dict()
         for spline_id, spline_df in grouped_points_features:
-            spline_colors[spline_id] = spline_df[self.SPLINE_COLOR_FEATURES_KEY].iloc[0]
+            spline_colors[spline_id] = spline_df[SPLINE_COLOR_FEATURES_KEY].iloc[0]
         return spline_colors
 
     def _clear_shapes_layer(self):
@@ -293,12 +292,35 @@ class SplineAnnotator(ThreeDeeModel):
         self.shapes_layer.remove_selected()
 
     def _draw_splines(self):
+        from napari_threedee.data_models import N3dSurfaces, N3dPath
+        surfaces = N3dSurfaces.from_layer(self.points_layer)
         self._clear_shapes_layer()
-        splines = self.points_layer.metadata[N3D_METADATA_KEY][self.SPLINES_KEY]
-        spline_colors = self._get_spline_colors()
-        for spline_id, spline_object in splines.items():
-            spline_points = spline_object._sample_backbone(
-                u=np.linspace(0, 1, 1000)
+        path_colors = self._get_path_colors()
+        for idx, surface in enumerate(surfaces):
+            for level_points in surface:
+                if len(level_points) >= 2:
+                    path = N3dPath(data=level_points).sample(n=1000)
+                    path_color = path_colors[idx]
+                    self.shapes_layer.add_paths(path, edge_color=path_color)
+
+    def _draw_surface(self):
+        grouped_features = self.points_layer.features.groupby(
+            LEVEL_ID_FEATURES_KEY
+        )
+        surface_levels = [
+            self.points_layer.data[df.index]
+            for _, df in grouped_features
+        ]
+        surface = GriddedSplineSurface(points=surface_levels, separation=3)
+        surface_points, triangle_idx = surface.mesh()
+        valid_triangle_idx = np.all(np.isin(triangle_idx, np.argwhere(surface.mask)),
+                                    axis=1)
+        triangle_idx = triangle_idx[valid_triangle_idx]
+
+        if self.surface_layer is None:
+            self.surface_layer = self.viewer.add_surface(
+                data=(surface_points, triangle_idx),
+                shading='flat'
             )
-            spline_color = spline_colors[spline_id]
-            self.shapes_layer.add_paths(spline_points, edge_color=spline_color)
+        else:
+            self.surface_layer.data = surface.mesh()

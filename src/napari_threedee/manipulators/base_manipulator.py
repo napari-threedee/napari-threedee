@@ -5,7 +5,7 @@ import napari
 import numpy as np
 from napari.viewer import Viewer
 
-from napari_threedee._backend.threedee_model import ThreeDeeModel
+from napari_threedee._backend.threedee_model import N3dComponent
 from .._backend.manipulator.axis_model import AxisModel
 from .._backend.manipulator.napari_manipulator_backend import \
     NapariManipulatorBackend
@@ -13,7 +13,7 @@ from napari_threedee.utils.napari_utils import add_mouse_callback_safe, \
     remove_mouse_callback_safe
 
 
-class BaseManipulator(ThreeDeeModel, ABC):
+class BaseManipulator(N3dComponent, ABC):
     """Base class for manipulator implementations.
 
     To implement:

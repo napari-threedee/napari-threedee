@@ -4,12 +4,12 @@ from qtpy.QtWidgets import QPushButton, QGroupBox, QVBoxLayout, QCheckBox, QSpin
 
 from napari_threedee._backend.threedee_widget_base import QtThreeDeeWidgetBase
 
-from napari_threedee.annotators.spline_annotator import SplineAnnotator
+from napari_threedee.annotators.paths import PathAnnotator
 
 
-class QtSplineAnnotatorWidget(QtThreeDeeWidgetBase):
+class QtPathAnnotatorWidget(QtThreeDeeWidgetBase):
     def __init__(self, viewer: napari.Viewer):
-        super().__init__(model_class=SplineAnnotator, viewer=viewer)
+        super().__init__(model_class=PathAnnotator, viewer=viewer)
 
         self.auto_fit_checkbox = QCheckBox("automatically fit spline")
         self.auto_fit_checkbox.clicked.connect(self._on_auto_fit)
@@ -44,10 +44,10 @@ class QtSplineAnnotatorWidget(QtThreeDeeWidgetBase):
         self.model.events.active_spline_id.connect(self._update_active_spline_id)
 
     def _on_spline_fit(self):
-        # update splines from points
+        # update data from points
         self.model._update_spheres()
 
-        # draw splines
+        # draw data
         self.model._draw_splines()
 
     def _on_auto_fit(self):
