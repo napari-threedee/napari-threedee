@@ -1,5 +1,5 @@
 """
-Layer manipulator example (library)
+Layer manipulator (library)
 ===================================
 
 An example controlling the layer manipulator,

@@ -1,26 +1,24 @@
 """
-Point annotator example (library)
+Point annotator (library)
 =================================
 
 An example controlling the point annotator,
 using napari-threedee as a library.
 """
-from napari_threedee.annotators import PointAnnotator
-
 import napari
 from skimage import data
 
+from napari_threedee.annotators import PointAnnotator
+
+
+# create napari viewer
 viewer = napari.Viewer(ndisplay=3)
+
+# generate 3d image data
 blobs = data.binary_blobs(length=64, volume_fraction=0.1, n_dim=3).astype(float)
 
-# add a volume and render as plane
-plane_parameters = {
-    'position': (32, 32, 32),
-    'normal': (1, 0, 0),
-    'thickness': 10,
-}
-
-plane_layer = viewer.add_image(
+# add image layer to viewer (rendering as a plane)
+image_layer = viewer.add_image(
     blobs,
     rendering='average',
     name='plane',
@@ -28,9 +26,14 @@ plane_layer = viewer.add_image(
     blending='translucent',
     opacity=0.5,
     depiction='plane',
-    plane=plane_parameters,
+    plane={
+        'position': (32, 32, 32),
+        'normal': (1, 0, 0),
+        'thickness': 10,
+    },
 )
 
+# add points layer to viewer
 points_layer = viewer.add_points(
     data=[],
     size=5,
@@ -38,12 +41,17 @@ points_layer = viewer.add_points(
     ndim=3
 )
 
+# create the point annotator
 annotator = PointAnnotator(
     viewer=viewer,
-    image_layer=plane_layer,
+    image_layer=image_layer,
     points_layer=points_layer,
     enabled=True,
 )
-viewer.layers.selection = [plane_layer]
-viewer.camera.set_view_direction([-1, -1, 1])
+
+# run napari
+viewer.layers.selection = [image_layer]
+viewer.axes.visible = True
+viewer.camera.angles = (-15, 25, -30)
+viewer.camera.zoom *= 0.5
 napari.run()

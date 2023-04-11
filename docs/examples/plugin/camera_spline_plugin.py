@@ -1,5 +1,5 @@
 """
-Camera spline example (plugin)
+Camera spline (plugin)
 ==============================
 
 An example controlling the camera spline,
