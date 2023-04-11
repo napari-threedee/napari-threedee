@@ -139,7 +139,7 @@ class PathAnnotator(N3dComponent):
             self._draw_paths()
         self.events.paths_updated()
 
-    def _get_spline_colors(self) -> Dict[int, np.ndarray]:
+    def _get_path_colors(self) -> Dict[int, np.ndarray]:
         self.points_layer.features[PATH_COLOR_FEATURES_KEY] = \
             list(self.points_layer.face_color)
         grouped_points_features = self.points_layer.features.groupby(
@@ -161,7 +161,7 @@ class PathAnnotator(N3dComponent):
     def _draw_paths(self):
         from napari_threedee.data_models import N3dPaths
         paths = N3dPaths.from_layer(self.points_layer)
-        spline_colors = self._get_spline_colors()
+        spline_colors = self._get_path_colors()
         self._clear_shapes_layer()
         for spline_id, path in enumerate(paths):
             if len(path) >= 2:

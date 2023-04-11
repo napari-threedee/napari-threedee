@@ -21,12 +21,13 @@ class SplineSampler(EventedModel):
         super().__init__(**kwargs)
         self._prepare_splines()
 
-    def __call__(self, u: Union[float, np.ndarray]):
+    def __call__(self, u: Union[float, np.ndarray], derivative:int = 0):
         """Sample equidistant points along a spline interpolation of points.
 
         `u` in the range `[0, 1]` covers the path through `points[0]` to `points[-1]`.
+        `derivative` is the derivative order to sample
         """
-        return self._sample_backbone(u, derivative=0)
+        return self._sample_backbone(u, derivative=derivative)
 
     @property
     def _ndim(self) -> int:
