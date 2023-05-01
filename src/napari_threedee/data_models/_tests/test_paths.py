@@ -1,3 +1,4 @@
+import napari
 import numpy as np
 import zarr
 
@@ -47,3 +48,10 @@ def test_paths_to_and_from_n3d_zarr(tmp_path):
 def test_empty_path():
     path = N3dPath(data=[])
     assert path.data.shape == (0, 3)
+
+
+def test_empty_paths_as_layer():
+    path = N3dPath(data=[])
+    paths = N3dPaths(data=[path, path])
+    layer = paths.as_layer()
+    assert isinstance(layer, napari.layers.Points)
