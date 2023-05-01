@@ -50,4 +50,7 @@ class N3dPoints(N3dDataModel):
 
     @validator('data', pre=True)
     def ensure_2d_float32_array(cls, value):
-        return np.atleast_2d(np.asarray(value, dtype=np.float32))
+        data = np.atleast_2d(np.asarray(value, dtype=np.float32))
+        if data.shape[-1] == 0:
+            data = np.zeros(shape=(0, 3))
+        return data
