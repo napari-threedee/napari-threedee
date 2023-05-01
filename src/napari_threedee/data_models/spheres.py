@@ -71,9 +71,12 @@ class N3dSpheres(N3dDataModel):
     def ensure_float32_ndarray(cls, value):
         return np.asarray(value, dtype=np.float32)
 
-    @validator('centers')
+    @validator('centers', pre=True)
     def ensure_at_least_2d(cls, value):
-        return np.atleast_2d(value)
+        data = np.atleast_2d(value)
+        if data.shape[-1] == 0:
+            data = np.zeros(shape=(0, 3))
+        return data
 
     def to_mesh(self) -> Tuple[np.ndarray, np.ndarray]:
         from vispy.geometry import create_sphere
