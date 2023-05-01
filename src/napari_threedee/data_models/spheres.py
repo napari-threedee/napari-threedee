@@ -32,6 +32,12 @@ class N3dSpheres(N3dDataModel):
         return cls(centers=centers, radii=radii)
 
     def as_layer(self) -> napari.layers.Points:
+        if len(self.centers) == 0:  # workaround for napari/napari#4213
+            cls = type(self)
+            layer = cls(centers=[0, 0, 0], radii=[10]).as_layer()
+            layer.selected_data = {0}
+            layer.remove_selected()
+            return layer
         metadata = {N3D_METADATA_KEY: {ANNOTATION_TYPE_KEY: SPHERE_ANNOTATION_TYPE_KEY}}
         features = {
             SPHERE_RADIUS_FEATURES_KEY: self.radii,
