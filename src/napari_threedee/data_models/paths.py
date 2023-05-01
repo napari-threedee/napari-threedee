@@ -42,7 +42,11 @@ class N3dPath(BaseModel):
 
     @validator('data', pre=True)
     def ensure_float32_ndarray(cls, value):
-        return np.asarray(value, dtype=np.float32)
+        data = np.atleast_2d(np.asarray(value, dtype=np.float32))
+        if data.shape[-1] == 0:
+            data = np.zeros(shape=(0, 3), dtype=np.float32)
+        return data
+
 
     def __len__(self) -> int:
         return len(self.data)

@@ -2,7 +2,8 @@ import numpy as np
 import zarr
 
 from napari_threedee.data_models.paths import N3dPath, N3dPaths
-from napari_threedee.annotators.paths.validation import validate_layer, validate_n3d_zarr
+from napari_threedee.annotators.paths.validation import validate_layer, \
+    validate_n3d_zarr
 
 
 def test_single_path_instantiation():
@@ -41,3 +42,8 @@ def test_paths_to_and_from_n3d_zarr(tmp_path):
     validate_n3d_zarr(n3d_zarr)
     paths = N3dPaths.from_n3d_zarr(tmp_path)
     assert isinstance(paths, N3dPaths)
+
+
+def test_empty_path():
+    path = N3dPath(data=[])
+    assert path.data.shape == (0, 3)
