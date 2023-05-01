@@ -66,18 +66,18 @@ class SphereAnnotator(N3dComponent):
         if len(df) == 0:
             return None
         else:
-            return float(
-                df[SPHERE_RADIUS_FEATURES_KEY].iloc[self._active_sphere_index])
+            radius = df[SPHERE_RADIUS_FEATURES_KEY].iloc[self._active_sphere_index]
+            return float(radius)
 
     @property
     def _active_sphere_index(self) -> Union[int, None]:
         """index into data/features of current sphere"""
-        if self.active_sphere_id is None:
+        if self.points_layer is None:
             return None
-        df = features_to_pandas_dataframe(self.points_layer.features)
-        idx = df[SPHERE_ID_FEATURES_KEY] == self.active_sphere_id
-        df = df.loc[idx, :]
-        return df.index.values[0]
+        elif list(self.points_layer.selected_data) != []:
+            return int(list(self.points_layer.selected_data)[0])
+        else:
+            return None
 
     @property
     def mode(self) -> SphereAnnotatorMode:
@@ -240,4 +240,3 @@ class SphereAnnotator(N3dComponent):
     def _on_highlight_change(self, event=None):
         """Callback for enabling edit mode."""
         self.mode = SphereAnnotatorMode.EDIT
-
