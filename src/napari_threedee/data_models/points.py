@@ -22,6 +22,13 @@ class N3dPoints(N3dDataModel):
         return cls(data=layer.data)
 
     def as_layer(self) -> napari.layers.Points:
+        if len(self.data) == 0:  # workaround for napari/napari#4213
+            cls = type(self)
+            n3d_points = cls(data=[0, 0, 0])
+            layer = n3d_points.as_layer()
+            layer.selected_data = {0}
+            layer.remove_selected()
+            return layer
         metadata = {N3D_METADATA_KEY: {ANNOTATION_TYPE_KEY: POINT_ANNOTATION_TYPE_KEY}}
         layer = napari.layers.Points(
             data=self.data,
