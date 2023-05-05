@@ -78,14 +78,14 @@ class N3dPaths(N3dDataModel):
         return cls(data=splines)
 
     def as_layer(self) -> napari.layers.Points:
-        data = np.concatenate([spline.data for spline in self.data])
-        if len(data) == 0:  # workaround for napari/napari#4213
+        if len(self) == 0:  # workaround for napari/napari#4213
             cls = type(self)
             n3d_paths = cls(data=[N3dPath(data=[0, 0, 0])])
             layer = n3d_paths.as_layer()
             layer.selected_data = {0}
             layer.remove_selected()
             return layer
+        data = np.concatenate([spline.data for spline in self.data])
         metadata = {
             N3D_METADATA_KEY: {
                 ANNOTATION_TYPE_KEY: PATH_ANNOTATION_TYPE_KEY,
@@ -132,3 +132,6 @@ class N3dPaths(N3dDataModel):
 
     def __iter__(self) -> N3dPath:
         yield from self.data
+
+    def __len__(self) -> int:
+        return len(self.data)
