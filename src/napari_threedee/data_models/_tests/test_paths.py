@@ -51,7 +51,6 @@ def test_empty_path():
 
 
 def test_empty_paths_as_layer():
-    path = N3dPath(data=[])
-    paths = N3dPaths(data=[path, path])
+    paths = N3dPaths(data=[])
     layer = paths.as_layer()
     assert isinstance(layer, napari.layers.Points)
