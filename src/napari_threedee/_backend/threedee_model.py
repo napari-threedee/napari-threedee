@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class ThreeDeeModel(ABC):
+class N3dComponent(ABC):
     """Base class for manipulators and annotators.
 
     By adhering to the interface defined by this class, widgets can be automatically generated for

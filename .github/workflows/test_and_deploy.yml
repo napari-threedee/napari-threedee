@@ -66,6 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - uses: tlambert03/setup-qt-libs@v1
     # Install dependencies
     - name: Set up Python 3.8
       uses: actions/setup-python@v2
@@ -74,10 +75,12 @@ jobs:
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
+        pip list
     # Build the book
     - name: Build the book
-      run: |
-        mkdocs build
+      uses: aganders3/headless-gui@v1
+      with:
+        run: mkdocs build --strict
     # Push the book's HTML to github-pages whenever the main repo branch changes
     - name: GitHub Pages action
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}

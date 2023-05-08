@@ -4,17 +4,17 @@ import napari
 from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout
 from napari.utils.events import Event
 
-from napari_threedee._backend.threedee_model import ThreeDeeModel
+from napari_threedee._backend.threedee_model import N3dComponent
 from ..utils.napari_utils import generate_populated_layer_selection_widget
 
 
 class QtThreeDeeWidgetBase(QWidget):
     """Base class for GUI elements in napari-threedee."""
 
-    def __init__(self, model_class: Type[ThreeDeeModel], viewer: napari.Viewer, flags=None, *args,
+    def __init__(self, model_class: Type[N3dComponent], viewer: napari.Viewer, flags=None, *args,
                  **kwargs):
         super().__init__(flags, *args, **kwargs)
-        self.model: ThreeDeeModel = model_class(viewer)
+        self.model: N3dComponent = model_class(viewer)
         self.viewer = viewer
 
         self._layer_selection_widget = generate_populated_layer_selection_widget(

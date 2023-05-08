@@ -1,6 +1,6 @@
 import pytest
 
-from napari_threedee.annotators import PointAnnotator, SplineAnnotator, \
+from napari_threedee.annotators import PointAnnotator, PathAnnotator, \
     SphereAnnotator
 
 
@@ -19,7 +19,7 @@ def point_annotator(make_napari_viewer, points_layer_4d, blobs_layer_4d_plane):
 def spline_annotator(make_napari_viewer, blobs_layer_4d_plane):
     viewer = make_napari_viewer(ndisplay=3)
     plane_layer = viewer.add_layer(blobs_layer_4d_plane)
-    annotator = SplineAnnotator(viewer=viewer, image_layer=plane_layer)
+    annotator = PathAnnotator(viewer=viewer, image_layer=plane_layer)
     return annotator
 
 

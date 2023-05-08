@@ -98,10 +98,11 @@ nav:
       - annotations/point_spec.md
       - annotations/sphere_spec.md
       - annotations/spline_spec.md
+  - 'Examples gallery': generated/gallery  # This node will automatically be named and have sub-nodes.
   - 'API':
-      - api/napari_utilities.md
-      - api/selection_utilities.md
-      - api/geometry_utilities.md
+      - API/napari_utilities.md
+      - API/selection_utilities.md
+      - API/geometry_utilities.md
 
 plugins:
   - search
@@ -137,6 +138,13 @@ plugins:
       is_video: True
       video_autoplay: True
       video_loop: True
+  - gallery:
+      conf_script: docs/gallery_conf.py
+      examples_dirs: [docs/examples]
+      gallery_dirs: [docs/generated/gallery]
+      filename_pattern: /*.py  # which scripts will be executed for the docs
+      ignore_pattern: /__init__.py  # ignore these examle files completely
+      run_stale_examples: True
 
 extra_css:
   - stylesheets/extra.css
