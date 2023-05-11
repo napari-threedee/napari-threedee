@@ -101,6 +101,7 @@ class N3dPaths(N3dDataModel):
             name='n3d paths',
             ndim=data.shape[-1],
         )
+        layer.selected_data = {len(data) - 1}
         validate_layer(layer)
         return layer
 
