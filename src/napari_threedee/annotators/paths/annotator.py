@@ -6,15 +6,12 @@ from typing import Optional, Dict
 
 from napari_threedee._backend.threedee_model import N3dComponent
 from napari_threedee.annotators.paths.constants import (
-    PATH_ANNOTATION_TYPE_KEY,
     PATH_ID_FEATURES_KEY,
     PATH_COLOR_FEATURES_KEY,
-    COLOR_CYCLE,
 )
 from napari_threedee.utils.mouse_callbacks import add_point_on_plane
 from napari_threedee.utils.napari_utils import add_mouse_callback_safe, \
     remove_mouse_callback_safe
-from napari_threedee.annotators.constants import N3D_METADATA_KEY, ANNOTATION_TYPE_KEY
 
 
 class PathAnnotator(N3dComponent):
@@ -59,23 +56,9 @@ class PathAnnotator(N3dComponent):
             image_layer=self.image_layer
         )
 
-    def _create_points_layer(self) -> Optional[Points]:
-        layer = Points(
-            data=[0] * self.image_layer.data.ndim,
-            ndim=self.image_layer.data.ndim,
-            name="n3d paths (control points)",
-            size=3,
-            features={PATH_ID_FEATURES_KEY: [0]},
-            face_color=PATH_ID_FEATURES_KEY,
-            face_color_cycle=COLOR_CYCLE,
-            metadata={
-                N3D_METADATA_KEY: {
-                    ANNOTATION_TYPE_KEY: PATH_ANNOTATION_TYPE_KEY,
-                }
-            }
-        )
-        layer.selected_data = {0}
-        layer.remove_selected()
+    def _create_points_layer(self) -> Points:
+        from napari_threedee.data_models import N3dPaths
+        layer = N3dPaths(data=[]).as_layer()
         return layer
 
     def _create_shapes_layer(self) -> Shapes:
