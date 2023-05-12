@@ -130,5 +130,5 @@ class PathAnnotator(N3dComponent):
         self._clear_shapes_layer()
         for path, color in zip(paths, spline_colors.values()):
             if len(path) >= 2:
-                points = path.sample(n=2000)
+                points = path.sample(n=400)
                 self.shapes_layer.add_paths(points, edge_color=color)
