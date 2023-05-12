@@ -2,7 +2,6 @@ import os
 from abc import abstractmethod
 
 import napari
-import zarr
 from pydantic import BaseModel
 
 

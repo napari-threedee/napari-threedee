@@ -1,20 +1,17 @@
 import napari
 from napari.layers import Image, Points, Shapes
-from napari.utils.events.event import EmitterGroup, Event
+from napari.layers.utils.layer_utils import features_to_pandas_dataframe
 import numpy as np
 from typing import Optional, Dict
 
 from napari_threedee._backend.threedee_model import N3dComponent
 from napari_threedee.annotators.paths.constants import (
-    PATH_ANNOTATION_TYPE_KEY,
     PATH_ID_FEATURES_KEY,
     PATH_COLOR_FEATURES_KEY,
-    COLOR_CYCLE,
 )
 from napari_threedee.utils.mouse_callbacks import add_point_on_plane
 from napari_threedee.utils.napari_utils import add_mouse_callback_safe, \
     remove_mouse_callback_safe
-from napari_threedee.annotators.constants import N3D_METADATA_KEY, ANNOTATION_TYPE_KEY
 
 
 class PathAnnotator(N3dComponent):
@@ -25,14 +22,7 @@ class PathAnnotator(N3dComponent):
         points_layer: Optional[Points] = None,
         enabled: bool = False
     ):
-        self.events = EmitterGroup(
-            source=self,
-            active_spline_id=Event,
-            paths_updated=Event
-        )
-
         self.viewer = viewer
-        self._active_spline_id: int = 0
 
         self.image_layer = image_layer
         self.points_layer = points_layer
@@ -45,25 +35,16 @@ class PathAnnotator(N3dComponent):
 
         self.enabled = enabled
 
-    @property
-    def active_spline_id(self):
-        return self._active_spline_id
-
-    @active_spline_id.setter
-    def active_spline_id(self, id: int):
-        self._active_spline_id = np.clip(id, 0, None)
-        if self.points_layer is not None:
-            self.points_layer.selected_data = {}
-            self.points_layer.current_properties = {
-                PATH_ID_FEATURES_KEY: self.active_spline_id
-            }
-        self.events.active_spline_id()
-
-    def next_spline(self, event=None):
-        self.active_spline_id += 1
-
-    def previous_spline(self, event=None):
-        self.active_spline_id -= 1
+    def activate_new_path_mode(self, event=None) -> None:
+        if self.points_layer is None:
+            return
+        df = features_to_pandas_dataframe(self.points_layer.features)
+        if len(df) == 0:
+            new_path_id = 0
+        else:
+            new_path_id = np.max(df[PATH_ID_FEATURES_KEY]) + 1
+        self.points_layer.selected_data = {}
+        self.points_layer.current_properties = {PATH_ID_FEATURES_KEY: [new_path_id]}
 
     def _mouse_callback(self, viewer, event):
         if (self.image_layer is None) or (self.points_layer is None):
@@ -75,24 +56,9 @@ class PathAnnotator(N3dComponent):
             image_layer=self.image_layer
         )
 
-    def _create_points_layer(self) -> Optional[Points]:
-        layer = Points(
-            data=[0] * self.image_layer.data.ndim,
-            ndim=self.image_layer.data.ndim,
-            name="n3d paths (control points)",
-            size=3,
-            features={PATH_ID_FEATURES_KEY: [0]},
-            face_color=PATH_ID_FEATURES_KEY,
-            face_color_cycle=COLOR_CYCLE,
-            metadata={
-                N3D_METADATA_KEY: {
-                    ANNOTATION_TYPE_KEY: PATH_ANNOTATION_TYPE_KEY,
-                }
-            }
-        )
-        layer.selected_data = {0}
-        layer.remove_selected()
-        self.active_spline_id = self.active_spline_id
+    def _create_points_layer(self) -> Points:
+        from napari_threedee.data_models import N3dPaths
+        layer = N3dPaths(data=[]).as_layer()
         return layer
 
     def _create_shapes_layer(self) -> Shapes:
@@ -121,7 +87,7 @@ class PathAnnotator(N3dComponent):
                 self.viewer.mouse_drag_callbacks, self._mouse_callback
             )
             self.points_layer.events.data.connect(self._on_point_data_changed)
-            self.viewer.bind_key('n', self.next_spline, overwrite=True)
+            self.viewer.bind_key('n', self.activate_new_path_mode, overwrite=True)
             self.viewer.layers.selection.active = self.image_layer
 
     def _on_disable(self):
@@ -137,7 +103,6 @@ class PathAnnotator(N3dComponent):
     def _on_point_data_changed(self, event=None):
         if self.auto_fit_spline is True:
             self._draw_paths()
-        self.events.paths_updated()
 
     def _get_path_colors(self) -> Dict[int, np.ndarray]:
         self.points_layer.features[PATH_COLOR_FEATURES_KEY] = \
@@ -145,10 +110,10 @@ class PathAnnotator(N3dComponent):
         grouped_points_features = self.points_layer.features.groupby(
             PATH_ID_FEATURES_KEY
         )
-        spline_colors = dict()
-        for spline_id, spline_df in grouped_points_features:
-            spline_colors[spline_id] = spline_df[PATH_COLOR_FEATURES_KEY].iloc[0]
-        return spline_colors
+        path_colors = dict()
+        for path_id, path_df in grouped_points_features:
+            path_colors[path_id] = path_df[PATH_COLOR_FEATURES_KEY].iloc[0]
+        return path_colors
 
     def _clear_shapes_layer(self):
         """Delete all shapes in the shapes layer."""
@@ -165,5 +130,5 @@ class PathAnnotator(N3dComponent):
         self._clear_shapes_layer()
         for path, color in zip(paths, spline_colors.values()):
             if len(path) >= 2:
-                points = path.sample(n=2000)
+                points = path.sample(n=400)
                 self.shapes_layer.add_paths(points, edge_color=color)
