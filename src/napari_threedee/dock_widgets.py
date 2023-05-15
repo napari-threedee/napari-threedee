@@ -14,5 +14,5 @@ from .annotators._qt import (
 from .visualization._qt import (
     QtCameraSpline,
     QtLightingControlWidget,
-
+    QtAmbientOcclusionWidget
 )
