@@ -59,7 +59,6 @@ class CameraSpline(N3dComponent):
         self._current_spline_coordinate = 0
 
         self.spline_annotator_model = PathAnnotator(viewer=viewer, image_layer=None, enabled=False)
-        self.spline_annotator_model.events.paths_updated.connect(self._check_if_spline_valid)
 
         self._check_if_spline_valid()
         self.enabled = enabled
@@ -236,6 +235,7 @@ class CameraSpline(N3dComponent):
     def _on_enable(self):
         """Function called when the widget is activated"""
         self.spline_annotator_model.set_layers(self.image_layer)
+        self.spline_annotator_model.points_layer.events.data.connect(self._check_if_spline_valid)
 
     def _on_disable(self):
         """Function called when the widget is deactivated"""
