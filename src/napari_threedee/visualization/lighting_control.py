@@ -15,8 +15,6 @@ class LightingControl(N3dComponent):
         self._viewer = viewer
         self._selected_layers = []
         self._selected_layer_visuals = []
-        self._ambient_occlusion = False
-        self._pre_ambient_occlusion_values = []
         self.enabled = False
 
     def set_layers(self, layers: List[napari.layers.Surface]):
@@ -32,10 +30,6 @@ class LightingControl(N3dComponent):
 
     def _on_disable(self):
         self._disconnect_events()
-
-    @property
-    def ambient_occlusion(self) -> bool:
-        return self._ambient_occlusion
 
     @property
     def selected_layers(self) -> List[napari.layers.Surface]:
