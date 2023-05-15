@@ -14,7 +14,7 @@ viewer = napari.Viewer(ndisplay=3)
 blobs = skimage.data.binary_blobs(
     length=64,
     volume_fraction=0.1,
-    n_dim=4
+    n_dim=3
 ).astype(float)
 
 plane_parameters_z = {
