@@ -1,11 +1,16 @@
-import igl
+try:
+    import igl
+    IGL_INSTALLED = True
+except ModuleNotFoundError:
+    IGL_INSTALLED = False
+
 from typing import List
 
 import napari
 from napari.qt.threading import FunctionWorker, thread_worker
 from napari.utils import progress
 from magicgui import magicgui, widgets, magic_factory
-from qtpy.QtWidgets import QPushButton, QWidget, QVBoxLayout, QCheckBox
+from qtpy.QtWidgets import QPushButton, QWidget, QVBoxLayout, QLabel
 
 from napari_threedee.visualization.lighting_control import LightingControl
 
@@ -104,15 +109,15 @@ class QtAmbientOcclusionWidget(QWidget):
             self._layer_selection_widget.reset_choices
         )
 
-        self._ambient_occlusion_widget = magicgui(
-            self._set_ambient_occlusion,
-            call_button="update ambient occlusion",
-        )
+        if IGL_INSTALLED:
+            self._ambient_occlusion_widget = QPushButton("update ambient occlusion")
+            self._ambient_occlusion_widget.pressed.connect(self._set_ambient_occlusion)
+        else:
+            self._ambient_occlusion_widget = QLabel("IGL is not installed. pip install libigl")
 
         self.setLayout(QVBoxLayout())
         self.layout().addWidget(self._layer_selection_widget.native)
-        # self.layout().addWidget(self._ambient_occlusion_checkbox)
-        self.layout().addWidget(self._ambient_occlusion_widget.native)
+        self.layout().addWidget(self._ambient_occlusion_widget)
 
     def _get_layers(self, widget):
         return [layer for layer in self._viewer.layers if isinstance(layer, napari.layers.Surface)]
@@ -120,37 +125,6 @@ class QtAmbientOcclusionWidget(QWidget):
     def set_layers(self, layers: List[napari.layers.Surface]):
         self.selected_layers = layers
 
-    # def _set_ambient_occlusion(self, pbar: widgets.ProgressBar) -> FunctionWorker[None]:
-    #
-    #     current_selection = set(self.selected_layers)
-    #     current_ao = set(self.current_ao_layers)
-    #
-    #     layers_to_add_ao_set = current_selection.difference(current_ao)
-    #     layers_to_add_ao = list(layers_to_add_ao_set)
-    #     layers_to_remove_ao = list(current_ao.difference(current_selection))
-    #     self.current_ao_layers = list(layers_to_add_ao_set.union(current_ao.intersection(current_selection)))
-    #
-    #     @thread_worker(connect={'returned': pbar.hide})
-    #     def _set_ambient_occlusion():
-    #         for layer in layers_to_add_ao:
-    #             vertices, faces, values = layer.data
-    #             vertex_normals = igl.per_vertex_normals(vertices, faces)
-    #             ao = igl.ambient_occlusion(vertices, faces, vertices, vertex_normals, 20)
-    #             attenuation_factors = 1 - ao
-    #             attenuated_values = attenuation_factors * values
-    #
-    #             layer.data = (vertices, faces, attenuated_values)
-    #
-    #             self.original_data.update({layer: (vertices, faces, values)})
-    #
-    #         for layer in layers_to_remove_ao:
-    #             # remove the ao
-    #             layer_data = self.original_data.pop(layer)
-    #             print(layer_data[2])
-    #             layer.data = layer_data
-    #
-    #     pbar.show()
-    #     return _set_ambient_occlusion()
     def _set_ambient_occlusion(self) -> None:
         current_selection = set(self.selected_layers)
         current_ao = set(self.current_ao_layers)

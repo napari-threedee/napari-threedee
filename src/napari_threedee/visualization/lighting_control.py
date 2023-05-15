@@ -1,6 +1,5 @@
 from typing import List
 
-import igl
 import numpy as np
 import napari
 

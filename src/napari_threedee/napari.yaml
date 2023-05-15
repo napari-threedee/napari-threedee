@@ -36,6 +36,9 @@ contributions:
     - id: napari-threedee.QtLightingControlWidget
       title: Create mesh lighting control
       python_name: napari_threedee.dock_widgets:QtLightingControlWidget
+    - id: napari-threedee.QtAmbientOcclusionWidget
+      title: Create ambient occlusion widget
+      python_name: napari_threedee.dock_widgets:QtAmbientOcclusionWidget
 
     # Visualisation
     - id: napari-threedee.QtCameraSplineWidget
@@ -80,11 +83,12 @@ contributions:
     # Lighting
     - command: napari-threedee.QtLightingControlWidget
       display_name: mesh lighting controls
+    - command: napari-threedee.QtAmbientOcclusionWidget
+      display_name: ambient occlusion controls
 
     # Visualisation
     - command: napari-threedee.QtCameraSplineWidget
       display_name: camera spline control
-
 
   writers:
     - command: napari-threedee.write_n3d
