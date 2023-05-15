@@ -29,7 +29,7 @@ class QtPathAnnotatorWidget(QtThreeDeeWidgetBase):
         self.layout().addWidget(self.fitting_group_box)
 
         # connect events to sync changes in the model to the UI
-        self.model.events.active_spline_id.connect(self._update_active_spline_id)
+        # self.model.events.active_spline_id.connect(self._update_active_spline_id)
 
     def _on_spline_fit(self):
         self.model._draw_paths()
