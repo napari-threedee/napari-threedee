@@ -46,7 +46,7 @@ width="300"/>
 
 </td><td>
 
-[mesh lighting control](https://github.com/napari-threedee/napari-threedee/blob/main/examples/plugin/mesh_headlight.py)
+[mesh lighting control](https://github.com/napari-threedee/napari-threedee/blob/main/docs/examples/plugin/mesh_headlight_plugin.py)
 
 </td></tr><tr><td>
 
@@ -55,7 +55,7 @@ width="300"/>
 
 </td><td>
 
-[annotate points on planes](https://github.com/napari-threedee/napari-threedee/blob/main/examples/plugin/plane_point_annotator.py)
+[annotate points on planes](https://github.com/napari-threedee/napari-threedee/blob/main/docs/examples/plugin/point_annotator_plugin.py)
 
 </td></tr><tr><td>
 
@@ -64,7 +64,7 @@ width="300"/>
 
 </td><td>
 
-[render plane manipulator](https://github.com/napari-threedee/napari-threedee/blob/main/examples/plugin/render_plane_manipulator.py)
+[render plane manipulator](https://github.com/napari-threedee/napari-threedee/blob/main/docs/examples/plugin/render_plane_manipulator_plugin.py)
 
 </td></tr><tr><td>
 
@@ -73,7 +73,7 @@ width="300"/>
 
 </td><td>
 
-[layer manipulator](https://github.com/napari-threedee/napari-threedee/blob/main/examples/plugin/layer_manipulator.py)
+[layer manipulator](https://github.com/napari-threedee/napari-threedee/blob/main/docs/examples/plugin/layer_manipulator_plugin.py)
 
 </td></tr><tr><td>
 
@@ -82,7 +82,7 @@ width="300"/>
 
 </td><td>
 
-[point manipulator](https://github.com/napari-threedee/napari-threedee/blob/main/examples/plugin/points_manipulator.py)
+[point manipulator](https://github.com/napari-threedee/napari-threedee/blob/main/docs/examples/plugin/points_manipulator_plugin.py)
 
 
 </td></tr></table>
