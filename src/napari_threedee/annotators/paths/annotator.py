@@ -35,6 +35,10 @@ class PathAnnotator(N3dComponent):
 
         self.enabled = enabled
 
+    @property
+    def active_path_id(self):
+        return self.points_layer.current_properties[PATH_ID_FEATURES_KEY][0]
+
     def activate_new_path_mode(self, event=None) -> None:
         if self.points_layer is None:
             return

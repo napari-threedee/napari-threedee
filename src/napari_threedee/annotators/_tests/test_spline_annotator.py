@@ -31,11 +31,13 @@ def test_add_point(spline_annotator):
     # change filamanet_id in annotator, add point, check matches
     points_layer.add([2, 3, 4, 5])
     assert points_layer.features[label][1] == 0
+    assert spline_annotator.active_path_id == 0
 
     # create new path, make sure id advanced
     spline_annotator.activate_new_path_mode()
     points_layer.add([2, 3, 4, 5])
     assert points_layer.features[label][2] == 1
+    assert spline_annotator.active_path_id == 1
 
 
 def test_get_colors(spline_annotator):
