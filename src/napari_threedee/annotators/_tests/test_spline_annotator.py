@@ -26,22 +26,29 @@ def test_add_point(spline_annotator):
     # add points, make sure filament id in feature table matches the annotator
     points_layer.add([1, 2, 3, 4])
     assert len(points_layer.data) == 1
-    assert points_layer.features[label][0] == spline_annotator.active_spline_id
+    assert points_layer.features[label][0] == 0
 
-    # change filemanet_id in annotator, add point, check matches
-    spline_annotator.active_level_id = 534
+    # change filamanet_id in annotator, add point, check matches
     points_layer.add([2, 3, 4, 5])
-    assert points_layer.features[label][1] == spline_annotator.active_spline_id
+    assert points_layer.features[label][1] == 0
+
+    # create new path, make sure id advanced
+    spline_annotator.activate_new_path_mode()
+    points_layer.add([2, 3, 4, 5])
+    assert points_layer.features[label][2] == 1
 
 
 def test_get_colors(spline_annotator):
     """Test getting spline colors from the annotator."""
+    # add a point. the first spline gets id 0
     points_layer = spline_annotator.points_layer
-    spline_annotator.active_spline_id = 0
     points_layer.add([1, 2, 3, 4])
-    spline_annotator.active_spline_id = 1
+
+    # create a new spline, this advances the spline id to 1
+    spline_annotator.activate_new_path_mode()
     points_layer.add([2, 3, 4, 5])
 
     spline_colors = spline_annotator._get_path_colors()
     for spline_id in (0, 1):
+        # check that both spline ids are in the colors dict
         assert spline_id in spline_colors

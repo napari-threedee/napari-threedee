@@ -128,6 +128,31 @@ class N3dPaths(N3dDataModel):
         n3d_zarr.attrs[ANNOTATION_TYPE_KEY] = PATH_ANNOTATION_TYPE_KEY
         n3d_zarr.attrs[PATH_ID_FEATURES_KEY] = list(self.spline_ids)
 
+    @classmethod
+    def create_empty_layer(cls, ndim: int):
+        """Create an empty path annotator points layer.
+
+        Parameters
+        ----------
+        ndim : int
+            The dimensionality of the empty points layer.
+            Generally, this should match the image layer being
+            annotated.
+
+        Returns
+        -------
+        layer : napari.layers.Points
+            The napari Points layer initialized for path annotation.
+        """
+        # workaround for napari/napari#4213
+        dummy_data = np.zeros((ndim,))
+        n3d_paths = cls(data=[N3dPath(data=dummy_data)])
+        layer = n3d_paths.as_layer()
+        layer.selected_data = {0}
+        layer.remove_selected()
+        return layer
+
+
     def __getitem__(self, idx: int) -> N3dPath:
         return self.data[idx]
 

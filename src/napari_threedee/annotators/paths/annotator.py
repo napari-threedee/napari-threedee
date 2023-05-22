@@ -58,8 +58,8 @@ class PathAnnotator(N3dComponent):
 
     def _create_points_layer(self) -> Points:
         from napari_threedee.data_models import N3dPaths
-        layer = N3dPaths(data=[]).as_layer()
-        return layer
+        ndim = self.image_layer.data.ndim
+        return N3dPaths.create_empty_layer(ndim=ndim)
 
     def _create_shapes_layer(self) -> Shapes:
         return Shapes(
