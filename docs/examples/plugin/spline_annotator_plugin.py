@@ -45,7 +45,7 @@ viewer.add_image(
 
 # add plugin dock widget to viewer
 viewer.window.add_plugin_dock_widget(
-    plugin_name="napari-threedee", widget_name="sphere annotator"
+    plugin_name="napari-threedee", widget_name="path annotator"
 )
 
 # run napari

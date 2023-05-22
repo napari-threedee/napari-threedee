@@ -35,6 +35,10 @@ class PathAnnotator(N3dComponent):
 
         self.enabled = enabled
 
+    @property
+    def active_path_id(self):
+        return self.points_layer.current_properties[PATH_ID_FEATURES_KEY][0]
+
     def activate_new_path_mode(self, event=None) -> None:
         if self.points_layer is None:
             return
@@ -58,8 +62,8 @@ class PathAnnotator(N3dComponent):
 
     def _create_points_layer(self) -> Points:
         from napari_threedee.data_models import N3dPaths
-        layer = N3dPaths(data=[]).as_layer()
-        return layer
+        ndim = self.image_layer.data.ndim
+        return N3dPaths.create_empty_layer(ndim=ndim)
 
     def _create_shapes_layer(self) -> Shapes:
         return Shapes(
