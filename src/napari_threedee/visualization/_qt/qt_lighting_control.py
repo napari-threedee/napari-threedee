@@ -129,6 +129,7 @@ class QtAmbientOcclusionWidget(QWidget):
         current_selection = set(self.selected_layers)
         current_ao = set(self.current_ao_layers)
 
+        # determine which layers need to be updated
         layers_to_add_ao_set = current_selection.difference(current_ao)
         layers_to_add_ao = list(layers_to_add_ao_set)
         layers_to_remove_ao = list(current_ao.difference(current_selection))
@@ -137,6 +138,7 @@ class QtAmbientOcclusionWidget(QWidget):
         with progress(layers_to_add_ao) as adding_progress:
             for layer in adding_progress:
                 vertices, faces, values = layer.data
+                faces = faces.astype(int)
                 vertex_normals = igl.per_vertex_normals(vertices, faces)
                 ao = igl.ambient_occlusion(vertices, faces, vertices, vertex_normals, 20)
                 attenuation_factors = 1 - ao
