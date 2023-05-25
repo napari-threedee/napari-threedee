@@ -62,7 +62,7 @@ jobs:
         uses: codecov/codecov-action@v2
 
   docs:
-    needs: [test]  # runs only after the other CI tests pass
+    #needs: [test]  # runs only after the other CI tests pass
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -74,7 +74,7 @@ jobs:
         python-version: 3.8
     - name: Install dependencies
       run: |
-        pip install PyOpenGL<3.1.7
+        pip install "PyOpenGL<3.1.7"
         pip install -r requirements.txt
         pip list
     # Build the book
