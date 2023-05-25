@@ -62,7 +62,7 @@ jobs:
         uses: codecov/codecov-action@v2
 
   docs:
-    #needs: [test]  # runs only after the other CI tests pass
+    needs: [test]  # runs only after the other CI tests pass
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
