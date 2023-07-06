@@ -25,6 +25,11 @@ def test_add_point_on_plane_3d(viewer_with_plane_and_points_3d):
 
 def test_add_point_on_plane_4d(viewer_with_plane_and_points_4d):
     viewer = viewer_with_plane_and_points_4d
+
+    # set the dims point
+    slice_index = 12
+    viewer.dims.set_current_step(0, slice_index)
+
     points_layer = viewer.layers['Points']
     plane_layer = viewer.layers['blobs_4d']
 
@@ -40,4 +45,4 @@ def test_add_point_on_plane_4d(viewer_with_plane_and_points_4d):
         image_layer=plane_layer,
     )
     assert len(points_layer.data) == 1
-    np.testing.assert_array_almost_equal(points_layer.data[0], (14, 14, 14, 14))
+    np.testing.assert_array_almost_equal(points_layer.data[0], (slice_index, 14, 14, 14))
