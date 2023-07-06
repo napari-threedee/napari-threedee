@@ -19,6 +19,10 @@ contributions:
       title: Create surface annotator
       python_name: napari_threedee.dock_widgets:QtSurfaceAnnotatorWidget
 
+    - id: napari-threedee.QtLabelAnnotatorWidget
+      title: Create label annotator
+      python_name: napari_threedee.dock_widgets:QtLabelAnnotatorWidget
+
     # Manipulators
     - id: napari-threedee.QtRenderPlaneManipulatorWidget
       title: Create render plane manipulator
@@ -69,6 +73,9 @@ contributions:
 
     - command: napari-threedee.QtSurfaceAnnotatorWidget
       display_name: surface annotator
+
+    - command: napari-threedee.QtLabelAnnotatorWidget
+      display_name: label annotator
 
     # Manipulators
     - command: napari-threedee.QtRenderPlaneManipulatorWidget
