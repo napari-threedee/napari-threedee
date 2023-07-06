@@ -5,6 +5,7 @@ from .manipulators._qt import (
 )
 
 from .annotators._qt import (
+    QtLabelAnnotatorWidget,
     QtPointAnnotatorWidget,
     QtPathAnnotatorWidget,
     QtSphereAnnotatorWidget,
