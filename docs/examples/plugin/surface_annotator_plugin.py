@@ -5,7 +5,6 @@ Surface annotator example (plugin)
 An example controlling the surface annotator,
 using napari-threedee as a napari plugin.
 """
-
 import napari
 from skimage import data
 
