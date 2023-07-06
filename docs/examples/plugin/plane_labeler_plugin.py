@@ -20,7 +20,8 @@ blobs = data.binary_blobs(
 # add the image layer in plane depiction mode
 plane_layer = viewer.add_image(
     blobs,
-    rendering='average',
+    rendering='mip',
+    colormap="cyan",
     name='plane',
     depiction='plane',
     opacity=0.5,
@@ -28,7 +29,9 @@ plane_layer = viewer.add_image(
 )
 
 # add a labels layer
-labels_layer = viewer.add_labels(np.zeros_like(blobs).astype(int))
+labels_layer = viewer.add_labels(
+    np.zeros_like(blobs).astype(int)
+)
 labels_layer.n_edit_dimensions = 3
 
 viewer.window.add_plugin_dock_widget(
