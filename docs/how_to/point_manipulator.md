@@ -8,7 +8,7 @@ Precisely positioning a point in 3D is a useful way to annotate specific positio
 
 ## Instructions
 
-1. Open the [points_manipulator.py](https://github.com/napari-threedee/napari-threedee/blob/main/examples/plugin/points_manipulator.py) example.
+1. Open the [points_manipulator.py](https://napari-threedee.github.io/generated/gallery/plugin/points_manipulator_plugin/) example.
 
 
     ![example opened](https://user-images.githubusercontent.com/1120672/207381513-8fd3f7e9-157f-4ef9-99c1-551bd329842b.png)

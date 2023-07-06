@@ -26,4 +26,8 @@ points_data = np.array(
 viewer = napari.Viewer(ndisplay=3)
 points_layer = viewer.add_points(points_data, size=5)
 
+viewer.window.add_plugin_dock_widget(
+    plugin_name="napari-threedee", widget_name="point manipulator"
+)
+
 napari.run()
