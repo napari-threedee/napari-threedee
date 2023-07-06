@@ -46,11 +46,20 @@ class PlaneLabeler(N3dComponent):
             # replace the mouse callback with the one aware of the image layer rendering plane
             remove_mouse_callback_safe(self.labels_layer.mouse_drag_callbacks, napari_draw)
             add_mouse_callback_safe(self.labels_layer.mouse_drag_callbacks, self.draw)
+        elif event.mode == "fill":
+            remove_mouse_callback_safe(self.labels_layer.mouse_drag_callbacks, self.draw)
+            add_mouse_callback_safe(self.labels_layer.mouse_drag_callbacks, napari_draw)
 
     def _on_enable(self):
         if self.labels_layer is None:
             return
         self.labels_layer.events.mode.connect(self._on_mode_change)
+
+        # update the event callbacks
+        if self.labels_layer.mode in ("paint", "erase"):
+            # replace the mouse callback with the one aware of the image layer rendering plane
+            remove_mouse_callback_safe(self.labels_layer.mouse_drag_callbacks, napari_draw)
+            add_mouse_callback_safe(self.labels_layer.mouse_drag_callbacks, self.draw)
 
         # currently the plane painting must be done with n_edit_dims = 3
         # todo modify painting so it can be done 2D in plane

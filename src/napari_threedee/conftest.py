@@ -77,3 +77,11 @@ def viewer_with_plane_and_points_4d(make_napari_viewer, blobs_layer_4d_plane, po
     viewer.add_layer(blobs_layer_4d_plane)
     viewer.add_layer(points_layer_4d)
     return viewer
+
+
+@pytest.fixture
+def viewer_with_plane_and_labels_3d(viewer_with_plane_3d):
+    empty_label_image = np.zeros_like(viewer_with_plane_3d.layers['blobs_3d'].data, dtype=int)
+    viewer_with_plane_3d.add_labels(empty_label_image, name="labels_3d")
+
+    return viewer_with_plane_3d
