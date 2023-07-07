@@ -8,7 +8,8 @@ Sometimes objects in your data have a systematic shift relative to one another. 
 
 ## Instructions
 
-1. Open the layer_manipulator.py example from the docs. The viewer is initalized in 3D rendering mode. You can click and drag in the canvas to rotate the view. Note that the two layers are the same image, but not aligned.
+1. Open the [layer_manipulator.py](https://napari-threedee.github.io/generated/gallery/plugin/layer_manipulator_plugin/) example from the docs. The viewer is initalized in 3D rendering mode. You can 
+   click and drag in the canvas to rotate the view. Note that the two layers are the same image, but not aligned.
 	
 	![layers loaded](https://user-images.githubusercontent.com/1120672/207427782-c2b04738-17ed-4963-b6b9-cde6a899ae7f.png)
 	

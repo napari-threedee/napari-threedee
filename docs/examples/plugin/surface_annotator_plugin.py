@@ -1,11 +1,10 @@
 """
-Surface annotator example (plugin)
-=================================
+Surface annotator (plugin)
+===============================
 
-An example controlling the surface annotator,
+An example controlling the mesh headlight,
 using napari-threedee as a napari plugin.
 """
-
 import napari
 from skimage import data
 
@@ -28,7 +27,8 @@ viewer.add_image(
     'position': (32, 32, 32),
     'normal': (1, 0, 0),
     'thickness': 10,
-})
+    }
+)
 
 # add plugin dock widget to viewer
 viewer.window.add_plugin_dock_widget(
