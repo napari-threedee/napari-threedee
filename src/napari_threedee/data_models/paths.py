@@ -35,7 +35,7 @@ class N3dPath(BaseModel):
     def n_points(self) -> int:
         return self.data.shape[0]
 
-    def sample(self, n: int = 10000, derivative:int = 0) -> np.ndarray:
+    def sample(self, n: int = 10000, derivative: int = 0) -> np.ndarray:
         """Sample equidistant points between data points."""
         sampler = SplineSampler(points=self.data)
         return sampler(u=np.linspace(0, 1, num=n), derivative=derivative)
@@ -46,7 +46,6 @@ class N3dPath(BaseModel):
         if data.shape[-1] == 0:
             data = np.zeros(shape=(0, 3), dtype=np.float32)
         return data
-
 
     def __len__(self) -> int:
         return len(self.data)
@@ -64,9 +63,9 @@ class N3dPaths(N3dDataModel):
         return self.data[0].data.shape[-1]
 
     @property
-    def spline_ids(self) -> np.ndarray:
-        spline_ids = [[idx] * len(spline.data) for idx, spline in enumerate(self.data)]
-        return np.concatenate(spline_ids)
+    def path_ids(self) -> np.ndarray:
+        path_ids = [[idx] * len(path.data) for idx, path in enumerate(self.data)]
+        return np.concatenate(path_ids)
 
     @classmethod
     def from_layer(cls, layer: napari.layers.Layer):
@@ -91,7 +90,7 @@ class N3dPaths(N3dDataModel):
                 ANNOTATION_TYPE_KEY: PATH_ANNOTATION_TYPE_KEY,
             }
         }
-        features = {PATH_ID_FEATURES_KEY: self.spline_ids}
+        features = {PATH_ID_FEATURES_KEY: self.path_ids}
         layer = napari.layers.Points(
             data=data,
             metadata=metadata,
@@ -126,7 +125,7 @@ class N3dPaths(N3dDataModel):
         )
         n3d_zarr[...] = np.concatenate([spline.data for spline in self.data])
         n3d_zarr.attrs[ANNOTATION_TYPE_KEY] = PATH_ANNOTATION_TYPE_KEY
-        n3d_zarr.attrs[PATH_ID_FEATURES_KEY] = list(self.spline_ids)
+        n3d_zarr.attrs[PATH_ID_FEATURES_KEY] = list(self.path_ids)
 
     @classmethod
     def create_empty_layer(cls, ndim: int):
@@ -151,7 +150,6 @@ class N3dPaths(N3dDataModel):
         layer.selected_data = {0}
         layer.remove_selected()
         return layer
-
 
     def __getitem__(self, idx: int) -> N3dPath:
         return self.data[idx]
