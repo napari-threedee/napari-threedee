@@ -16,7 +16,7 @@ def point_annotator(make_napari_viewer, points_layer_4d, blobs_layer_4d_plane):
 
 
 @pytest.fixture
-def spline_annotator(make_napari_viewer, blobs_layer_4d_plane):
+def path_annotator(make_napari_viewer, blobs_layer_4d_plane):
     viewer = make_napari_viewer(ndisplay=3)
     plane_layer = viewer.add_layer(blobs_layer_4d_plane)
     annotator = PathAnnotator(viewer=viewer, image_layer=plane_layer)

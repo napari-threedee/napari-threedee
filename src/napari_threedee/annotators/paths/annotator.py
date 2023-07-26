@@ -130,9 +130,16 @@ class PathAnnotator(N3dComponent):
     def _draw_paths(self):
         from napari_threedee.data_models import N3dPaths
         paths = N3dPaths.from_layer(self.points_layer)
-        spline_colors = self._get_path_colors()
+        path_points = [
+            path.sample(n=400)
+            for path in paths
+            if len(path) >= 2
+        ]
+        path_colors = [
+            color
+            for path, color
+            in zip(paths, self._get_path_colors().values())
+            if len(path) >= 2
+        ]
         self._clear_shapes_layer()
-        for path, color in zip(paths, spline_colors.values()):
-            if len(path) >= 2:
-                points = path.sample(n=400)
-                self.shapes_layer.add_paths(points, edge_color=color)
+        self.shapes_layer.add_paths(path_points, edge_color=path_colors)
