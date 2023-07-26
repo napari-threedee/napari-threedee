@@ -145,7 +145,7 @@ plugins:
       examples_dirs: [docs/examples]
       gallery_dirs: [docs/generated/gallery]
       filename_pattern: /*.py  # which scripts will be executed for the docs
-      ignore_pattern: /__init__.py  # ignore these examle files completely
+      ignore_pattern: /__init__.py  # ignore these example files completely
       run_stale_examples: True
 
 extra_css:
