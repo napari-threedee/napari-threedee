@@ -82,6 +82,8 @@ nav:
   - 'Getting started':
     - 'for users': getting_started/users.md
     - 'for developers': getting_started/developers.md
+  - 'Tutorials':
+      - '3D segmentation': tutorials/segmentation_tutorial.md
   - 'How do I...':
       - 'interactively position a render plane': how_to/render_plane_manipulator.md
       - 'interactively position points': how_to/point_manipulator.md

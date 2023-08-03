@@ -111,7 +111,7 @@ class PlaneLabeler(N3dComponent):
         coordinates : array of int or None
             The data coordinates for the mouse event.
         """
-        ndim = len(layer._dims_displayed)
+        ndim = self.viewer.dims.ndisplay
         if ndim == 2:
             coordinates = layer.world_to_data(event.position)
         elif ndim == 3 and self.image_layer._depiction == VolumeDepiction.PLANE:
@@ -148,7 +148,7 @@ class PlaneLabeler(N3dComponent):
         pixels will be changed to background and this tool functions like an
         eraser
         """
-        ndisplay = len(layer._dims_displayed)
+        ndisplay = self.viewer.dims.ndisplay
         coordinates = self._mouse_event_to_labels_coordinate(layer, event)
         if np.any(coordinates < 0) or np.any(coordinates >= layer.data.shape):
             # catch case when plane is not intersected
