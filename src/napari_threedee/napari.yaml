@@ -1,5 +1,6 @@
 name: napari-threedee
 schema_version: 0.1.0
+visibility: hidden
 contributions:
   commands:
     # Annotators
