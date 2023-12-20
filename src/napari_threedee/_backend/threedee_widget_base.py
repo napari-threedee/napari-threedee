@@ -1,7 +1,7 @@
 from typing import Type
 
 import napari
-from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout
+from qtpy.QtWidgets import QWidget, QPushButton, QVBoxLayout
 from napari.utils.events import Event
 
 from napari_threedee._backend.threedee_model import N3dComponent
