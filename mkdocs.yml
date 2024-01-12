@@ -11,6 +11,9 @@ repo_url: https://github.com/napari-threedee/napari-threedee
 # Copyright
 copyright: Copyright &copy; 2022 Alister Burt and Kevin Yamauchi
 
+watch:
+  - src/napari_threedee
+
 theme:
   icon:
     logo: material/home-circle
@@ -53,8 +56,8 @@ markdown_extensions:
       alternate_style: true
   - attr_list
   - pymdownx.emoji:
-      emoji_index: !!python/name:materialx.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - md_in_html
   - pymdownx.arithmatex:
       generic: true
@@ -111,8 +114,6 @@ nav:
 plugins:
   - search
   - mkdocstrings:
-      watch:
-        - src/napari_threedee
       handlers:
         python:
           import:
