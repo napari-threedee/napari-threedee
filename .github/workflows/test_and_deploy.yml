@@ -83,11 +83,11 @@ jobs:
       with:
         run: mkdocs build --strict
     # Upload artifact
-     - name: Upload artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: site
-          path: ./site
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: site
+        path: ./site
     # Push the book's HTML to github-pages whenever the main repo branch changes
     - name: GitHub Pages action
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
