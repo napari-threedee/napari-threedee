@@ -30,6 +30,6 @@ of plugins for just that. Please see our [Getting started for users guide](getti
 
 ### Developers
 Are you developing an image processing workflow that requires exploration or annotation of multidimensional data? 
-`napari-threedee` has a collection of composable compoents for adding 3D interactivity to your workflow! To get 
+`napari-threedee` has a collection of composable components for adding 3D interactivity to your workflow! To get 
 started, see our [Getting started for developers guide](getting_started/developers.md).
 
