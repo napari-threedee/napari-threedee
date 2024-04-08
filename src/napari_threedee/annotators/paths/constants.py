@@ -13,4 +13,7 @@ COLOR_CYCLE = [
     '#17becf',
 ]
 PATH_ID_FEATURES_KEY = "path_id"
-PATH_COLOR_FEATURES_KEY = "spline_color"
+PATH_COLOR_FEATURES_KEY_0 = "spline_color_0"
+PATH_COLOR_FEATURES_KEY_1 = "spline_color_1"
+PATH_COLOR_FEATURES_KEY_2 = "spline_color_2"
+PATH_COLOR_FEATURES_KEY_3 = "spline_color_3"

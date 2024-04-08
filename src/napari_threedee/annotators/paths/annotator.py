@@ -7,7 +7,10 @@ from typing import Optional, Dict
 from napari_threedee._backend.threedee_model import N3dComponent
 from napari_threedee.annotators.paths.constants import (
     PATH_ID_FEATURES_KEY,
-    PATH_COLOR_FEATURES_KEY,
+    PATH_COLOR_FEATURES_KEY_0,
+    PATH_COLOR_FEATURES_KEY_1,
+    PATH_COLOR_FEATURES_KEY_2,
+    PATH_COLOR_FEATURES_KEY_3,
 )
 from napari_threedee.utils.mouse_callbacks import add_point_on_plane
 from napari_threedee.utils.napari_utils import add_mouse_callback_safe, \
@@ -109,14 +112,29 @@ class PathAnnotator(N3dComponent):
             self._draw_paths()
 
     def _get_path_colors(self) -> Dict[int, np.ndarray]:
-        self.points_layer.features[PATH_COLOR_FEATURES_KEY] = \
-            list(self.points_layer.face_color)
+        face_colors = self.points_layer.face_color
+        if len(face_colors) == 0:
+            # if no colors, return empty dict
+            return dict()
+
+        self.points_layer.features[PATH_COLOR_FEATURES_KEY_0] = face_colors[:, 0]
+        self.points_layer.features[PATH_COLOR_FEATURES_KEY_1] = face_colors[:, 1]
+        self.points_layer.features[PATH_COLOR_FEATURES_KEY_2] = face_colors[:, 2]
+        self.points_layer.features[PATH_COLOR_FEATURES_KEY_3] = face_colors[:, 3]
+
         grouped_points_features = self.points_layer.features.groupby(
             PATH_ID_FEATURES_KEY
         )
         path_colors = dict()
         for path_id, path_df in grouped_points_features:
-            path_colors[path_id] = path_df[PATH_COLOR_FEATURES_KEY].iloc[0]
+            path_colors[path_id] = path_df[
+                [
+                    PATH_COLOR_FEATURES_KEY_0,
+                    PATH_COLOR_FEATURES_KEY_1,
+                    PATH_COLOR_FEATURES_KEY_2,
+                    PATH_COLOR_FEATURES_KEY_3
+                ]
+            ].iloc[0]
         return path_colors
 
     def _clear_shapes_layer(self):
