@@ -188,12 +188,12 @@ class CameraSpline(N3dComponent):
 
     def calculate_transform_from_spline_tangent_to_view_direction(self):
         current_view_direction = self.viewer.camera.view_direction
-        n3d_metadata = self.spline_annotator_model.points_layer.metadata[N3D_METADATA_KEY]
-        spline_dict = n3d_metadata[PathAnnotator.SPLINES_KEY]
+        paths = N3dPaths.from_layer(self.spline_annotator_model.points_layer)
 
         # only one spline
-        spline_object = spline_dict[0]
-        spline_tangent = np.squeeze(spline_object._sample_backbone(u=[self.current_spline_coordinate], derivative=1))
+        spline_object = paths[0]
+        spline_sampler = SplineSampler(points=spline_object.data)
+        spline_tangent = np.squeeze(spline_sampler(u=[self.current_spline_coordinate], derivative=1))
         spline_tangent_displayed = spline_tangent[list(self.viewer.dims.displayed)]
 
         self.view_direction_transformation = rotation_matrix_from_vectors_3d(
