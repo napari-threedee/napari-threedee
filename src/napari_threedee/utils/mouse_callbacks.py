@@ -31,14 +31,14 @@ def add_point_on_plane(
     position_world = event.position
     view_direction_world = event.view_direction
     ndim_world = len(position_world)
-    dims_displayed_world = np.asarray(viewer.dims.displayed)
+    dims_displayed_world = np.asarray(viewer.dims.displayed)[list(viewer.dims.displayed_order)]
 
     # use image layer data (pixel) coordinates, because that's what plane.position uses
     position_image_data_coord = np.asarray(image_layer.world_to_data(position_world))
     view_direction_image_data_coord = np.asarray(image_layer._world_to_data_ray(view_direction_world))
 
     dims_displayed_image_layer = np.asarray(dims_displayed_world_to_layer(
-        viewer.dims.displayed,
+        dims_displayed_world,
         ndim_world=ndim_world,
         ndim_layer=image_layer.ndim,
     ))
@@ -51,17 +51,17 @@ def add_point_on_plane(
         line_direction=view_direction_image_data_3d
     )
 
-    # Check if click was on plane by checking if intersection occurs within
+    # Check if click was on plane by checking if intersection occurs within image layer
     # data bounding box. If not, exit early.
-    if not point_in_bounding_box(intersection_image_data_3d, image_layer.extent.data):
+    if not point_in_bounding_box(intersection_image_data_3d, image_layer.extent.data[:, dims_displayed_image_layer]):
         return
 
-    # Transform the point coordinate from image layer coordinates to world coordinates
-    intersection_3d_world = image_layer.data_to_world(intersection_image_data_3d)
+    # Transform the intersection coordinate from image layer coordinates to world coordinates
+    intersection_3d_world = np.asarray(image_layer.data_to_world(intersection_image_data_3d))[dims_displayed_image_layer]
 
     # convert to nd in world coordinates
     intersection_nd_world = np.asarray(viewer.dims.point)
-    intersection_nd_world[dims_displayed_world] = intersection_3d_world
+    intersection_nd_world[dims_displayed_image_layer] = intersection_3d_world
 
     # Transform the the point in world coordinates to point layer data coordinates
     intersection_3d_points = points_layer.world_to_data(intersection_3d_world)
