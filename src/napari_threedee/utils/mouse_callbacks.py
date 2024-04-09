@@ -26,10 +26,13 @@ def add_point_on_plane(
     # Early exit if image_layer isn't visible
     if image_layer.visible is False or image_layer.depiction != 'plane':
         return
-
+    print(event.position)
+    print(image_layer.world_to_data(event.position))
     # Calculate intersection of click with plane through data in displayed data (scene) coordinates
     displayed_dims = np.asarray(viewer.dims.displayed)[list(viewer.dims.displayed_order)]
-    cursor_position_3d = np.asarray(event.position)[displayed_dims]
+    # use data coordinates, because that's what plane.position uses
+    cursor_data_coord = image_layer.world_to_data(event.position)
+    cursor_position_3d = cursor_data_coord[displayed_dims]
     intersection_3d = image_layer.plane.intersect_with_line(
         line_position=cursor_position_3d,
         line_direction=event.view_direction[displayed_dims]
