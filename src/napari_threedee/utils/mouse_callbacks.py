@@ -5,7 +5,7 @@ from napari.layers.utils.interactivity_utils import drag_data_to_projected_dista
 from napari.layers.utils.layer_utils import dims_displayed_world_to_layer
 import numpy as np
 
-from napari_threedee.utils.geometry import point_in_bounding_box
+from napari_threedee.utils.geometry import point_in_layer_bounding_box
 
 if TYPE_CHECKING:
     import napari
@@ -53,7 +53,7 @@ def add_point_on_plane(
 
     # Check if click was on plane by checking if intersection occurs within image layer
     # data bounding box. If not, exit early.
-    if not point_in_bounding_box(intersection_image_data_3d, image_layer.extent.data[:, dims_displayed_image_layer]):
+    if not point_in_layer_bounding_box(intersection_image_data_3d, image_layer):
         return
 
     # Transform the intersection coordinate from image layer coordinates to world coordinates
