@@ -25,7 +25,6 @@ class PointManipulator(BaseManipulator):
     def _connect_events(self):
         if self.layer is None:
             return
-        # self.layer.events.highlight.connect(self._on_selection_change)
         self.layer.selected_data.events.items_changed.connect(self._on_selection_change)
         remove_mouse_callback_safe(
             self.layer.mouse_drag_callbacks,
@@ -40,7 +39,7 @@ class PointManipulator(BaseManipulator):
     def _disconnect_events(self):
         if self.layer is None:
             return
-        self.layer.events.highlight.disconnect(self._on_selection_change)
+        self.layer.selected_data.events.items_changed.disconnect(self._on_selection_change)
         remove_mouse_callback_safe(
             self.layer.mouse_drag_callbacks,
             self.napari_selection_callback_passthrough
@@ -59,7 +58,6 @@ class PointManipulator(BaseManipulator):
         return self.layer.data[self.active_point_index]
 
     def _on_selection_change(self, event=None):
-        print("hi")
         # early exit cases
         if self.layer is None:
             return
@@ -98,24 +96,21 @@ class PointManipulator(BaseManipulator):
                 )
 
     def _pre_drag(self):
-        # self.layer.events.highlight.disconnect(self._on_selection_change)
         pass
 
     def _while_dragging_translator(self):
-        print("while drag start")
-        print(self._backend.vispy_visual.transform)
         selected_point_index = list(self.layer.selected_data)[0]
         self.layer.data[selected_point_index] = self.origin
         # # refresh rendering manually after modifying array data inplace
         # with self.layer.events.highlight.blocker():
         self.layer.events.set_data()
 
+        # this is a hack because the transforms were getting overwritten
+        # after the set_data() event.
+        # https://github.com/napari-threedee/napari-threedee/pull/167
         self._backend._on_transformation_changed()
-        print("after hack")
-        print(self._backend.vispy_visual.transform)
 
     def _post_drag(self):
-        # self.layer.events.highlight.connect(self._on_selection_change)
         pass
 
     # def _while_dragging_rotator(self, selected_rotator: int, rotation_matrix: np.ndarray):
