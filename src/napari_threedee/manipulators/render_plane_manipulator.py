@@ -9,7 +9,7 @@ class RenderPlaneManipulator(BaseManipulator):
     """A manipulator for moving and orienting an image layer rendering plane."""
 
     def __init__(self, viewer, layer=None):
-        super().__init__(viewer, layer, rotator_axes='yz', translator_axes='z')
+        super().__init__(viewer, layer, rotator_axes='xyz', translator_axes='z')
 
     def set_layers(self, layers: napari.layers.Image):
         super().set_layers(layers)
