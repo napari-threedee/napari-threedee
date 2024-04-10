@@ -97,6 +97,7 @@ class ManipulatorVisual(Compound):
             pos=self.manipulator_visual_data.translator_handle_data.points[:, ::-1],
             face_color=self.manipulator_visual_data.translator_handle_colors,
             size=self.manipulator_visual_data.translator_handle_data.handle_size,
+            symbol="square"
         )
 
     def _update_rotator_visuals(self):
