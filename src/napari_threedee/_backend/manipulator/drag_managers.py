@@ -1,4 +1,5 @@
 import napari
+from napari.layers.utils.interactivity_utils import drag_data_to_projected_distance
 from napari.utils.geometry import intersect_line_with_plane_3d
 import numpy as np
 
@@ -81,12 +82,18 @@ class TranslatorDragManager:
         self._view_direction = mouse_event.view_direction
 
     def update_drag(self, mouse_event):
-        projected_distance = self._layer.projected_distance_from_mouse_drag(
+        # projected_distance = self._layer.projected_distance_from_mouse_drag(
+        #     start_position=self._initial_position_world,
+        #     end_position=mouse_event.position,
+        #     view_direction=mouse_event.view_direction,
+        #     vector=self.translation_vector,
+        #     dims_displayed=mouse_event.dims_displayed
+        # )
+        projected_distance = drag_data_to_projected_distance(
             start_position=self._initial_position_world,
             end_position=mouse_event.position,
             view_direction=mouse_event.view_direction,
-            vector=self.translation_vector,
-            dims_displayed=mouse_event.dims_displayed
+            vector=self.translation_vector
         )
         translator_drag_vector = projected_distance * self.translation_vector
         updated_translation = self._initial_translation + translator_drag_vector

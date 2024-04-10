@@ -35,7 +35,7 @@ class RenderPlaneManipulator(BaseManipulator):
         self.origin = np.array(origin_world)
         plane_normal_data = self.layer.plane.normal
         plane_normal_world = data_to_world_ray(vector=plane_normal_data, layer=self.layer)
-        self.rotation_matrix = rotation_matrix_from_vectors_3d([1, 0, 0], plane_normal_data)
+        self.rotation_matrix = rotation_matrix_from_vectors_3d([1, 0, 0], plane_normal_world)
 
     def _while_dragging_translator(self):
         with self.layer.plane.events.position.blocker(self._update_transform):
