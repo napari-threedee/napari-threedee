@@ -25,7 +25,7 @@ class PointManipulator(BaseManipulator):
     def _connect_events(self):
         if self.layer is None:
             return
-        self.layer.events.highlight.connect(self._on_selection_change)
+        self.layer.selected_data.events.items_changed.connect(self._on_selection_change)
         remove_mouse_callback_safe(
             self.layer.mouse_drag_callbacks,
             napari_selection_callback
@@ -39,7 +39,7 @@ class PointManipulator(BaseManipulator):
     def _disconnect_events(self):
         if self.layer is None:
             return
-        self.layer.events.highlight.disconnect(self._on_selection_change)
+        self.layer.selected_data.events.items_changed.disconnect(self._on_selection_change)
         remove_mouse_callback_safe(
             self.layer.mouse_drag_callbacks,
             self.napari_selection_callback_passthrough
@@ -67,6 +67,7 @@ class PointManipulator(BaseManipulator):
             return
 
         selected_points = list(self.layer.selected_data)
+
         if len(selected_points) == 1:
             # replace napari selection callback with n3d passthrough
             remove_mouse_callback_safe(
@@ -81,6 +82,7 @@ class PointManipulator(BaseManipulator):
 
             # update manipulator position
             self.origin = self.active_point_position
+
         else:
             # reinstate original callbacck
             self.visible = False
@@ -94,17 +96,22 @@ class PointManipulator(BaseManipulator):
                 )
 
     def _pre_drag(self):
-        self.layer.events.highlight.disconnect(self._on_selection_change)
+        pass
 
     def _while_dragging_translator(self):
         selected_point_index = list(self.layer.selected_data)[0]
         self.layer.data[selected_point_index] = self.origin
-        # refresh rendering manually after modifying array data inplace
-        self.layer.refresh()
+        # # refresh rendering manually after modifying array data inplace
+        # with self.layer.events.highlight.blocker():
+        self.layer.events.set_data()
+
+        # this is a hack because the transforms were getting overwritten
+        # after the set_data() event.
+        # https://github.com/napari-threedee/napari-threedee/pull/167
+        self._backend._on_transformation_changed()
 
     def _post_drag(self):
-        self.layer.events.highlight.connect(self._on_selection_change)
-
+        pass
 
     # def _while_dragging_rotator(self, selected_rotator: int, rotation_matrix: np.ndarray):
     #     # todo: store rotmat somewhere
@@ -112,6 +119,9 @@ class PointManipulator(BaseManipulator):
 
     def napari_selection_callback_passthrough(self, layer, event):
         if self._backend.is_dragging:  # early exit if manipulator clicked
+            return
+        if layer.mode == "pan_zoom":
+            # don't change selection if in pan zoom
             return
         # if manipulator not clicked, do normal point selection
         value = layer.get_value(
