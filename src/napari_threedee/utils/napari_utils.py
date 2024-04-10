@@ -162,3 +162,24 @@ def get_mouse_position_in_displayed_layer_data_coordinates(layer, event) -> Tupl
     return click_position_data_3d, click_dir_data_3d
 
 
+def data_to_world_ray(vector, layer):
+
+    """Convert a vector defining an orientation from world coordinates to data coordinates.
+    For example, this would be used to convert the view ray.
+
+    Parameters
+    ----------
+    vector : tuple, list, 1D array
+        A vector in world coordinates.
+
+    Returns
+    -------
+    tuple : np.ndarray
+        Vector in data coordinates.
+    """
+    p1 = np.asarray(layer.data_to_world(vector))
+    p0 = np.asarray(layer.data_to_world(np.zeros_like(vector)))
+    normalized_vector = (p1 - p0) / np.linalg.norm(p1 - p0)
+
+    return normalized_vector
+
