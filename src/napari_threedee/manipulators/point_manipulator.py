@@ -120,6 +120,9 @@ class PointManipulator(BaseManipulator):
     def napari_selection_callback_passthrough(self, layer, event):
         if self._backend.is_dragging:  # early exit if manipulator clicked
             return
+        if layer.mode == "pan_zoom":
+            # don't change selection if in pan zoom
+            return
         # if manipulator not clicked, do normal point selection
         value = layer.get_value(
             position=event.position,
