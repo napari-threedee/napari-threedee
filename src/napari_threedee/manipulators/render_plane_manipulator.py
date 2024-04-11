@@ -18,6 +18,8 @@ class RenderPlaneManipulator(BaseManipulator):
     def _connect_events(self):
         self.layer.plane.events.position.connect(self._update_transform)
         self.layer.plane.events.normal.connect(self._update_transform)
+        self.layer.events.visible.connect(self._toggle_visibility)
+        self._viewer.layers.events.removed.connect(self._disable_and_remove)
 
     def _disconnect_events(self):
         self.layer.plane.events.position.disconnect(self._update_transform)

@@ -36,6 +36,8 @@ class PointManipulator(BaseManipulator):
                 self.layer.mouse_drag_callbacks,
                 self.napari_selection_callback_passthrough
             )
+        self.layer.events.visible.connect(self._toggle_visibility)
+        self._viewer.layers.events.removed.connect(self._disable_and_remove)
 
     def _disconnect_events(self):
         if self.layer is None:

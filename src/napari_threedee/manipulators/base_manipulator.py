@@ -189,6 +189,9 @@ class BaseManipulator(N3dComponent, ABC):
     def visible(self, value: bool):
         self._backend.vispy_visual.visible = value
 
+    def _toggle_visibility(self):
+        self.visible = not self.visible
+
     @property
     def enabled(self) -> bool:
         return self._enabled
@@ -214,6 +217,10 @@ class BaseManipulator(N3dComponent, ABC):
                 self.layer.mouse_drag_callbacks,
                 self._mouse_callback
             )
+
+    def _disable_and_remove(self):
+        self.enabled = False
+        self._backend.vispy_visual.parent.children.remove(self._backend.vispy_visual)
 
     def _on_ndisplay_change(self, event=None):
         if self._viewer.dims.ndisplay == 2:
