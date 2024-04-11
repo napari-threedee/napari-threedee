@@ -169,7 +169,7 @@ def data_to_world_ray(vector, layer):
     Parameters
     ----------
     vector : tuple, list, 1D array
-        A vector in world coordinates.
+        A vector in data coordinates.
     layer : napari.layers.BaseLayer
         The napari layer to get the transform from.
 
@@ -194,7 +194,7 @@ def data_to_world_normal(vector, layer):
     Parameters
     ----------
     vector : tuple, list, 1D array
-        A vector in world coordinates.
+        A vector in data coordinates.
     layer : napari.layers.BaseLayer
         The napari layer to get the transform from.
 
@@ -207,6 +207,38 @@ def data_to_world_normal(vector, layer):
 
     # get the transform
     inverse_transform = layer._transforms[1:].simplified.inverse.linear_matrix
+    transpose_inverse_transform = inverse_transform.T
+
+    # transform the vector
+    transformed_vector = np.matmul(transpose_inverse_transform, unit_vector)
+
+    return transformed_vector / np.linalg.norm(transformed_vector)
+
+
+def world_to_data_normal(vector, layer):
+    """Convert a normal vector defining an orientation from world coordinates to data coordinates.
+    For example, this would be used to a plane normal.
+
+    https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/geometry/transforming-normals.html
+
+    Parameters
+    ----------
+    vector : tuple, list, 1D array
+        A vector in world coordinates.
+    layer : napari.layers.BaseLayer
+        The napari layer to get the transform from.
+
+    Returns
+    -------
+    np.ndarray
+        Transformed vector in data coordinates. This returns a unit vector.
+    """
+    unit_vector = np.asarray(vector) / np.linalg.norm(vector)
+
+    # get the transform
+    # the napari transform is from layer -> world.
+    # We want the inverse of the world ->  layer, so we just take the napari transform
+    inverse_transform = layer._transforms[1:].simplified.linear_matrix
     transpose_inverse_transform = inverse_transform.T
 
     # transform the vector

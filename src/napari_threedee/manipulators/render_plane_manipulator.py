@@ -3,7 +3,7 @@ from napari.utils.events.event import EventBlocker
 from napari.utils.geometry import rotation_matrix_from_vectors_3d
 import numpy as np
 from napari_threedee.manipulators.base_manipulator import BaseManipulator
-from napari_threedee.utils.napari_utils import data_to_world_ray
+from napari_threedee.utils.napari_utils import data_to_world_normal, world_to_data_normal
 
 
 class RenderPlaneManipulator(BaseManipulator):
@@ -36,7 +36,7 @@ class RenderPlaneManipulator(BaseManipulator):
         origin_world = self.layer.data_to_world(self.layer.plane.position)
         self.origin = np.array(origin_world)
         plane_normal_data = self.layer.plane.normal
-        plane_normal_world = data_to_world_ray(vector=plane_normal_data, layer=self.layer)
+        plane_normal_world = data_to_world_normal(vector=plane_normal_data, layer=self.layer)
         self.rotation_matrix = rotation_matrix_from_vectors_3d([1, 0, 0], plane_normal_world)
 
     def _while_dragging_translator(self):
@@ -45,8 +45,5 @@ class RenderPlaneManipulator(BaseManipulator):
 
     def _while_dragging_rotator(self):
         with self.layer.plane.events.normal.blocker(self._update_transform):
-            z_vector_data = self.layer._world_to_data_ray(self.z_vector)
-            self.layer.plane.normal = self.z_vector
-
-            print(self.z_vector, z_vector_data)
-
+            z_vector_data = world_to_data_normal(vector=self.z_vector, layer=self.layer)
+            self.layer.plane.normal = z_vector_data
