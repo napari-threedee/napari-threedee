@@ -15,7 +15,7 @@ class LayerManipulator(BaseManipulator):
         super().set_layers(layer)
 
     def _connect_events(self):
-        self.layer.events.visible.connect(self._toggle_visibility)
+        self.layer.events.visible.connect(self._on_visibility_change)
         self._viewer.layers.events.removed.connect(self._disable_and_remove)
 
     def _initialize_transform(self):

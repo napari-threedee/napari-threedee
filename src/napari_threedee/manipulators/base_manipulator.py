@@ -189,8 +189,8 @@ class BaseManipulator(N3dComponent, ABC):
     def visible(self, value: bool):
         self._backend.vispy_visual.visible = value
 
-    def _toggle_visibility(self):
-        self.visible = not self.visible
+    def _on_visibility_change(self):
+        self.visible = self.layer.visible
 
     @property
     def enabled(self) -> bool:
