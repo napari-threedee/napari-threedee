@@ -202,6 +202,23 @@ class ManipulatorVisualData(ModelWithSettableProperties):
             rotator_handle_data=rotator_handle_data
         )
 
+    def update_from_manipulator(self, manipulator: ManipulatorModel):
+        self.central_axis_line_data = ManipulatorLineData.from_central_axis_set(manipulator.central_axes)
+        # translators
+        if manipulator.translators is None:
+            self.translator_line_data = None
+            self.translator_handle_data = None
+        else:
+            self.translator_line_data = ManipulatorLineData.from_translator_set(manipulator.translators)
+            self.translator_handle_data = ManipulatorHandleData.from_translator_set(manipulator.translators)
+        # rotators
+        if manipulator.rotators is None:
+            self.rotator_line_data = None
+            self.rotator_handle_data = None
+        else:
+            self.rotator_line_data = ManipulatorLineData.from_rotator_set(manipulator.rotators)
+            self.rotator_handle_data = ManipulatorHandleData.from_rotator_set(manipulator.rotators)
+
     @property
     def central_axis_line_colors(self) -> np.ndarray:
         """Central axis line vertex colors, non-selected axes are attenuated."""
