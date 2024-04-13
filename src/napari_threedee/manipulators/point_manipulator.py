@@ -1,4 +1,5 @@
 import napari
+import numpy as np
 from napari.layers.points._points_mouse_bindings import select as napari_selection_callback
 from napari.layers.points._points_constants import Mode
 
@@ -35,6 +36,8 @@ class PointManipulator(BaseManipulator):
                 self.layer.mouse_drag_callbacks,
                 self.napari_selection_callback_passthrough
             )
+        self.layer.events.visible.connect(self._on_visibility_change)
+        self._viewer.layers.events.removed.connect(self._disable_and_remove)
 
     def _disconnect_events(self):
         if self.layer is None:
@@ -54,8 +57,10 @@ class PointManipulator(BaseManipulator):
         return list(self.layer.selected_data)[0]
 
     @property
-    def active_point_position(self):
-        return self.layer.data[self.active_point_index]
+    def active_point_position(self) -> np.ndarray:
+        """Get the active point position in world coordinates."""
+        position_layer_coordinates = self.layer.data[self.active_point_index]
+        return np.asarray(self.layer.data_to_world(position_layer_coordinates))
 
     def _on_selection_change(self, event=None):
         # early exit cases
@@ -99,8 +104,13 @@ class PointManipulator(BaseManipulator):
         pass
 
     def _while_dragging_translator(self):
-        selected_point_index = list(self.layer.selected_data)[0]
-        self.layer.data[selected_point_index] = self.origin
+        selected_data = list(self.layer.selected_data)
+        if len(selected_data) == 0:
+            # return early if no data
+            return
+        selected_point_index = selected_data[0]
+        position_layer_coordinates = self.layer.world_to_data(self.origin)
+        self.layer.data[selected_point_index] = position_layer_coordinates
         # # refresh rendering manually after modifying array data inplace
         # with self.layer.events.highlight.blocker():
         self.layer.events.set_data()

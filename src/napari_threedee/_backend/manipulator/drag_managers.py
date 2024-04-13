@@ -1,4 +1,5 @@
 import napari
+from napari.layers.utils.interactivity_utils import drag_data_to_projected_distance
 from napari.utils.geometry import intersect_line_with_plane_3d
 import numpy as np
 
@@ -22,11 +23,15 @@ class RotatorDragManager:
                    rotation_matrix=np.ndarray):
         self._layer = layer
 
-        click_point_data, click_dir_data_3d = get_mouse_position_in_displayed_layer_data_coordinates(layer,
-                                                                                                     mouse_event)
+        # click_point_data, click_dir_data_3d = get_mouse_position_in_displayed_layer_data_coordinates(layer,
+        #                                                                                              mouse_event)
+
+        # todo make 3D only
+        click_position_3d = mouse_event.position
+        click_direction_3d = mouse_event.view_direction
         click_on_rotation_plane = intersect_line_with_plane_3d(
-            line_position=click_point_data,
-            line_direction=click_dir_data_3d,
+            line_position=click_position_3d,
+            line_direction=click_direction_3d,
             plane_position=translation,
             plane_normal=self.rotation_vector,
         )
@@ -34,11 +39,10 @@ class RotatorDragManager:
         self._initial_click_vector = np.squeeze(click_on_rotation_plane) - translation
         self._initial_rotation_matrix = rotation_matrix.copy()
         self._initial_translation = translation
-        self._view_direction = click_dir_data_3d
+        self._view_direction = click_direction_3d
 
     def update_drag(self, mouse_event):
-        click_point_data = np.asarray(self._layer.world_to_data(mouse_event.position))[
-            mouse_event.dims_displayed]
+        click_point_data = np.asarray(mouse_event.position)[mouse_event.dims_displayed]
         click_on_rotation_plane = intersect_line_with_plane_3d(
             line_position=click_point_data,
             line_direction=self._view_direction,
@@ -70,20 +74,26 @@ class TranslatorDragManager:
                    rotation_matrix=np.ndarray):
         self._layer = layer
 
-        _, click_dir_data_3d = get_mouse_position_in_displayed_layer_data_coordinates(layer, mouse_event)
+        # _, click_dir_data_3d = get_mouse_position_in_displayed_layer_data_coordinates(layer, mouse_event)
 
         self._initial_position_world = mouse_event.position
         self._initial_rotation_matrix = np.copy(rotation_matrix)
         self._initial_translation = np.copy(translation)
-        self._view_direction = click_dir_data_3d
+        self._view_direction = mouse_event.view_direction
 
     def update_drag(self, mouse_event):
-        projected_distance = self._layer.projected_distance_from_mouse_drag(
+        # projected_distance = self._layer.projected_distance_from_mouse_drag(
+        #     start_position=self._initial_position_world,
+        #     end_position=mouse_event.position,
+        #     view_direction=mouse_event.view_direction,
+        #     vector=self.translation_vector,
+        #     dims_displayed=mouse_event.dims_displayed
+        # )
+        projected_distance = drag_data_to_projected_distance(
             start_position=self._initial_position_world,
             end_position=mouse_event.position,
             view_direction=mouse_event.view_direction,
-            vector=self.translation_vector,
-            dims_displayed=mouse_event.dims_displayed
+            vector=self.translation_vector
         )
         translator_drag_vector = projected_distance * self.translation_vector
         updated_translation = self._initial_translation + translator_drag_vector

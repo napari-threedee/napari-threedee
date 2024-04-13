@@ -14,18 +14,16 @@ class LayerManipulator(BaseManipulator):
     def set_layers(self, layer: napari.layers.Layer):
         super().set_layers(layer)
 
+    def _connect_events(self):
+        self.layer.events.visible.connect(self._on_visibility_change)
+        self._viewer.layers.events.removed.connect(self._disable_and_remove)
+
     def _initialize_transform(self):
-        # self.origin = self.layer.translate[self.layer._dims_displayed]
-        self.origin = np.asarray((0, 0, 0))
+        self.origin = np.asarray(self.layer.data_to_world((0, 0, 0)))
+        print(self.origin)
 
     def _pre_drag(self):
-        dims_displayed = get_dims_displayed(self.layer)
-        self.translate_start = self.layer.translate[dims_displayed].copy()
+        self.translate_start = self.origin.copy()
 
     def _while_dragging_translator(self):
-        new_translate = self.translate_start + self.origin
-        self.layer.translate = new_translate
-        # origin is relative to the layer transform so needs
-        # to be reset after updating the transform
-        self.origin = np.asarray((0, 0, 0))
-
+        self.layer.translate = self.origin

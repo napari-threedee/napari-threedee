@@ -11,7 +11,7 @@ from .vispy_visual_data import ManipulatorVisualData
 from .vispy_manipulator_visual import ManipulatorVisual
 from napari_threedee._backend.manipulator.drag_managers import RotatorDragManager, \
     TranslatorDragManager
-from ...utils.napari_utils import get_vispy_node, \
+from ...utils.napari_utils import get_vispy_root_node, \
     get_mouse_position_in_displayed_layer_data_coordinates, \
     add_mouse_callback_safe, remove_mouse_callback_safe
 from ...utils.selection_utils import select_sphere_from_click
@@ -65,7 +65,7 @@ class NapariManipulatorBackend:
         self._is_dragging = value
 
     def _connect_vispy_visual(self):
-        parent = get_vispy_node(self._viewer, self.layer)
+        parent = get_vispy_root_node(self._viewer, self.layer)
         self.vispy_visual.parent = parent
         self.vispy_visual.transform = MatrixTransform()
         self.vispy_visual.canvas._backend.destroyed.connect(self._set_canvas_none)
@@ -97,10 +97,10 @@ class NapariManipulatorBackend:
     def _mouse_callback(self, layer, event):
         """Mouse call back for selecting and dragging a manipulator."""
         initial_layer_interactive = layer.mouse_pan
-        click_position_data_3d, click_dir_data_3d = get_mouse_position_in_displayed_layer_data_coordinates(
-            layer, event
-        )
-        drag_manager = self._drag_manager_from_click(click_position_data_3d, click_dir_data_3d)
+        # click_position_data_3d, click_dir_data_3d = get_mouse_position_in_displayed_layer_data_coordinates(
+        #     layer, event
+        # )
+        drag_manager = self._drag_manager_from_click(event.position, event.view_direction,)
         if drag_manager is None:  # no translator/rotator was clicked
             return
 
