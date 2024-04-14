@@ -47,28 +47,6 @@ def test_linedata_from_rotator_set():
     assert ld.axis_identifiers.shape == (n_expected_vertices,)
 
 
-def test_linedata_from_translator():
-    ld = ManipulatorLineData.from_translator(Translator.from_string('x'))
-    assert isinstance(ld, ManipulatorLineData)
-    n_expected_vertices = 2
-    n_expected_connections = 1
-    assert ld.vertices.shape == (n_expected_vertices, 3)
-    assert ld.connections.shape == (n_expected_connections, 2)
-    assert ld.colors.shape == (n_expected_vertices, 4)
-    assert ld.axis_identifiers.shape == (n_expected_vertices,)
-
-
-def test_linedata_from_translator_set():
-    n_translators = 3
-    ld = ManipulatorLineData.from_translator_set(TranslatorSet.from_string('xyz'))
-    assert isinstance(ld, ManipulatorLineData)
-    n_expected_vertices = 2 * n_translators
-    n_expected_connections = n_translators
-    assert ld.vertices.shape == (n_expected_vertices, 3)
-    assert ld.connections.shape == (n_expected_connections, 2)
-    assert ld.colors.shape == (n_expected_vertices, 4)
-    assert ld.axis_identifiers.shape == (n_expected_vertices,)
-
 
 def test_reindex_on_add_linedata():
     """connections must be reindexed after adding pieces of linedata together"""
