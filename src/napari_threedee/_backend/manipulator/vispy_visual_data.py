@@ -107,9 +107,8 @@ class ManipulatorHandleData(BaseModel):
     """Data required to construct a VisPy points visuals and relate points to axes."""
     points: np.ndarray  # (n_handles, 3) array of points
     colors: np.ndarray  # (n_handles, 4) array of RGBA colors for points
+    handle_size: np.ndarray  # (n_handles, ) array of handle sizes
     axis_identifiers: np.ndarray  # (n_points, ) array of axis identifiers
-
-    handle_size: float = 10
 
     class Config:
         arbitrary_types_allowed = True
@@ -119,6 +118,7 @@ class ManipulatorHandleData(BaseModel):
         return cls(
             points=translator.start_point.reshape((1, 3)),
             colors=translator.axis.color.reshape((1, 4)),
+            handle_size=np.array([translator.handle_size]),
             axis_identifiers=np.array([translator.axis.id])
         )
 
@@ -131,6 +131,7 @@ class ManipulatorHandleData(BaseModel):
         return cls(
             points=rotator.handle_point.reshape((1, 3)),
             colors=rotator.axis.color.reshape((1, 4)),
+            handle_size=np.array([rotator.handle_size]),
             axis_identifiers=np.array([rotator.axis.id])
         )
 
@@ -146,8 +147,9 @@ class ManipulatorHandleData(BaseModel):
             return self
         points = np.concatenate([self.points, other.points], axis=0)
         colors = np.concatenate([self.colors, other.colors], axis=0)
+        handle_size = np.concatenate([self.handle_size, other.handle_size], axis=0)
         axis_ids = np.concatenate([self.axis_identifiers, other.axis_identifiers], axis=0)
-        return ManipulatorHandleData(points=points, colors=colors, axis_identifiers=axis_ids)
+        return ManipulatorHandleData(points=points, colors=colors, handle_size=handle_size, axis_identifiers=axis_ids)
 
     def __len__(self):
         return len(self.points)

@@ -12,6 +12,7 @@ class Translator(BaseModel, _Grabbable):
     axis: AxisModel
     length: float = 3
     distance_from_origin: float = 21  # distance of start point from origin
+    handle_size: float = 10
 
     @property
     def start_point(self) -> np.ndarray:

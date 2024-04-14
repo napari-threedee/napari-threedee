@@ -10,6 +10,7 @@ from .axis_model import AxisSet, AxisModel
 class Rotator(BaseModel, _Grabbable):
     axis: AxisModel
     distance_from_origin: float = 20
+    handle_size: float = 10
 
     @property
     def handle_point(self):

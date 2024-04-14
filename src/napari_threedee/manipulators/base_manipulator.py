@@ -99,6 +99,36 @@ class BaseManipulator(N3dComponent, ABC):
 
         # trigger a redraw
         self._backend.vispy_visual.update_visuals_from_manipulator_visual_data()
+
+    @property
+    def handle_size(self) -> float:
+        """The radius of the manipulator handles.
+        """
+        return self._backend.manipulator_model.handle_size
+    
+    @handle_size.setter
+    def handle_size(self, handle_size: float):
+        """The radius of the manipulator handles.
+        """
+        model = self._backend.manipulator_model
+
+        # set the translators
+        if model.translators is not None:
+            for translator in model.translators:
+                translator.handle_size = handle_size
+
+        # set the rotators
+        if model.rotators is not None:
+            for rotator in model.rotators:
+                rotator.handle_size = handle_size
+
+        # update the visual data
+        # note: need to add the update_from_manipulator method
+        self._backend.vispy_visual_data.update_from_manipulator(model)
+
+        # trigger a redraw
+        self._backend.vispy_visual.update_visuals_from_manipulator_visual_data()
+
     
     @property
     def rotation_matrix(self) -> np.ndarray:
