@@ -204,6 +204,7 @@ class BaseManipulator(N3dComponent, ABC):
     def _on_enable(self):
         if self.layer is not None:
             self.visible = True
+            self._backend._on_transformation_changed()
             add_mouse_callback_safe(
                 callback_list=self.layer.mouse_drag_callbacks,
                 callback=self._mouse_callback,
