@@ -10,7 +10,7 @@ class ManipulatorVisual(Compound):
     _line_antialiasing_width: float = 2
 
     def __init__(self, parent, manipulator_visual_data: ManipulatorVisualData):
-        super().__init__([Line(), Line(), Markers(), Markers(), Line(), Markers()], parent=parent)
+        super().__init__([Line(), Line(), Markers(), Markers(), Markers()], parent=parent)
         self.unfreeze()
         self._manipulator_visual_data = manipulator_visual_data
         self.freeze()
@@ -35,7 +35,6 @@ class ManipulatorVisual(Compound):
         self.translator_handle_visual.spherical = True
         self.translator_handle_visual.scaling = True
         self.translator_handle_visual.antialias = self._line_antialiasing_width
-        self.translator_line_visual.antialias = self._line_antialiasing_width
 
     @classmethod
     def from_manipulator(cls, manipulator: ManipulatorModel):
@@ -63,12 +62,8 @@ class ManipulatorVisual(Compound):
         return self._subvisuals[2]
 
     @property
-    def translator_line_visual(self) -> Line:
-        return self._subvisuals[4]
-
-    @property
     def translator_handle_visual(self) -> Markers:
-        return self._subvisuals[5]
+        return self._subvisuals[4]
 
     def update_visuals_from_manipulator_visual_data(self):
         self._update_central_axis_visual()
@@ -85,14 +80,8 @@ class ManipulatorVisual(Compound):
         )
 
     def _update_translator_visuals(self):
-        if self.manipulator_visual_data.translator_line_data is None:
+        if self.manipulator_visual_data.translator_handle_data is None:
             return
-        self.translator_line_visual.set_data(
-            pos=self.manipulator_visual_data.translator_line_data.vertices[:, ::-1],
-            connect=self.manipulator_visual_data.translator_line_data.connections,
-            color=self.manipulator_visual_data.translator_line_colors,
-            width=self.manipulator_visual_data.translator_line_data.line_width,
-        )
         self.translator_handle_visual.set_data(
             pos=self.manipulator_visual_data.translator_handle_data.points[:, ::-1],
             face_color=self.manipulator_visual_data.translator_handle_colors,

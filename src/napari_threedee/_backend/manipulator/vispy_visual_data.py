@@ -37,19 +37,6 @@ class ManipulatorLineData(BaseModel):
         return sum(cls.from_central_axis(axis) for axis in axes)
 
     @classmethod
-    def from_translator(cls, translator: Translator):
-        return cls(
-            vertices=translator.points,
-            connections=np.array([[0, 1]]),
-            colors=np.tile(translator.axis.color, (2, 1)),
-            axis_identifiers=np.array([translator.axis.id for _ in translator.points])
-        )
-
-    @classmethod
-    def from_translator_set(cls, translators: TranslatorSet):
-        return sum(cls.from_translator(translator) for translator in translators)
-
-    @classmethod
     def from_rotator(cls, rotator: Rotator, n_segments: int = 64):
         r, n, axes = rotator.distance_from_origin, n_segments, rotator.axis.perpendicular_axes
         t = np.linspace(0, np.pi / 2, num=n + 1)
@@ -117,7 +104,7 @@ class ManipulatorHandleData(BaseModel):
     @classmethod
     def from_translator(cls, translator: Translator):
         return cls(
-            points=translator.start_point.reshape((1, 3)),
+            points=translator.handle_point.reshape((1, 3)),
             colors=translator.axis.color.reshape((1, 4)),
             axis_identifiers=np.array([translator.axis.id])
         )
@@ -156,7 +143,6 @@ class ManipulatorHandleData(BaseModel):
 class ManipulatorVisualData(ModelWithSettableProperties):
     """Data required to render a manipulator"""
     central_axis_line_data: Optional[ManipulatorLineData]
-    translator_line_data: Optional[ManipulatorLineData]
     translator_handle_data: Optional[ManipulatorHandleData]
     rotator_line_data: Optional[ManipulatorLineData]
     rotator_handle_data: Optional[ManipulatorHandleData]
@@ -182,10 +168,8 @@ class ManipulatorVisualData(ModelWithSettableProperties):
         central_axis_line_data = ManipulatorLineData.from_central_axis_set(manipulator.central_axes)
         # translators
         if manipulator.translators is None:
-            translator_line_data = None
             translator_handle_data = None
         else:
-            translator_line_data = ManipulatorLineData.from_translator_set(manipulator.translators)
             translator_handle_data = ManipulatorHandleData.from_translator_set(manipulator.translators)
         # rotators
         if manipulator.rotators is None:
@@ -196,7 +180,6 @@ class ManipulatorVisualData(ModelWithSettableProperties):
             rotator_handle_data = ManipulatorHandleData.from_rotator_set(manipulator.rotators)
         return cls(
             central_axis_line_data=central_axis_line_data,
-            translator_line_data=translator_line_data,
             translator_handle_data=translator_handle_data,
             rotator_line_data=rotator_line_data,
             rotator_handle_data=rotator_handle_data
@@ -211,17 +194,6 @@ class ManipulatorVisualData(ModelWithSettableProperties):
             central_axis_colors = self.central_axis_line_data.colors.copy()
             central_axis_colors[~self._selected_central_axis_vertices] *= self._attenuation_factor
         return central_axis_colors
-
-    @property
-    def translator_line_colors(self) -> np.ndarray:
-        """Translator line vertex colors, non-selected axes are attenuated."""
-        if self.selected_axes == []:
-            translator_line_colors = self.translator_line_data.colors
-        else:
-            translator_line_colors = self.translator_line_data.colors.copy()
-            translator_line_colors[
-                ~self._selected_translator_line_vertices] *= self._attenuation_factor
-        return translator_line_colors
 
     @property
     def translator_handle_colors(self) -> np.ndarray:
@@ -260,12 +232,6 @@ class ManipulatorVisualData(ModelWithSettableProperties):
             return np.zeros(len(self.central_axis_line_data)).astype(bool)
         return np.isin(self.central_axis_line_data.axis_identifiers,
                        test_elements=self.selected_axes)
-
-    @property
-    def _selected_translator_line_vertices(self) -> np.ndarray:
-        if not self.translator_is_selected:
-            return np.zeros(len(self.translator_line_data)).astype(bool)
-        return np.isin(self.translator_line_data.axis_identifiers, test_elements=self.selected_axes)
 
     @property
     def _selected_translator_handle_points(self) -> np.ndarray:
