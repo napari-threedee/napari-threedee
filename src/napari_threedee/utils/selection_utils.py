@@ -179,7 +179,7 @@ def select_sphere_from_click(
 
     # the -1 accounts for the edge width
     in_slice_matches = np.all(
-        distances <= (handle_sizes - 1 / 2) - 1.5,
+        distances <= ((handle_sizes - 1) / 2) - 1.5,
         axis=1,
     )
     indices = np.where(in_slice_matches)[0]
