@@ -56,6 +56,7 @@ class BaseManipulator(N3dComponent, ABC):
         self.layer = layer
         if self.enabled:
             self._on_enable()
+        self._viewer.dims.events.ndisplay.connect(self._on_ndisplay_change)
 
     @property
     def origin(self) -> np.ndarray:
@@ -223,11 +224,15 @@ class BaseManipulator(N3dComponent, ABC):
         self.enabled = False
         self._backend.vispy_visual.parent.children.remove(self._backend.vispy_visual)
 
-    def _on_ndisplay_change(self, event=None):
-        if self._viewer.dims.ndisplay == 2:
+    def _on_ndisplay_change(self, event):
+        new_ndisplay = event.value
+        vispy_visual_index = self._backend.vispy_visual.parent.children.index(self._backend.vispy_visual)
+        if new_ndisplay == 2:
+            self._backend.vispy_visual.parent.children[vispy_visual_index].order = 0
             self.enabled = False
         else:
             self.enabled = True
+            self._backend.vispy_visual.parent.children[vispy_visual_index].order = 1
 
     def _mouse_callback(self, layer, event):
         """Update the manipulated object via subclass implementations of drag/rotate behaviour."""
