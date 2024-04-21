@@ -204,7 +204,7 @@ class NapariManipulatorBackend:
 
     def _on_ndisplay_change(self, event):
         new_ndisplay = event.value
-        vispy_visual_index = self.vispy_visual.parent.children.index(self._backend.vispy_visual)
+        vispy_visual_index = self.vispy_visual.parent.children.index(self.vispy_visual)
         if new_ndisplay == 2:
             self.vispy_visual.parent.children[vispy_visual_index].order = 0
             self._disconnect_mouse_callback()
