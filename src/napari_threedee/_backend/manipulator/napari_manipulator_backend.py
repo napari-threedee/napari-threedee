@@ -43,6 +43,9 @@ class NapariManipulatorBackend:
         self.vispy_visual.update()
         self.vispy_visual.update_visuals_from_manipulator_visual_data()
 
+        self._viewer.dims.events.ndisplay.connect(self._on_ndisplay_change)
+
+
     @property
     def layer(self) -> napari.layers.Layer:
         return self._layer
@@ -199,10 +202,15 @@ class NapariManipulatorBackend:
         # update transform on vispy manipulator
         self.vispy_visual.transform.matrix = affine_matrix
 
-    def _on_ndisplay_change(self, event=None):
-        if self._viewer.dims.ndisplay == 2:
+    def _on_ndisplay_change(self, event):
+        new_ndisplay = event.value
+        vispy_visual_index = self.vispy_visual.parent.children.index(self._backend.vispy_visual)
+        if new_ndisplay == 2:
+            self.vispy_visual.parent.children[vispy_visual_index].order = 0
             self._disconnect_mouse_callback()
         else:
+            # set manipulator visual to be on top of layer volume visuals
+            self.vispy_visual.parent.children[vispy_visual_index].order = 1
             self._connect_mouse_callback()
 
     def _set_canvas_none(self):
