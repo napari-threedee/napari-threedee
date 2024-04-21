@@ -52,7 +52,7 @@ class RenderPlaneManipulator(BaseManipulator):
             self.layer.plane.normal = z_vector_data
 
     def _on_depiction_change(self):
-        if self.layer.depiction == 'volume':
-            self.enabled = False
-        else:
+        if self.layer.depiction == 'plane':
             self.enabled = True
+        else:
+            self.enabled = False
