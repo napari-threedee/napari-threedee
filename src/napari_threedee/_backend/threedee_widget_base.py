@@ -32,6 +32,11 @@ class QtThreeDeeWidgetBase(QWidget):
         self.layout().addWidget(self.layer_selection_widget)
         self.layout().addWidget(self.activate_button)
 
+        self.viewer.dims.events.ndisplay.connect(self._on_ndisplay_change)
+        if viewer.dims.ndisplay == 2:
+            self.activate_button.setEnabled(False)
+            self.activate_button.setText('2D, disabled')
+        
         self.activate_button.clicked.connect(self.on_activate_button_click)
 
     @property
@@ -44,4 +49,13 @@ class QtThreeDeeWidgetBase(QWidget):
             self.activate_button.setText('deactivate')
         else:
             self.model.enabled = False
+            self.activate_button.setText('activate')
+
+    def _on_ndisplay_change(self, event):
+        new_ndisplay = event.value
+        if new_ndisplay == 2:
+            self.activate_button.setEnabled(False)
+            self.activate_button.setText('2D, disabled')
+        else:
+            self.activate_button.setEnabled(True)
             self.activate_button.setText('activate')

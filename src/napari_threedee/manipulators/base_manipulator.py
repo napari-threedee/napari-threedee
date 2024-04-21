@@ -4,6 +4,7 @@ from typing import Optional, Type
 import napari
 import numpy as np
 from napari.viewer import Viewer
+from napari.utils.notifications import show_info
 
 from napari_threedee._backend.threedee_model import N3dComponent
 from .._backend.manipulator.axis_model import AxisModel
@@ -174,7 +175,6 @@ class BaseManipulator(N3dComponent, ABC):
         if self.layer is not None:
             self._disconnect_events()
         self._backend.layer = layer
-        self._initialize_transform()
         if self.enabled:
             self._on_enable()
         else:
@@ -202,8 +202,12 @@ class BaseManipulator(N3dComponent, ABC):
         self._on_enable() if self._enabled is True else self._on_disable()
 
     def _on_enable(self):
+        if self._viewer.dims.ndisplay == 2:
+            show_info("3D manipulators are not available in 2D mode.")
+            self._enabled = False
         if self.layer is not None:
             self.visible = True
+            self._initialize_transform()
             self._backend._on_transformation_changed()
             add_mouse_callback_safe(
                 callback_list=self.layer.mouse_drag_callbacks,
