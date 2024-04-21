@@ -19,6 +19,7 @@ class RenderPlaneManipulator(BaseManipulator):
         self.layer.plane.events.position.connect(self._update_transform)
         self.layer.plane.events.normal.connect(self._update_transform)
         self.layer.events.visible.connect(self._on_visibility_change)
+        self.layer.events.depiction.connect(self._on_depiction_change)
         self._viewer.layers.events.removed.connect(self._disable_and_remove)
 
     def _disconnect_events(self):
@@ -49,3 +50,9 @@ class RenderPlaneManipulator(BaseManipulator):
         with self.layer.plane.events.normal.blocker(self._update_transform):
             z_vector_data = world_to_data_normal(vector=self.z_vector, layer=self.layer)
             self.layer.plane.normal = z_vector_data
+
+    def _on_depiction_change(self):
+        if self.layer.depiction == 'volume':
+            self.enabled = False
+        else:
+            self.enabled = True
