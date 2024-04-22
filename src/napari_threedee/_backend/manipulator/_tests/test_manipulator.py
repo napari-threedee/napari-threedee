@@ -48,6 +48,7 @@ def test_selected_object_type_update():
     manipulator.selected_axis_id = None
     assert manipulator.selected_object_type is None
 
+
 def test_depiction_change(viewer_with_plane_3d):
     """Test the manipulator is disabled when switching to volume depiction."""
     viewer = viewer_with_plane_3d
@@ -57,4 +58,16 @@ def test_depiction_change(viewer_with_plane_3d):
     assert manipulator.enabled
 
     viewer.layers[0].depiction = 'volume'
+    assert manipulator.enabled is False
+
+    
+def test_ndisplay_change(viewer_with_plane_3d):
+    """Test the manipulator is disabled when switching to 2D display."""
+    viewer = viewer_with_plane_3d
+    manipulator = RenderPlaneManipulator(viewer=viewer, layer=viewer.layers[0])
+
+    assert viewer.dims.ndisplay == 3
+    assert manipulator.enabled
+
+    viewer.dims.ndisplay = 2
     assert manipulator.enabled is False
