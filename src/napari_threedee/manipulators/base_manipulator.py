@@ -56,6 +56,7 @@ class BaseManipulator(N3dComponent, ABC):
         self.layer = layer
         if self.enabled:
             self._on_enable()
+        self._viewer.dims.events.ndisplay.connect(self._on_ndisplay_change)
 
     @property
     def origin(self) -> np.ndarray:
@@ -221,10 +222,12 @@ class BaseManipulator(N3dComponent, ABC):
 
     def _disable_and_remove(self):
         self.enabled = False
-        self._backend.vispy_visual.parent.children.remove(self._backend.vispy_visual)
+        self._backend.vispy_visual.parent = None
 
-    def _on_ndisplay_change(self, event=None):
-        if self._viewer.dims.ndisplay == 2:
+
+    def _on_ndisplay_change(self, event):
+        new_ndisplay = event.value
+        if new_ndisplay == 2:
             self.enabled = False
         else:
             self.enabled = True
