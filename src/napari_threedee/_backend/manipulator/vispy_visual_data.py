@@ -116,7 +116,7 @@ class ManipulatorHandleData(BaseModel):
     @classmethod
     def from_translator(cls, translator: Translator):
         return cls(
-            points=translator.start_point.reshape((1, 3)),
+            points=translator.end_point.reshape((1, 3)),
             colors=translator.axis.color.reshape((1, 4)),
             handle_size=np.array([translator.handle_size]),
             axis_identifiers=np.array([translator.axis.id])
