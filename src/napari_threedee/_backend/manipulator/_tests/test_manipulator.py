@@ -71,3 +71,41 @@ def test_ndisplay_change(viewer_with_plane_3d):
 
     viewer.dims.ndisplay = 2
     assert manipulator.enabled is False
+
+def test_radius_setter(viewer_with_plane_3d):
+    """Test that the radius setter affects the components as expected."""
+    viewer = viewer_with_plane_3d
+    manipulator = RenderPlaneManipulator(viewer=viewer, layer=viewer.layers[0])
+
+    assert manipulator.radius == 20
+    for translator in manipulator._backend.manipulator_model.translators:
+        assert translator.distance_from_origin == 20
+    for rotator in manipulator._backend.manipulator_model.rotators:
+        assert rotator.distance_from_origin == 20
+    for axis in manipulator._backend.manipulator_model.central_axes:
+        assert axis.length == 20
+
+    manipulator.radius = 50
+    for translator in manipulator._backend.manipulator_model.translators:
+        assert translator.distance_from_origin == 50
+    for rotator in manipulator._backend.manipulator_model.rotators:
+        assert rotator.distance_from_origin == 50
+    for axis in manipulator._backend.manipulator_model.central_axes:
+        assert axis.length == 50
+
+def test_handle_size_setter(viewer_with_plane_3d):
+    """Test that the handle_size setter affects the components as expected."""
+    viewer = viewer_with_plane_3d
+    manipulator = RenderPlaneManipulator(viewer=viewer, layer=viewer.layers[0])
+
+    assert manipulator.handle_size == 10
+    for translator in manipulator._backend.manipulator_model.translators:
+        assert translator.handle_size == 10
+    for rotator in manipulator._backend.manipulator_model.rotators:
+        assert rotator.handle_size == 10
+
+    manipulator.handle_size = 20
+    for translator in manipulator._backend.manipulator_model.translators:
+        assert translator.handle_size == 20
+    for rotator in manipulator._backend.manipulator_model.rotators:
+        assert rotator.handle_size == 20
