@@ -52,7 +52,9 @@ class BaseManipulator(N3dComponent, ABC):
             viewer=self._viewer,
             layer=layer,
         )
-
+        self._radius = 20
+        self._handle_size = 10
+        
         self.visible = False
         self.layer = layer
         if self.enabled:
@@ -72,12 +74,13 @@ class BaseManipulator(N3dComponent, ABC):
     def radius(self) -> float:
         """The radius of the manipulator components.
         """
-        return self._backend.manipulator_model.radius
+        return self._radius
     
     @radius.setter
     def radius(self, radius: float):
         """The radius of the manipulator components.
         """
+        self._radius = radius
         model = self._backend.manipulator_model
 
         # set the translators
@@ -105,12 +108,13 @@ class BaseManipulator(N3dComponent, ABC):
     def handle_size(self) -> float:
         """The radius of the manipulator handles.
         """
-        return self._backend.manipulator_model.handle_size
+        return self._handle_size
     
     @handle_size.setter
     def handle_size(self, handle_size: float):
         """The radius of the manipulator handles.
         """
+        self._handle_size = handle_size
         model = self._backend.manipulator_model
 
         # set the translators
