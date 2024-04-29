@@ -127,7 +127,6 @@ class BaseManipulator(N3dComponent, ABC):
                 rotator.handle_size = handle_size
 
         # update the visual data
-        # note: need to add the update_from_manipulator method
         self._backend.vispy_visual_data.update_from_manipulator(model)
 
         # trigger a redraw
