@@ -161,7 +161,8 @@ class NapariManipulatorBackend:
             click_point=click_point,
             view_direction=view_direction,
             sphere_centroids=einops.rearrange(transformed_handle_points, 'b xyz 1 -> b xyz'),
-            sphere_diameter=self.vispy_visual_data.translator_handle_data.handle_size
+            # all the handle_sizes are the same, so we can just use the first one
+            sphere_diameter=self.vispy_visual_data.translator_handle_data.handle_size[0]
         )
         if selection is None:
             return None
