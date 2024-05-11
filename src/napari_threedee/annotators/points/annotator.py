@@ -27,7 +27,9 @@ class PointAnnotator(N3dComponent):
         self.enabled = enabled
 
     def _mouse_callback(self, viewer, event):
-        if (self.image_layer is None) or (self.points_layer is None):
+        if ((self.image_layer is None) or 
+            (self.points_layer is None) or 
+            (viewer.layers.selection.active is not self.image_layer)):
             return
         add_point_on_plane(
             viewer=viewer,
