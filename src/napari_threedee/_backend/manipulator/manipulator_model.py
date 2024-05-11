@@ -17,8 +17,8 @@ class ManipulatorModel(EventedModel):
     origin: Tuple[float, float, float] = Field(default_factory=lambda: np.zeros(3))
     rotation_matrix: np.ndarray = Field(default_factory=lambda: np.eye(3))
 
-    selected_axis_id: Optional[int]
-    selected_object_type: Optional[Literal['translator', 'rotator']]
+    selected_axis_id: Optional[int] = None
+    selected_object_type: Optional[Literal['translator', 'rotator']] = None
 
     class Config:
         arbitrary_types_allowed = True
