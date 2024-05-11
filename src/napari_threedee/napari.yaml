@@ -50,15 +50,15 @@ contributions:
       title: Create camera spline control widget
       python_name: napari_threedee.dock_widgets:QtCameraSpline
 
-    # Reader
-    - id: napari-threedee.read_n3d
-      title: Read ".n3d" files
-      python_name: napari_threedee.annotators.io._napari:read_n3d_zarr
+    # # Reader
+    # - id: napari-threedee.read_n3d
+    #   title: Read ".n3d" files
+    #   python_name: napari_threedee.annotators.io._napari:read_n3d_zarr
 
-    # Writers
-    - id: napari-threedee.write_n3d
-      title: Save points layer to n3d
-      python_name: napari_threedee.annotators.io._napari:write_n3d_zarr
+    # # Writers
+    # - id: napari-threedee.write_n3d
+    #   title: Save points layer to n3d
+    #   python_name: napari_threedee.annotators.io._napari:write_n3d_zarr
 
 
   widgets:
@@ -98,15 +98,15 @@ contributions:
     - command: napari-threedee.QtCameraSplineWidget
       display_name: camera spline control
 
-  writers:
-    - command: napari-threedee.write_n3d
-      layer_types:
-        - points
-      filename_extensions:
-        - .n3d
+  # writers:
+  #   - command: napari-threedee.write_n3d
+  #     layer_types:
+  #       - points
+  #     filename_extensions:
+  #       - .n3d
 
-  readers:
-    - command: napari-threedee.read_n3d
-      filename_patterns:
-        - '*.n3d'
-      accepts_directories: true
+  # readers:
+  #   - command: napari-threedee.read_n3d
+  #     filename_patterns:
+  #       - '*.n3d'
+  #     accepts_directories: true
