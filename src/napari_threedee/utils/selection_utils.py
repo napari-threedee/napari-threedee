@@ -177,9 +177,8 @@ def select_sphere_from_click(
     handle_sizes = np.tile(sphere_diameter, (n_spheres, 1))
     distances = abs(rotated_points[:, :2] - rotated_click_point[:2])
 
-    # the -1 accounts for the edge width
     in_slice_matches = np.all(
-        distances <= ((handle_sizes - 1) / 2) - 1.5,
+        distances <= (handle_sizes / 2),
         axis=1,
     )
     indices = np.where(in_slice_matches)[0]
