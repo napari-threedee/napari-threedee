@@ -289,6 +289,9 @@ class BaseManipulator(N3dComponent, ABC):
     def _disable_and_remove(self):
         self.enabled = False
         self._backend.vispy_visual.parent = None
+        self._disconnect_events()
+        self._backend._disconnect_ndisplay_event()
+        self._viewer.dims.events.ndisplay.disconnect(self._on_ndisplay_change)
 
 
     def _on_ndisplay_change(self, event):

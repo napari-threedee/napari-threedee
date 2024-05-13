@@ -40,10 +40,10 @@ class NapariManipulatorBackend:
             self._connect_mouse_callback()
 
         self._connect_transformation_events()
+        self._connect_ndisplay_event()
         self.vispy_visual.update()
         self.vispy_visual.update_visuals_from_manipulator_visual_data()
 
-        self._viewer.dims.events.ndisplay.connect(self._on_ndisplay_change)
 
 
     @property
@@ -76,6 +76,12 @@ class NapariManipulatorBackend:
     def _connect_transformation_events(self):
         # updating the model should update the view
         self.manipulator_model.events.origin.connect(self._on_transformation_changed)
+    
+    def _connect_ndisplay_event(self):
+        self._viewer.dims.events.ndisplay.connect(self._on_ndisplay_change)
+
+    def _disconnect_ndisplay_event(self):
+        self._viewer.dims.events.ndisplay.disconnect(self._on_ndisplay_change)
 
     def _connect_mouse_callback(self):
         add_mouse_callback_safe(
