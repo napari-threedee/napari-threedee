@@ -96,3 +96,26 @@ def point_in_layer_bounding_box(point, layer):
         return False
     else:
         return True
+
+def clamp_point_to_layer_bounding_box(point: np.ndarray, layer):
+    """Ensure that a point is inside of the bounding box of a given layer. 
+    If the point has a coordinate outside of the bounding box, the value 
+    is clipped to the max extent of the bounding box.
+
+    Parameters
+    ----------
+    point : np.ndarray
+        n-dimensional point as an (n,) ndarray. Multiple points can
+        be passed as an (n, D) array.
+    layer : napari.layers.Layer
+        napari layer to get the bounding box from
+
+    Returns
+    -------
+    clamped_point : np.ndarray
+        `point` clamped to the limits of the layer bounding box
+    """
+    dims_displayed = get_dims_displayed(layer)
+    bbox = layer._display_bounding_box(dims_displayed)
+    clamped_point = np.clip(point, bbox[:, 0], bbox[:, 1] - 1)
+    return clamped_point

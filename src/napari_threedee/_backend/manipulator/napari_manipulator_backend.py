@@ -15,6 +15,7 @@ from ...utils.napari_utils import get_vispy_root_node, \
     get_mouse_position_in_displayed_layer_data_coordinates, \
     add_mouse_callback_safe, remove_mouse_callback_safe
 from ...utils.selection_utils import select_sphere_from_click
+from napari_threedee.utils.geometry import clamp_point_to_layer_bounding_box
 
 
 class NapariManipulatorBackend:
@@ -127,8 +128,9 @@ class NapariManipulatorBackend:
         )
         while event.type == 'mouse_move':
             new_origin, new_rotation_matrix = drag_manager.update_drag(mouse_event=event)
+            clamped_origin = clamp_point_to_layer_bounding_box(new_origin, layer)
             with self.manipulator_model.events.blocked():
-                self.manipulator_model.origin = new_origin
+                self.manipulator_model.origin = clamped_origin
                 self.manipulator_model.rotation_matrix = new_rotation_matrix
                 self._on_transformation_changed()
             yield
