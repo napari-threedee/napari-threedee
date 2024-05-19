@@ -35,6 +35,7 @@ class NapariManipulatorBackend:
         self._viewer = viewer
         self._layer = layer
         self.is_dragging = False
+        self.clamp = False
 
         if self._layer is not None:
             self._connect_vispy_visual()
@@ -128,10 +129,11 @@ class NapariManipulatorBackend:
         )
         while event.type == 'mouse_move':
             new_origin, new_rotation_matrix = drag_manager.update_drag(mouse_event=event)
-            # clamp the manipulator to the layer extent
-            clamped_origin = clamp_point_to_layer_bounding_box(new_origin, layer)
+            # enable clamping the manipulator to the layer extent
+            if self.clamp is True:
+                new_origin = clamp_point_to_layer_bounding_box(new_origin, layer)
             with self.manipulator_model.events.blocked():
-                self.manipulator_model.origin = clamped_origin
+                self.manipulator_model.origin = new_origin
                 self.manipulator_model.rotation_matrix = new_rotation_matrix
                 self._on_transformation_changed()
             yield

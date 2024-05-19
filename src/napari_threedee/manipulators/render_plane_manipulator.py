@@ -27,6 +27,8 @@ class RenderPlaneManipulator(BaseManipulator):
         self.layer.plane.events.normal.disconnect(self._update_transform)
 
     def _update_transform(self):
+        # ensure the manipulator is clamped to the layer extent
+        self._backend.clamp = True
         # get the new transformation data
         self._initialize_transform()
 
