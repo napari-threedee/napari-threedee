@@ -114,6 +114,11 @@ def clamp_point_to_layer_bounding_box(point: np.ndarray, layer):
     -------
     clamped_point : np.ndarray
         `point` clamped to the limits of the layer bounding box
+
+    Notes
+    -----
+    This function is derived from the napari function:
+        `napari.utils.geometry.clamp_point_to_bounding_box`
     """
     dims_displayed = get_dims_displayed(layer)
     bbox = layer._display_bounding_box(dims_displayed)

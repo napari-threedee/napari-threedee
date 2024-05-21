@@ -28,7 +28,7 @@ class RenderPlaneManipulator(BaseManipulator):
 
     def _update_transform(self):
         # ensure the manipulator is clamped to the layer extent
-        self._backend.clamp = True
+        self._backend.clamp_to_layer_bbox = True
         # get the new transformation data
         self._initialize_transform()
 
