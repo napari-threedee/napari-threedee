@@ -15,7 +15,7 @@ from ...utils.napari_utils import get_vispy_root_node, \
     get_mouse_position_in_displayed_layer_data_coordinates, \
     add_mouse_callback_safe, remove_mouse_callback_safe
 from ...utils.selection_utils import select_sphere_from_click
-from napari_threedee.utils.geometry import clamp_point_to_layer_bounding_box
+from napari_threedee.utils.napari_utils import clamp_point_to_layer_bounding_box
 
 
 class NapariManipulatorBackend:
