@@ -245,3 +245,60 @@ def world_to_data_normal(vector, layer):
     transformed_vector = np.matmul(transpose_inverse_transform, unit_vector)
 
     return transformed_vector / np.linalg.norm(transformed_vector)
+
+
+def point_in_layer_bounding_box(point, layer):
+    """Determine whether an nD point is inside a layers nD bounding box.
+
+    Parameters
+    ----------
+    point : np.ndarray
+        (n,) array containing nD point coordinates to check.
+    layer : napari.layers.Layer
+        napari layer to get the bounding box from
+    
+    Returns
+    -------
+    bool
+        True if the point is in the bounding box of the layer,
+        otherwise False
+    
+    Notes
+    -----
+    For a more general point-in-bbox function, see:
+        `napari_threedee.utils.geometry.point_in_bounding_box`
+    """
+    dims_displayed = get_dims_displayed(layer)
+    bbox = layer._display_bounding_box(dims_displayed).T
+    if np.any(point < bbox[0]) or np.any(point > bbox[1]):
+        return False
+    else:
+        return True
+
+def clamp_point_to_layer_bounding_box(point: np.ndarray, layer):
+    """Ensure that a point is inside of the bounding box of a given layer. 
+    If the point has a coordinate outside of the bounding box, the value 
+    is clipped to the max extent of the bounding box.
+
+    Parameters
+    ----------
+    point : np.ndarray
+        n-dimensional point as an (n,) ndarray. Multiple points can
+        be passed as an (n, D) array.
+    layer : napari.layers.Layer
+        napari layer to get the bounding box from
+
+    Returns
+    -------
+    clamped_point : np.ndarray
+        `point` clamped to the limits of the layer bounding box
+
+    Notes
+    -----
+    This function is derived from the napari function:
+        `napari.utils.geometry.clamp_point_to_bounding_box`
+    """
+    dims_displayed = get_dims_displayed(layer)
+    bbox = layer._display_bounding_box(dims_displayed)
+    clamped_point = np.clip(point, bbox[:, 0], bbox[:, 1] - 1)
+    return clamped_point

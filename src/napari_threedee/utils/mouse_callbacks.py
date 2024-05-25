@@ -5,7 +5,7 @@ from napari.layers.utils.interactivity_utils import drag_data_to_projected_dista
 from napari.layers.utils.layer_utils import dims_displayed_world_to_layer
 import numpy as np
 
-from napari_threedee.utils.geometry import point_in_layer_bounding_box
+from napari_threedee.utils.napari_utils import point_in_layer_bounding_box
 
 if TYPE_CHECKING:
     import napari
