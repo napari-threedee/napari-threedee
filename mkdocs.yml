@@ -36,7 +36,7 @@ theme:
         name: Switch to light mode
 
   features:
-    - navigation.instant
+    #- navigation.instant
     #- navigation.tabs
     #- navigation.top
     #- navigation.tracking
@@ -46,6 +46,7 @@ theme:
     # - content.code.annotate
     # - navigation.sections
     - content.tabs.link
+    - content.code.copy
 
 markdown_extensions:
   - admonition
