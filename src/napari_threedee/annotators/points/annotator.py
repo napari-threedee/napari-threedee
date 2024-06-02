@@ -30,7 +30,7 @@ class PointAnnotator(N3dComponent):
         if (self.image_layer is None) or (self.points_layer is None):
             return
         add_point_on_plane(
-            viewer=viewer,
+            viewer=self.viewer,
             event=event,
             points_layer=self.points_layer,
             image_layer=self.image_layer
@@ -50,11 +50,13 @@ class PointAnnotator(N3dComponent):
         self.points_layer = points_layer
 
     def _on_enable(self):
-        add_mouse_callback_safe(
-            self.viewer.mouse_drag_callbacks, self._mouse_callback
-        )
+        if self.image_layer is not None:
+            add_mouse_callback_safe(
+                self.image_layer.mouse_drag_callbacks, self._mouse_callback, index=0
+            )
 
     def _on_disable(self):
-        remove_mouse_callback_safe(
-            self.viewer.mouse_drag_callbacks, self._mouse_callback
-        )
+        if self.image_layer is not None:
+            remove_mouse_callback_safe(
+                self.image_layer.mouse_drag_callbacks, self._mouse_callback
+            )
