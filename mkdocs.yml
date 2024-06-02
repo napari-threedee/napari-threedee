@@ -46,6 +46,7 @@ theme:
     # - content.code.annotate
     # - navigation.sections
     - content.tabs.link
+    - content.code.copy
 
 markdown_extensions:
   - admonition
