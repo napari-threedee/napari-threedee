@@ -4,7 +4,8 @@ from napari.utils.geometry import rotation_matrix_from_vectors_3d
 from napari.layers.utils.plane import ClippingPlane
 import numpy as np
 from napari_threedee.manipulators.base_manipulator import BaseManipulator
-from napari_threedee.utils.napari_utils import data_to_world_normal, world_to_data_normal
+from napari_threedee.utils.geometry import point_in_bounding_box
+from napari_threedee.utils.napari_utils import add_mouse_callback_safe, remove_mouse_callback_safe, data_to_world_normal, world_to_data_normal
 
 
 class ClippingPlaneManipulator(BaseManipulator):
@@ -31,10 +32,31 @@ class ClippingPlaneManipulator(BaseManipulator):
         self.layer.events.visible.connect(self._on_visibility_change)
         self.layer.events.depiction.connect(self._on_depiction_change)
         self._viewer.layers.events.removed.connect(self._disable_and_remove)
+        add_mouse_callback_safe(self.layer.mouse_double_click_callbacks, self._double_click_callback)
 
     def _disconnect_events(self):
         self.clipping_plane.events.position.disconnect(self._update_transform)
         self.clipping_plane.events.normal.disconnect(self._update_transform)
+        remove_mouse_callback_safe(self.layer.mouse_double_click_callbacks, self._double_click_callback)
+
+    def _double_click_callback(self, layer, event):
+        """Set the plane (and manipulator position) on double click.
+        Based on napari.layers.image._image_mouse_bindings.set_plane_position
+        Can be removed once napari implements this for clipping planes
+        """
+         
+        intersection = self.clipping_plane.intersect_with_line(
+            line_position=np.asarray(event.position)[event.dims_displayed],
+            line_direction=np.asarray(event.view_direction)[event.dims_displayed],
+        )
+
+        # Check if click was on plane and if not, exit early.
+        if not point_in_bounding_box(
+            intersection, self.layer.extent.data[:, event.dims_displayed]
+        ):
+            return
+
+        self.clipping_plane.position = intersection
 
     def _update_transform(self):
         # get the new transformation data
@@ -60,9 +82,3 @@ class ClippingPlaneManipulator(BaseManipulator):
         with self.clipping_plane.events.normal.blocker(self._update_transform):
             z_vector_data = world_to_data_normal(vector=self.z_vector, layer=self.layer)
             self.clipping_plane.normal = z_vector_data
-
-    def _on_depiction_change(self):
-        if self.layer.depiction == 'plane':
-            self.enabled = True
-        else:
-            self.enabled = False
