@@ -50,6 +50,11 @@ contributions:
       title: Create camera spline control widget
       python_name: napari_threedee.dock_widgets:QtCameraSpline
 
+    # Sample data
+    - id: napari-threedee.hiv_particles
+      title: Load HIV tomogram
+      python_name: napari_threedee._sample_data:hiv_sample_tomogram
+
     # # Reader
     # - id: napari-threedee.read_n3d
     #   title: Read ".n3d" files
@@ -97,6 +102,11 @@ contributions:
     # Visualisation
     - command: napari-threedee.QtCameraSplineWidget
       display_name: camera spline control
+
+  sample_data:
+    - command: napari-threedee.hiv_particles
+      display_name: HIV virus-like particle tomogra
+      key: unique_id.1
 
   # writers:
   #   - command: napari-threedee.write_n3d
