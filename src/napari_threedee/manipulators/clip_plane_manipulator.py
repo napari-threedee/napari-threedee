@@ -80,4 +80,4 @@ class ClippingPlaneManipulator(BaseManipulator):
     def _while_dragging_rotator(self):
         with self.clipping_plane.events.normal.blocker(self._update_transform):
             z_vector_data = world_to_data_normal(vector=self.z_vector, layer=self.layer)
-            self.clipping_plane.normal = z_vector_data
+            self.clipping_plane.normal = -1 * z_vector_data
