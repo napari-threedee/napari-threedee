@@ -30,7 +30,6 @@ class ClippingPlaneManipulator(BaseManipulator):
         self.clipping_plane.events.position.connect(self._update_transform)
         self.clipping_plane.events.normal.connect(self._update_transform)
         self.layer.events.visible.connect(self._on_visibility_change)
-        self.layer.events.depiction.connect(self._on_depiction_change)
         self._viewer.layers.events.removed.connect(self._disable_and_remove)
         add_mouse_callback_safe(self.layer.mouse_double_click_callbacks, self._double_click_callback)
 
