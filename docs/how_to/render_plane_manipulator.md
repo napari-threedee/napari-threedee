@@ -39,7 +39,7 @@ the rendering plane.
 	
 	![plane rendering mode](https://user-images.githubusercontent.com/1120672/207311620-0494f9cf-3059-40d4-902e-37f026556c56.png)
 
-5. Open the render plane manipulator plugin from the menu: **Plugins -> napari-threedee -> render plane manipulator**. You will see the render plane manipulator appear on the rendering plane.
+5. Open the render plane manipulator plugin from the menu: **Plugins -> napari-threedee -> render plane manipulator**. You will see the render plane manipulator appear in the corner of the rendering plane. You can double-click with the left mouse button (or hold down the Shift key while clicking) to reposition the manipulator. Note that depending on your versions of `napari-threedee` and napari there may be a subtle visual difference between what you see in `napari` and the screenshots/videos here.
 
 	![render plane manipulator](https://user-images.githubusercontent.com/1120672/207311868-d6a0d972-37ea-4e79-92b1-3923a058221b.png)
 	
@@ -52,6 +52,6 @@ the rendering plane.
 
 	![type:video](https://user-images.githubusercontent.com/1120672/207312303-e81f652a-3fae-476f-abee-e19227b2b6c3.mov)
 
-	If you would like to change the center of rotation, you can press the shift key while clicking on the plane with the left mouse button to move the manipulator.
+	If you would like to change the center of rotation, you can double-click with the left mouse button (or hold down the Shift key while clicking) on the plane with the left mouse button to move the manipulator.
 	
 	![type:video](https://user-images.githubusercontent.com/1120672/207312430-74b95837-0718-4b9b-a2dd-b9fed0565e21.mov)
