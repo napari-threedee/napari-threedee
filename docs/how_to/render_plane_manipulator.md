@@ -19,7 +19,7 @@ the rendering plane.
      napari
      ```
 
-2. Load the "HIV virus-like particles tomogram" image from the File menu: File -> Open Sample -> HIV virus-like particle tomogram. Note that this will download the sample image so it make take some time. If you have previously opened the sample image, it should be cached and will not download again.
+2. Load the "HIV virus-like particles tomogram" image from the File menu: **File -> Open Sample -> HIV virus-like particles tomogram**. Note that this will download the [sample image from Zenodo](https://doi.org/10.5281/zenodo.6504891) (~470 Mb) so it make take some time. If you have previously opened the sample image, it should be cached and will not download again.
 
 	![screenshot of the hiv tomogram](https://user-images.githubusercontent.com/1120672/207310777-1cfdb146-e5b9-43fb-a740-6af137ed9df5.png)
 
@@ -39,7 +39,7 @@ the rendering plane.
 	
 	![plane rendering mode](https://user-images.githubusercontent.com/1120672/207311620-0494f9cf-3059-40d4-902e-37f026556c56.png)
 
-5. Open the render plane manipulator plugin from the menu: Plugins -> napari-threedee -> render plane manipulator. You will see the render plane manipulator appear on the rendering plane.
+5. Open the render plane manipulator plugin from the menu: **Plugins -> napari-threedee -> render plane manipulator**. You will see the render plane manipulator appear on the rendering plane.
 
 	![render plane manipulator](https://user-images.githubusercontent.com/1120672/207311868-d6a0d972-37ea-4e79-92b1-3923a058221b.png)
 	
