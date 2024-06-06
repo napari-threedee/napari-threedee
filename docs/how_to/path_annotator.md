@@ -1,14 +1,20 @@
-# Annotate 3D splines
+# Annotate 3D paths
 
 ## Summary
-Spines are useful for describing paths through your data. This tutorial describes how use the spline annotator to interactively add splines in a 3D image.
+Paths are useful for describing paths through your data. This tutorial describes how use the path annotator to interactively add paths using splines in a 3D image.
 
 ![type:video](https://user-images.githubusercontent.com/1120672/225981766-0e586d50-c90c-4c3e-a5e9-c5b30ba6bed2.mov)
 
 
 ## Instructions
 
-1. Open the `spline_annotator.py` example from the examples folder. The viewer is initialized in 3D rendering mode in plane rendering mode. We are viewing two 3D volumes, each with one plane being actively rendered.
+1. To run this example, first download the script from the [Examples Gallery page](https://napari-threedee.github.io/generated/gallery/plugin/path_annotator_plugin/); the link is at the bottom. Ensure the location is somewhere memorable. Or, if you've cloned this repository, the script can be found at `napari-threedee/docs/examples/plugin/path_annotator_plugin.py`. 
+
+2. Ensure you have the appropriate virtual environment active, change directories to the script location, and then you can execute the script using:
+	```bash
+	python path_annotator_plugin.py
+	```  
+	The viewer is initialized in 3D rendering mode in plane rendering mode. We are viewing two 3D volumes, each with one plane being actively rendered.
 
 	![example opened](https://user-images.githubusercontent.com/1120672/225978705-55570907-8f1d-4fc9-9f72-883c6c790516.png)
 
