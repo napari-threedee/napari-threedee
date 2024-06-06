@@ -12,7 +12,7 @@ Precisely positioning a point in 3D is a useful way to annotate specific positio
 
 2. Ensure you have the appropriate virtual environment active, change directories to the script location, and then you can execute the script using:
 	```bash
-	python <name of script>
+	python points_manipulator_plugin.py
 	``` 
 
 3. The viewer will open in 3D rendering mode with a Points layer and 3 points and the widget already visible. The widget can be otherwise accessed from the Plugins menu: **Plugins -> napari-threedee -> point manipulator**. Click the "activate" to start the plugin.
