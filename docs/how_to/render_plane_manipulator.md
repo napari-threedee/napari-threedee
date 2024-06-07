@@ -19,7 +19,7 @@ the rendering plane.
      napari
      ```
 
-2. Load the "HIV virus-like particles tomogram" image from the File menu: **File -> Open Sample -> HIV virus-like particles tomogram**. Note that this will download the [sample image from Zenodo](https://doi.org/10.5281/zenodo.6504891) (~470 Mb) so it make take some time. If you have previously opened the sample image, it should be cached and will not download again.
+2. Load the "HIV virus-like particles tomogram" image from the File menu: **File -> Open Sample -> HIV virus-like particles tomogram**. Note that this will download the ~470 Mb sample image from Zenodo([https://doi.org/10.5281/zenodo.6504891](https://doi.org/10.5281/zenodo.6504891)) so it make take some time. If you have previously opened the sample image, it should be cached and will not be downloaded again.
 
 	![screenshot of the hiv tomogram](https://user-images.githubusercontent.com/1120672/207310777-1cfdb146-e5b9-43fb-a740-6af137ed9df5.png)
 
