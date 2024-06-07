@@ -19,7 +19,7 @@ Precisely positioning a point in 3D is a useful way to annotate specific positio
 
 	![plugin opened](https://user-images.githubusercontent.com/1120672/207382282-dad2bd6f-68cf-47d6-89ed-be326d320f93.png)
 
-4. Set the Points later to "Selection" mode by clicking the "Selection" button in the layer controls.
+4. Set the Points layer to "Selection" mode by clicking the "Selection" button in the layer controls.
 
 	![point selection mode](https://user-images.githubusercontent.com/1120672/207382556-9cd2111a-1a01-4102-9de8-4bb87ddad3c3.png)
 
