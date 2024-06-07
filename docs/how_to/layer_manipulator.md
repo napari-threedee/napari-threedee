@@ -27,7 +27,7 @@ Sometimes objects in your data have a systematic shift relative to one another. 
 
 	![activate the plugin](https://user-images.githubusercontent.com/1120672/207428741-3d07f55f-0cc9-4b1b-92eb-6d67d7beac94.png)
 	
-	When the plugin is activated, you will see the manipulator at (0, 0, 0) on image_1. Note that depending on your versions of `napari-threedee` and `napari` you may see subtle visual differences between your viewer and the screenshots/videos here.
+	When the plugin is activated, you will see the manipulator at (0, 0, 0) on image_1 (the green image). Note that depending on your versions of `napari-threedee` and `napari` you may see subtle visual differences between your viewer and the screenshots/videos here.
 	
 	![plugin activated](https://user-images.githubusercontent.com/1120672/207428982-2637f2f4-7f2d-48ff-8c96-374cb6b8d7db.png)
 	
