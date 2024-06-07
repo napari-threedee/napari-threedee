@@ -8,9 +8,9 @@ Painting labels is useful for annotating voxels by semantic meaning or instance.
 
 ## Instructions
 
-1. To run this example, first download the script from the [Examples Gallery page](https://napari-threedee.github.io/generated/gallery/plugin/label_annotator_plugin/); the link is at the bottom. Ensure the location is somewhere memorable. Or, if you've cloned this repository, the script can be found at `napari-threedee/docs/examples/plugin/label_annotator_plugin.py`. 
+1. To run this example, first download the script from the [Examples Gallery page](https://napari-threedee.github.io/generated/gallery/plugin/label_annotator_plugin/); the link is at the bottom of the web page. Save the file to a memorable location. Or, if you've cloned this repository, the script can be found at `napari-threedee/docs/examples/plugin/label_annotator_plugin.py`. 
 
-2. Ensure you have the appropriate virtual environment active, change directories to the script location, and then you can execute the script using:
+2. Ensure you have activated a virtual environment with napari-threedee installed. Change directories to the script location and then execute the script using:
 	```bash
 	python label_annotator_plugin.py
 	```  
