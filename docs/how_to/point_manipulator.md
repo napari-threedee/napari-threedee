@@ -10,7 +10,7 @@ Precisely positioning a point in 3D is a useful way to annotate specific positio
 
 1. To run this example, first download the script from the [Examples Gallery page](https://napari-threedee.github.io/generated/gallery/plugin/points_manipulator_plugin/); the download link is at the bottom of the web page. Save the file to a memorable location. Or, if you've cloned this repository, the script can be found at `napari-threedee/docs/examples/plugin/points_manipulator_plugin.py`. 
 
-2. Ensure you have the appropriate virtual environment active, change directories to the script location, and then you can execute the script using:
+2. Ensure you have activated a virtual environment with napari-threedee installed. Change directories to the script location and then execute the script using:
 	```bash
 	python points_manipulator_plugin.py
 	``` 
