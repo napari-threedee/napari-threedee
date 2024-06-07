@@ -15,7 +15,7 @@ Precisely positioning a point in 3D is a useful way to annotate specific positio
 	python points_manipulator_plugin.py
 	``` 
 
-3. The viewer will open in 3D rendering mode with a Points layer and 3 points and the widget already visible. The widget can be otherwise accessed from the Plugins menu: **Plugins -> napari-threedee -> point manipulator**. Click the "activate" to start the plugin.
+3. The viewer will open in 3D rendering mode with a Points layer and 3 points and the widget already visible. The widget can be otherwise accessed from the Plugins menu: **Plugins -> napari-threedee -> point manipulator**. Click the "activate" button to start the plugin.
 
 	![plugin opened](https://user-images.githubusercontent.com/1120672/207382282-dad2bd6f-68cf-47d6-89ed-be326d320f93.png)
 
