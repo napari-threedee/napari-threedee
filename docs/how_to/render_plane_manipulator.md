@@ -39,16 +39,18 @@ the rendering plane.
 	
 	![plane rendering mode](https://user-images.githubusercontent.com/1120672/207311620-0494f9cf-3059-40d4-902e-37f026556c56.png)
 
-5. Open the render plane manipulator plugin from the menu: **Plugins -> napari-threedee -> render plane manipulator**. You will see the render plane manipulator appear in the corner of the rendering plane. You can double-click with the left mouse button (or hold down the Shift key while clicking) to reposition the manipulator. Note that depending on your versions of `napari-threedee` and napari there may be a subtle visual difference between what you see in `napari` and the screenshots/videos here.
+5. Open the render plane manipulator widget using the menu: **Plugins -> napari-threedee -> render plane manipulator**. You will see the widget appear on the right side of the napari viewer. Ensure that "HIV tomogram" is selected in the "layers" dropdown box and then click the "activate" button to activate the manipulator function. A render plane manipulator will appear in the corner of the rendering plane. 
+
+6. You can double-click with the left mouse button (or hold down the Shift key while clicking) to reposition the manipulator. Note that depending on your versions of `napari-threedee` and napari there may be a subtle visual difference between what you see in `napari` and the screenshots/videos here.
 
 	![render plane manipulator](https://user-images.githubusercontent.com/1120672/207311868-d6a0d972-37ea-4e79-92b1-3923a058221b.png)
 	
 
-6. You can click and drag the translator on the manipulator to translate the plane along its normal.
+7. You can click and drag the translator on the manipulator to translate the plane along its normal.
 
 	![type:video](https://user-images.githubusercontent.com/1120672/207312152-d9d49bfd-04dc-4b27-827b-04282c512e48.mov)
 
-7. You can click and drag the rotator to rotate the plane around the manipulator.
+8. You can click and drag the rotator to rotate the plane around the manipulator.
 
 	![type:video](https://user-images.githubusercontent.com/1120672/207312303-e81f652a-3fae-476f-abee-e19227b2b6c3.mov)
 
