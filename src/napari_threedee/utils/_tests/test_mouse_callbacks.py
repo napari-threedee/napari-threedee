@@ -3,7 +3,7 @@ from typing import Tuple, List
 
 import numpy as np
 
-from napari_threedee.utils.mouse_callbacks import add_point_on_plane
+from napari_threedee.utils.mouse_callbacks import on_mouse_alt_click_add_point_on_plane
 
 @dataclass
 class MockMouseEvent:
@@ -27,7 +27,7 @@ def test_add_point_on_plane_3d(viewer_with_plane_and_points_3d):
         modifiers = ['Alt']
     )
 
-    add_point_on_plane(
+    on_mouse_alt_click_add_point_on_plane(
         viewer=viewer_with_plane_and_points_3d,
         event=event,
         points_layer=points_layer,
@@ -57,7 +57,7 @@ def test_add_point_on_plane_4d(viewer_with_plane_and_points_4d):
         modifiers = ['Alt']
     )
 
-    add_point_on_plane(
+    on_mouse_alt_click_add_point_on_plane(
         viewer=viewer_with_plane_and_points_4d,
         event=event,
         points_layer=points_layer,
@@ -86,7 +86,7 @@ def test_add_point_on_plane_same_scale_3d(viewer_with_plane_and_points_3d):
     )
 
     # plane position is (14, 14, 14), in data coordinates 
-    add_point_on_plane(
+    on_mouse_alt_click_add_point_on_plane(
         viewer=viewer_with_plane_and_points_3d,
         event=event,
         points_layer=points_layer,
@@ -124,7 +124,7 @@ def test_add_point_on_plane_same_scale_4d(viewer_with_plane_and_points_4d):
     )
 
     # plane position is (14, 14, 14), in data coordinates 
-    add_point_on_plane(
+    on_mouse_alt_click_add_point_on_plane(
         viewer=viewer_with_plane_and_points_4d,
         event=event,
         points_layer=points_layer,
@@ -171,7 +171,7 @@ def test_add_point_on_plane_different_scale_3d(make_napari_viewer):
         view_direction=np.array([-1, 0, 0]),
         modifiers=["Alt"]
     )
-    add_point_on_plane(
+    on_mouse_alt_click_add_point_on_plane(
         viewer=viewer,
         event=event,
         points_layer=points_layer,

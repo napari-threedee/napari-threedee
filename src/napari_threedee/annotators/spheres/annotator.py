@@ -11,9 +11,9 @@ from napari.layers.utils.layer_utils import features_to_pandas_dataframe
 from napari_threedee._backend import N3dComponent
 from napari_threedee.annotators.spheres.constants import SPHERE_ID_FEATURES_KEY, \
     SPHERE_RADIUS_FEATURES_KEY, SPHERE_MESH_METADATA_KEY
-from napari_threedee.utils.mouse_callbacks import add_point_on_plane
+from napari_threedee.utils.mouse_callbacks import on_mouse_alt_click_add_point_on_plane
 from napari_threedee.utils.napari_utils import add_mouse_callback_safe, \
-    remove_mouse_callback_safe
+    remove_mouse_callback_safe, add_point_on_plane
 from napari_threedee.annotators.constants import N3D_METADATA_KEY
 
 
@@ -98,14 +98,14 @@ class SphereAnnotator(N3dComponent):
                 new_sphere_id = np.max(sphere_ids) + 1
             self._update_current_properties(sphere_id=new_sphere_id)
 
-    def _mouse_callback(self, viewer, event):
+    def _add_point_on_mouse_alt_click(self, viewer, event):
         if (self.image_layer is None) or (self.points_layer is None):
             return
         if ('Alt' not in event.modifiers):
             return
         replace_selected = True if self.mode == SphereAnnotatorMode.EDIT else False
         with self.points_layer.events.highlight.blocker():
-            add_point_on_plane(
+            on_mouse_alt_click_add_point_on_plane(
                 viewer=viewer,
                 event=event,
                 points_layer=self.points_layer,
@@ -113,6 +113,15 @@ class SphereAnnotator(N3dComponent):
                 replace_selected=replace_selected,
             )
         self.mode = SphereAnnotatorMode.EDIT
+
+    def _add_point_on_key_press(self, *args):
+        if (self.image_layer is None) or (self.points_layer is None):
+            return
+        add_point_on_plane(
+            viewer=self.viewer,
+            image_layer=self.image_layer,
+            points_layer=self.points_layer,
+        )
 
     def _set_radius_from_mouse_event(self, event: Event = None):
         # early exits
@@ -190,8 +199,9 @@ class SphereAnnotator(N3dComponent):
         if self.points_layer is not None:
             add_mouse_callback_safe(
                 callback_list=self.viewer.mouse_drag_callbacks,
-                callback=self._mouse_callback
+                callback=self._add_point_on_mouse_alt_click
             )
+            self.image_layer.bind_key('a', self._add_point_on_key_press)
             self.points_layer.events.data.connect(self._on_point_data_changed)
             self.points_layer.events.highlight.connect(self._on_highlight_change)
             self.viewer.bind_key(
@@ -205,7 +215,7 @@ class SphereAnnotator(N3dComponent):
     def _on_disable(self):
         remove_mouse_callback_safe(
             callback_list=self.viewer.mouse_drag_callbacks,
-            callback=self._mouse_callback
+            callback=self._add_point_on_mouse_alt_click
         )
         if self.points_layer is not None:
             self.points_layer.events.data.disconnect(self._on_point_data_changed)

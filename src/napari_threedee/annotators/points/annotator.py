@@ -5,10 +5,9 @@ import napari.types
 import numpy as np
 
 from napari_threedee._backend.threedee_model import N3dComponent
-from napari_threedee.annotators.points.validation import validate_layer
-from napari_threedee.utils.mouse_callbacks import add_point_on_plane
+from napari_threedee.utils.mouse_callbacks import on_mouse_alt_click_add_point_on_plane
 from napari_threedee.utils.napari_utils import add_mouse_callback_safe, \
-    remove_mouse_callback_safe
+    remove_mouse_callback_safe, add_point_on_plane
 
 
 class PointAnnotator(N3dComponent):
@@ -26,14 +25,23 @@ class PointAnnotator(N3dComponent):
         self.points_layer = points_layer
         self.enabled = enabled
 
-    def _mouse_callback(self, viewer, event):
+    def _add_point_on_mouse_alt_click(self, layer, event):
         if (self.image_layer is None) or (self.points_layer is None):
             return
-        add_point_on_plane(
+        on_mouse_alt_click_add_point_on_plane(
             viewer=self.viewer,
             event=event,
             points_layer=self.points_layer,
             image_layer=self.image_layer
+        )
+
+    def _add_point_on_key_press(self, *args):
+        if (self.image_layer is None) or (self.points_layer is None):
+            return
+        add_point_on_plane(
+            viewer=self.viewer,
+            image_layer=self.image_layer,
+            points_layer=self.points_layer,
         )
 
     def _create_points_layer(self) -> napari.layers.Points:
@@ -52,11 +60,12 @@ class PointAnnotator(N3dComponent):
     def _on_enable(self):
         if self.image_layer is not None:
             add_mouse_callback_safe(
-                self.image_layer.mouse_drag_callbacks, self._mouse_callback, index=0
+                self.image_layer.mouse_drag_callbacks, self._add_point_on_mouse_alt_click, index=0
             )
+            self.image_layer.bind_key('a', self._add_point_on_key_press)
 
     def _on_disable(self):
         if self.image_layer is not None:
             remove_mouse_callback_safe(
-                self.image_layer.mouse_drag_callbacks, self._mouse_callback
+                self.image_layer.mouse_drag_callbacks, self._add_point_on_mouse_alt_click
             )
