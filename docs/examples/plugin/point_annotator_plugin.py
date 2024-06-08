@@ -44,6 +44,14 @@ viewer.add_image(
     }
 )
 
+# add points layer to viewer
+points_layer = viewer.add_points(
+    data=[],
+    size=5,
+    face_color='cornflowerblue',
+    ndim=3
+)
+
 # add plugin dock widget to viewer
 viewer.window.add_plugin_dock_widget(
     plugin_name="napari-threedee", widget_name="point annotator"
