@@ -29,7 +29,7 @@ It is a combination of **translators** and **rotators**.
 Clicking and dragging a **translator** will move the manipulator in the direction of the translator. Translators have a diamond shaped handle.
 Clicking and dragging a **rotator** will rotate the object. Rotators have a ball shaped handle.
 
-<div style="text-align: center;"><img src="https://github.com/napari-threedee/napari-threedee/assets/76622105/589c7782-d311-4ff9-9e07-09ca836a1fe3" alt="A napari-threedee manipulator"  width="30%"></div>
+<div style="text-align: center;"><img src="https://github.com/napari-threedee/napari-threedee/assets/76622105/3edc0809-9ba1-4e23-aae7-5e8817209240" alt="A napari-threedee manipulator"  width="30%"></div>
 
 Manipulators can be used to modify other objects by providing callbacks which will 
 be run before, during, and after an interaction with the manipulator. 
