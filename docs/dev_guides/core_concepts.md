@@ -23,16 +23,16 @@ For those who want to integrate custom 3D interactivity into their application,
 They can be activated and deactivated as required.
 
 ### Manipulators
-A **Manipulator** is an object in the scene which allows us to position something. 
+A **Manipulator** is an object in the scene which allows us to position something: a point, a plane, a layer, etc. 
 It is a combination of **translators** and **rotators**. 
 
-Clicking and dragging a **translator** will move the manipulator in the direction of the translator.
-Clicking and dragging a **rotator** will rotate the object.
+Clicking and dragging a **translator** will move the manipulator in the direction of the translator. Translators have a diamond shaped handle.
+Clicking and dragging a **rotator** will rotate the object. Rotators have a ball shaped handle.
 
-<div style="text-align: center;"><img src="https://user-images.githubusercontent.com/7307488/173041374-aec20210-65a7-40a2-bb3d-59f542545b8a.png" alt="A napari-threedee manipulator"  width="30%"></div>
+<div style="text-align: center;"><img src="https://private-user-images.githubusercontent.com/76622105/338404414-589c7782-d311-4ff9-9e07-09ca836a1fe3.png" alt="A napari-threedee manipulator"  width="30%"></div>
 
 Manipulators can be used to modify other objects by providing callbacks which will 
-be run before, during and after an interaction with the manipulator. 
+be run before, during, and after an interaction with the manipulator. 
 
 For more details see [**manipulators**](./manipulators.md)
 
