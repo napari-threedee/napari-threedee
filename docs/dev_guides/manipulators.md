@@ -4,19 +4,22 @@ Manipulators are UI elements attached to napari layers to aid with positioning a
 being displayed on the canvas. Manipulators can translate and rotate along/around specified axes.
 
 ## Coordinate system
-The manipulator coordinate system is defined with an affine transformation relative to the layer data coordinate system.
-The manipulator transformation is defined as a translation and a 3x3 transformation matrix (rotation and scale). The 
-translation is stored in the `manipulator.translation` property and the transformation is stored in the `manipulator.
-rot_mat` property. The rotation is applied before the translation. 
+The manipulator coordinate system is the napari `world` coordinate system (for more information see [the napari
+ documentation](https://napari.org/stable/guides/3D_interactivity.html#coordinate-systems-in-napari)).
+The manipulator transformation is defined as a translation (of the origin of the manipulator) and a 3x3 transformation
+ matrix (rotation and scale). The origin is stored in the `manipulator.origin` property and the transformation is 
+ stored in the `manipulator.rotation_matrix` property. Additionally, the `manipulator` has `radius` and `handle_size`
+ properties that allow you to change the size of the visual: the overall radius of the manipulator and the size of 
+ the translator and rotator handles, respectively (again in `world` coordinates). 
 
 ## Translators
 Translators are the UI element on the manipulator responsible for translating the manipulator. When the user 
-clicks on a translator and drags it, the manipulator is translated by the drag vector component parallel to the 
-translator direction. 
+clicks on a translator and drags it, the manipulator is translated by the drag vector component along the axis of the  
+translator. 
 
-Translators are defined by unit vectors pointing in the direction of translation. The unit vectors are stored in the 
-`_initial_translator_normals` property as an (n x 3) numpy array for n translators. One translator will be created 
-for each unit vector in `initial_translator_normals`.
+Translators are defined by unit vectors pointing in the direction of translation. A manipulator can have up to three
+translators, one per axis: z, y, z. The unit vectors are stored in the corresponding `z_vector`, `y_vector`, and 
+`x_vector` properties. One translator will be created for each axis passed to `translator_axes`.
 
 ### Translator drag callback
 When a translator is dragged, the following callbacks are executed:
@@ -40,9 +43,9 @@ To add translators to a manipulator, the following must be implemented:
 Rotators are the UI element on the manipulator responsible for rotating the manipulator. When the user 
 clicks on a rotator and drags it, the manipulator is rotated around the normal vector of the rotator.
 
-Rotators are defined by unit vectors normal to the rotators. The unit vectors are stored in the 
-`_initial_rotators_normals` property as an (n x 3) numpy array for n translators. One rotator will be created 
-for each unit vector in `initial_rotator_normals`.
+Rotators are defined by unit vectors normal to the rotators. The unit vectors are stored in the corresponding
+ `z_vector`, `y_vector`, and `x_vector` properties. One rotator will be created for each axis passed 
+ to `rotator_axes`.
 
 ### Rotator drag callback
 When a rotator is dragged, the following callbacks are executed:
@@ -65,8 +68,8 @@ To add rotators to a manipulator, the following must be implemented:
 ## Notes on performance
 
 In general, writing data to the GPU is slow compared to drawing the scene. Thus, it is recommended that for best 
-performance, one should move the manipulator in the scene by modifying the transformation rather than modifying the 
-manipulator definitions (i.e., `_initial_translator_normals` and `_rotator_translator_normals`)
+performance, one should move the manipulator in the scene by modifying the origin and transformation rather 
+than modifying the manipulator definitions.
 
 
 
