@@ -26,10 +26,10 @@ They can be activated and deactivated as required.
 A **Manipulator** is an object in the scene which allows us to position something: a point, a plane, a layer, etc. 
 It is a combination of **translators** and **rotators**. 
 
-Clicking and dragging a **translator** will move the manipulator in the direction of the translator. Translators have a diamond shaped handle.
-Clicking and dragging a **rotator** will rotate the object. Rotators have a ball shaped handle.
+**Translators** have a diamond shaped handle. Clicking and dragging a **translator** will move the manipulator along the axis of the selected translator.
+**Rotators** have a ball shaped handle. Clicking and dragging a **rotator** will rotate the object. 
 
-<div style="text-align: center;"><img src="https://github.com/napari-threedee/napari-threedee/assets/76622105/3edc0809-9ba1-4e23-aae7-5e8817209240" alt="A napari-threedee manipulator"  width="30%"></div>
+<div style="text-align: center;"><img src="https://github.com/napari-threedee/napari-threedee/assets/76622105/3edc0809-9ba1-4e23-aae7-5e8817209240" alt="A napari-threedee manipulator"  width="50%"></div>
 
 Manipulators can be used to modify other objects by providing callbacks which will 
 be run before, during, and after an interaction with the manipulator. 
