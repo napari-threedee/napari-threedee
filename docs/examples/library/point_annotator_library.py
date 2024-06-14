@@ -15,7 +15,7 @@ from napari_threedee.annotators import PointAnnotator
 viewer = napari.Viewer(ndisplay=3)
 
 # generate 3d image data
-blobs = data.binary_blobs(length=64, volume_fraction=0.1, n_dim=4).astype(float)
+blobs = data.binary_blobs(length=64, volume_fraction=0.1, n_dim=3).astype(float)
 
 # add image layer to viewer (rendering as a plane)
 image_layer = viewer.add_image(
