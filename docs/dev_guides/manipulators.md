@@ -15,7 +15,7 @@ The manipulator transformation is defined as a translation (of the origin of the
 ## Translators
 Translators are the UI element on the manipulator responsible for translating the manipulator. When the user 
 clicks on a translator and drags it, the manipulator is translated by the drag vector component along the axis of the  
-translator. 
+selected translator. 
 
 Translators are defined by unit vectors pointing in the direction of translation. A manipulator can have up to three
 translators, one per axis: z, y, z. The unit vectors are stored in the corresponding `z_vector`, `y_vector`, and 
