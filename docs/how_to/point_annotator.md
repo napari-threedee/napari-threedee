@@ -26,6 +26,6 @@ Annotating points in 3D can be useful for picking particles in CryoET and annota
 
 	![type:video](https://user-images.githubusercontent.com/1120672/225954237-e77891ee-2302-47f6-ad14-963da44f8dac.mov)
 	
-6. You can add points on the `orange plane` layer rendered plane, by holding the alt key while clicking with the left mouse button. Note you must ensure that the `orange plane` layer is selected, the points will be automatically placed in the `Points` layer. You can move the plane to annotate a new plane by clicking and dragging with the shift key held down as in step 5.
+6. You can add points on the `orange plane` layer rendered plane, at the location of your mouse cursor, by pressing the `a` key or by holding the *Alt* key while clicking with the left mouse button. Note you must ensure that the `orange plane` layer is selected, the points will be automatically placed in the `Points` layer. You can move the plane to annotate a new plane by clicking and dragging with the shift key held down as in step 5.
 
 	![type:video](https://user-images.githubusercontent.com/1120672/225955156-5c05c7a4-814c-4aa0-89b0-9dee8713e8c3.mov)
