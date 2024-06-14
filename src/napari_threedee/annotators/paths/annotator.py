@@ -12,9 +12,9 @@ from napari_threedee.annotators.paths.constants import (
     PATH_COLOR_FEATURES_KEY_2,
     PATH_COLOR_FEATURES_KEY_3,
 )
-from napari_threedee.utils.mouse_callbacks import add_point_on_plane
+from napari_threedee.utils.mouse_callbacks import on_mouse_alt_click_add_point_on_plane
 from napari_threedee.utils.napari_utils import add_mouse_callback_safe, \
-    remove_mouse_callback_safe
+    remove_mouse_callback_safe, add_point_on_plane
 
 
 class PathAnnotator(N3dComponent):
@@ -53,14 +53,23 @@ class PathAnnotator(N3dComponent):
         self.points_layer.selected_data = {}
         self.points_layer.current_properties = {PATH_ID_FEATURES_KEY: [new_path_id]}
 
-    def _mouse_callback(self, viewer, event):
+    def _add_point_on_mouse_alt_click(self, viewer, event):
         if (self.image_layer is None) or (self.points_layer is None):
             return
-        add_point_on_plane(
+        on_mouse_alt_click_add_point_on_plane(
             viewer=viewer,
             event=event,
             points_layer=self.points_layer,
             image_layer=self.image_layer
+        )
+
+    def _add_point_on_key_press(self, *args):
+        if (self.image_layer is None) or (self.points_layer is None):
+            return
+        add_point_on_plane(
+            viewer=self.viewer,
+            image_layer=self.image_layer,
+            points_layer=self.points_layer,
         )
 
     def _create_points_layer(self) -> Points:
@@ -91,15 +100,16 @@ class PathAnnotator(N3dComponent):
     def _on_enable(self):
         if self.points_layer is not None:
             add_mouse_callback_safe(
-                self.viewer.mouse_drag_callbacks, self._mouse_callback
+                self.viewer.mouse_drag_callbacks, self._add_point_on_mouse_alt_click
             )
+            self.image_layer.bind_key('a', self._add_point_on_key_press)
             self.points_layer.events.data.connect(self._on_point_data_changed)
             self.viewer.bind_key('n', self.activate_new_path_mode, overwrite=True)
             self.viewer.layers.selection.active = self.image_layer
 
     def _on_disable(self):
         remove_mouse_callback_safe(
-            self.viewer.mouse_drag_callbacks, self._mouse_callback
+            self.viewer.mouse_drag_callbacks, self._add_point_on_mouse_alt_click
         )
         if self.points_layer is not None:
             self.points_layer.events.data.disconnect(
