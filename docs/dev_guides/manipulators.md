@@ -6,7 +6,7 @@ being displayed on the canvas. Manipulators can translate and rotate along/aroun
 ## Coordinate system
 The manipulator coordinate system is the napari `world` coordinate system (for more information see [the napari
  documentation](https://napari.org/stable/guides/3D_interactivity.html#coordinate-systems-in-napari)).
-The manipulator transformation is defined as a translation (of the origin of the manipulator) and a 3x3 transformation
+The manipulator transformation is an affine transformation; defined as a translation (of the origin of the manipulator) and a 3x3 transformation
  matrix (rotation and scale). The origin is stored in the `manipulator.origin` property and the transformation is 
  stored in the `manipulator.rotation_matrix` property. Additionally, the `manipulator` has `radius` and `handle_size`
  properties that allow you to change the size of the visual: the overall radius of the manipulator and the size of 
