@@ -10,9 +10,14 @@ from napari_threedee._backend.manipulator.axis_model import AxisSet, AxisModel
 class Translator(BaseModel, _Grabbable):
     """Axis, offset from origin with a handle at the base."""
     axis: AxisModel
-    length: float = 3
-    distance_from_origin: float = 21  # distance of start point from origin
+    distance_from_origin: float = 20  # distance of start point from origin
+    handle_size: float = 10
 
+    @property
+    def length(self) -> np.ndarray:
+        """length of the extra segment beyond the radius"""
+        return np.floor(self.distance_from_origin/7)+1
+        
     @property
     def start_point(self) -> np.ndarray:
         return self.distance_from_origin * np.array(self.axis.vector)
@@ -27,7 +32,7 @@ class Translator(BaseModel, _Grabbable):
 
     @property
     def handle_point(self) -> np.ndarray:
-        return self.start_point
+        return self.end_point
 
     @classmethod
     def from_string(cls, axis: str):

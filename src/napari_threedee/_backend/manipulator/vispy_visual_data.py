@@ -107,9 +107,8 @@ class ManipulatorHandleData(BaseModel):
     """Data required to construct a VisPy points visuals and relate points to axes."""
     points: np.ndarray  # (n_handles, 3) array of points
     colors: np.ndarray  # (n_handles, 4) array of RGBA colors for points
+    handle_size: np.ndarray  # (n_handles, ) array of handle sizes
     axis_identifiers: np.ndarray  # (n_points, ) array of axis identifiers
-
-    handle_size: float = 10
 
     class Config:
         arbitrary_types_allowed = True
@@ -117,8 +116,9 @@ class ManipulatorHandleData(BaseModel):
     @classmethod
     def from_translator(cls, translator: Translator):
         return cls(
-            points=translator.start_point.reshape((1, 3)),
+            points=translator.end_point.reshape((1, 3)),
             colors=translator.axis.color.reshape((1, 4)),
+            handle_size=np.array([translator.handle_size]),
             axis_identifiers=np.array([translator.axis.id])
         )
 
@@ -131,6 +131,7 @@ class ManipulatorHandleData(BaseModel):
         return cls(
             points=rotator.handle_point.reshape((1, 3)),
             colors=rotator.axis.color.reshape((1, 4)),
+            handle_size=np.array([rotator.handle_size]),
             axis_identifiers=np.array([rotator.axis.id])
         )
 
@@ -146,8 +147,9 @@ class ManipulatorHandleData(BaseModel):
             return self
         points = np.concatenate([self.points, other.points], axis=0)
         colors = np.concatenate([self.colors, other.colors], axis=0)
+        handle_size = np.concatenate([self.handle_size, other.handle_size], axis=0)
         axis_ids = np.concatenate([self.axis_identifiers, other.axis_identifiers], axis=0)
-        return ManipulatorHandleData(points=points, colors=colors, axis_identifiers=axis_ids)
+        return ManipulatorHandleData(points=points, colors=colors, handle_size=handle_size, axis_identifiers=axis_ids)
 
     def __len__(self):
         return len(self.points)
@@ -201,6 +203,23 @@ class ManipulatorVisualData(ModelWithSettableProperties):
             rotator_line_data=rotator_line_data,
             rotator_handle_data=rotator_handle_data
         )
+
+    def update_from_manipulator(self, manipulator: ManipulatorModel):
+        self.central_axis_line_data = ManipulatorLineData.from_central_axis_set(manipulator.central_axes)
+        # translators
+        if manipulator.translators is None:
+            self.translator_line_data = None
+            self.translator_handle_data = None
+        else:
+            self.translator_line_data = ManipulatorLineData.from_translator_set(manipulator.translators)
+            self.translator_handle_data = ManipulatorHandleData.from_translator_set(manipulator.translators)
+        # rotators
+        if manipulator.rotators is None:
+            self.rotator_line_data = None
+            self.rotator_handle_data = None
+        else:
+            self.rotator_line_data = ManipulatorLineData.from_rotator_set(manipulator.rotators)
+            self.rotator_handle_data = ManipulatorHandleData.from_rotator_set(manipulator.rotators)
 
     @property
     def central_axis_line_colors(self) -> np.ndarray:

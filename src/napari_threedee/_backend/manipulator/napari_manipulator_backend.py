@@ -15,6 +15,7 @@ from ...utils.napari_utils import get_vispy_root_node, \
     get_mouse_position_in_displayed_layer_data_coordinates, \
     add_mouse_callback_safe, remove_mouse_callback_safe
 from ...utils.selection_utils import select_sphere_from_click
+from napari_threedee.utils.napari_utils import clamp_point_to_layer_bounding_box
 
 
 class NapariManipulatorBackend:
@@ -34,14 +35,19 @@ class NapariManipulatorBackend:
         self._viewer = viewer
         self._layer = layer
         self.is_dragging = False
+        # currently only used (True) by render plane manipulator
+        self.clamp_to_layer_bbox = False
 
         if self._layer is not None:
             self._connect_vispy_visual()
             self._connect_mouse_callback()
 
         self._connect_transformation_events()
+        self._connect_ndisplay_event()
         self.vispy_visual.update()
         self.vispy_visual.update_visuals_from_manipulator_visual_data()
+
+
 
     @property
     def layer(self) -> napari.layers.Layer:
@@ -73,6 +79,12 @@ class NapariManipulatorBackend:
     def _connect_transformation_events(self):
         # updating the model should update the view
         self.manipulator_model.events.origin.connect(self._on_transformation_changed)
+    
+    def _connect_ndisplay_event(self):
+        self._viewer.dims.events.ndisplay.connect(self._on_ndisplay_change)
+
+    def _disconnect_ndisplay_event(self):
+        self._viewer.dims.events.ndisplay.disconnect(self._on_ndisplay_change)
 
     def _connect_mouse_callback(self):
         add_mouse_callback_safe(
@@ -118,6 +130,9 @@ class NapariManipulatorBackend:
         )
         while event.type == 'mouse_move':
             new_origin, new_rotation_matrix = drag_manager.update_drag(mouse_event=event)
+            # enable clamping the manipulator to the layer extent
+            if self.clamp_to_layer_bbox is True:
+                new_origin = clamp_point_to_layer_bounding_box(new_origin, layer)
             with self.manipulator_model.events.blocked():
                 self.manipulator_model.origin = new_origin
                 self.manipulator_model.rotation_matrix = new_rotation_matrix
@@ -158,7 +173,8 @@ class NapariManipulatorBackend:
             click_point=click_point,
             view_direction=view_direction,
             sphere_centroids=einops.rearrange(transformed_handle_points, 'b xyz 1 -> b xyz'),
-            sphere_diameter=self.vispy_visual_data.translator_handle_data.handle_size
+            # all the handle_sizes are the same, so we can just use the first one
+            sphere_diameter=self.vispy_visual_data.translator_handle_data.handle_size[0]
         )
         if selection is None:
             return None
@@ -199,10 +215,15 @@ class NapariManipulatorBackend:
         # update transform on vispy manipulator
         self.vispy_visual.transform.matrix = affine_matrix
 
-    def _on_ndisplay_change(self, event=None):
-        if self._viewer.dims.ndisplay == 2:
+    def _on_ndisplay_change(self, event):
+        new_ndisplay = event.value
+        vispy_visual_index = self.vispy_visual.parent.children.index(self.vispy_visual)
+        if new_ndisplay == 2:
+            self.vispy_visual.parent.children[vispy_visual_index].order = 0
             self._disconnect_mouse_callback()
         else:
+            # set manipulator visual to be on top of layer volume visuals
+            self.vispy_visual.parent.children[vispy_visual_index].order = 1
             self._connect_mouse_callback()
 
     def _set_canvas_none(self):

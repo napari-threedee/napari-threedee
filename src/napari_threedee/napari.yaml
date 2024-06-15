@@ -50,15 +50,20 @@ contributions:
       title: Create camera spline control widget
       python_name: napari_threedee.dock_widgets:QtCameraSpline
 
-    # Reader
-    - id: napari-threedee.read_n3d
-      title: Read ".n3d" files
-      python_name: napari_threedee.annotators.io._napari:read_n3d_zarr
+    # Sample data
+    - id: napari-threedee.hiv_particles
+      title: Load HIV tomogram
+      python_name: napari_threedee._sample_data:hiv_sample_tomogram
 
-    # Writers
-    - id: napari-threedee.write_n3d
-      title: Save points layer to n3d
-      python_name: napari_threedee.annotators.io._napari:write_n3d_zarr
+    # # Reader
+    # - id: napari-threedee.read_n3d
+    #   title: Read ".n3d" files
+    #   python_name: napari_threedee.annotators.io._napari:read_n3d_zarr
+
+    # # Writers
+    # - id: napari-threedee.write_n3d
+    #   title: Save points layer to n3d
+    #   python_name: napari_threedee.annotators.io._napari:write_n3d_zarr
 
 
   widgets:
@@ -98,15 +103,20 @@ contributions:
     - command: napari-threedee.QtCameraSplineWidget
       display_name: camera spline control
 
-  writers:
-    - command: napari-threedee.write_n3d
-      layer_types:
-        - points
-      filename_extensions:
-        - .n3d
+  sample_data:
+    - command: napari-threedee.hiv_particles
+      display_name: HIV virus-like particles tomogram
+      key: unique_id.1
 
-  readers:
-    - command: napari-threedee.read_n3d
-      filename_patterns:
-        - '*.n3d'
-      accepts_directories: true
+  # writers:
+  #   - command: napari-threedee.write_n3d
+  #     layer_types:
+  #       - points
+  #     filename_extensions:
+  #       - .n3d
+
+  # readers:
+  #   - command: napari-threedee.read_n3d
+  #     filename_patterns:
+  #       - '*.n3d'
+  #     accepts_directories: true

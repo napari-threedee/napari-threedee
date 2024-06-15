@@ -25,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-latest, windows-latest, macos-latest]
+        platform: [ubuntu-latest, windows-latest, macos-13]
         python-version: ["3.8", "3.9", "3.10", "3.11"]
 
     steps:
@@ -68,7 +68,7 @@ jobs:
 
   docs:
     needs: [test]  # runs only after the other CI tests pass
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v4
     - uses: tlambert03/setup-qt-libs@v1

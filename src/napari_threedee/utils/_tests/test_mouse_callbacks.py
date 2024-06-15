@@ -3,12 +3,10 @@ from typing import Tuple, List
 
 import numpy as np
 
-from napari_threedee.utils.mouse_callbacks import add_point_on_plane
+from napari_threedee.utils.mouse_callbacks import on_mouse_alt_click_add_point_on_plane
 
 @dataclass
 class MockMouseEvent:
-    position: np.ndarray
-    view_direction: np.ndarray
     modifiers: List[str]
 
 def test_add_point_on_plane_3d(viewer_with_plane_and_points_3d):
@@ -22,12 +20,12 @@ def test_add_point_on_plane_3d(viewer_with_plane_and_points_3d):
     viewer.dims.ndisplay = 3
 
     event = MockMouseEvent(
-        position = (14, 14, 14),
-        view_direction = np.array((1, 0, 0)),
         modifiers = ['Alt']
     )
+    viewer.cursor.position = (14, 14, 14)
+    viewer.camera.set_view_direction((1, 0, 0))
 
-    add_point_on_plane(
+    on_mouse_alt_click_add_point_on_plane(
         viewer=viewer_with_plane_and_points_3d,
         event=event,
         points_layer=points_layer,
@@ -52,12 +50,12 @@ def test_add_point_on_plane_4d(viewer_with_plane_and_points_4d):
     viewer.dims.set_current_step(0, slice_index)
 
     event = MockMouseEvent(
-        position = (0, 14, 14, 14),
-        view_direction = np.array((0, 1, 0, 0)),
         modifiers = ['Alt']
     )
+    viewer.cursor.position = (0, 14, 14, 14)
+    viewer.camera.set_view_direction((1, 0, 0))
 
-    add_point_on_plane(
+    on_mouse_alt_click_add_point_on_plane(
         viewer=viewer_with_plane_and_points_4d,
         event=event,
         points_layer=points_layer,
@@ -80,13 +78,13 @@ def test_add_point_on_plane_same_scale_3d(viewer_with_plane_and_points_3d):
 
     # the event is in world (scaled) coordinates
     event = MockMouseEvent(
-        position = (14, 14, 14),
-        view_direction = np.array((1, 0, 0)),
         modifiers = ['Alt']
     )
+    viewer.cursor.position = (14, 14, 14)
+    viewer.camera.set_view_direction((1, 0, 0))
 
     # plane position is (14, 14, 14), in data coordinates 
-    add_point_on_plane(
+    on_mouse_alt_click_add_point_on_plane(
         viewer=viewer_with_plane_and_points_3d,
         event=event,
         points_layer=points_layer,
@@ -118,13 +116,13 @@ def test_add_point_on_plane_same_scale_4d(viewer_with_plane_and_points_4d):
 
     # the event is in world (scaled) coordinates
     event = MockMouseEvent(
-        position = (0, 14, 14, 14),
-        view_direction = np.array((0, 1, 0, 0)),
         modifiers = ['Alt']
     )
+    viewer.cursor.position = (0, 14, 14, 14)
+    viewer.camera.set_view_direction((1, 0, 0))
 
     # plane position is (14, 14, 14), in data coordinates 
-    add_point_on_plane(
+    on_mouse_alt_click_add_point_on_plane(
         viewer=viewer_with_plane_and_points_4d,
         event=event,
         points_layer=points_layer,
@@ -167,11 +165,12 @@ def test_add_point_on_plane_different_scale_3d(make_napari_viewer):
     # add the point
     event = MockMouseEvent(
         # world (scaled) coordinates
-        position=np.array([12, 5, 5]),
-        view_direction=np.array([-1, 0, 0]),
         modifiers=["Alt"]
     )
-    add_point_on_plane(
+    viewer.cursor.position = (12, 5, 5)
+    viewer.camera.set_view_direction((-1, 0, 0))
+
+    on_mouse_alt_click_add_point_on_plane(
         viewer=viewer,
         event=event,
         points_layer=points_layer,

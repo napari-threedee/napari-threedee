@@ -87,12 +87,3 @@ def point_in_bounding_box(point: np.ndarray, bounding_box: np.ndarray) -> bool:
     if np.all(point >= bounding_box[0]) and np.all(point <= bounding_box[1]):
         return True
     return False
-
-
-def point_in_layer_bounding_box(point, layer):
-    dims_displayed = get_dims_displayed(layer)
-    bbox = layer._display_bounding_box(dims_displayed).T
-    if np.any(point < bbox[0]) or np.any(point > bbox[1]):
-        return False
-    else:
-        return True

@@ -53,10 +53,14 @@ class BaseManipulator(N3dComponent, ABC):
             viewer=self._viewer,
             layer=layer,
         )
+        self._radius = 20
+        self._handle_size = 10
+        
         self.visible = False
         self.layer = layer
         if self.enabled:
             self._on_enable()
+        self._viewer.dims.events.ndisplay.connect(self._on_ndisplay_change)
 
     @property
     def origin(self) -> np.ndarray:
@@ -67,6 +71,69 @@ class BaseManipulator(N3dComponent, ABC):
     def origin(self, value: np.ndarray):
         self._backend.manipulator_model.origin = value
 
+    @property
+    def radius(self) -> float:
+        """The radius of the manipulator components.
+        """
+        return self._radius
+    
+    @radius.setter
+    def radius(self, radius: float):
+        """The radius of the manipulator components.
+        """
+        self._radius = radius
+        model = self._backend.manipulator_model
+
+        # set the translators
+        if model.translators is not None:
+            for translator in model.translators:
+                translator.distance_from_origin = radius
+
+        # set the rotators
+        if model.rotators is not None:
+            for rotator in model.rotators:
+                rotator.distance_from_origin = radius
+        # set the central axis
+        if model.central_axes is not None:
+            for axis in model.central_axes:
+                axis.length = radius
+
+        # update the visual data
+        self._backend.vispy_visual_data.update_from_manipulator(model)
+
+        # trigger a redraw
+        self._backend.vispy_visual.update_visuals_from_manipulator_visual_data()
+
+    @property
+    def handle_size(self) -> float:
+        """The radius of the manipulator handles.
+        """
+        return self._handle_size
+    
+    @handle_size.setter
+    def handle_size(self, handle_size: float):
+        """The radius of the manipulator handles.
+        """
+        self._handle_size = handle_size
+        model = self._backend.manipulator_model
+
+        # set the translators
+        if model.translators is not None:
+            for translator in model.translators:
+                translator.handle_size = handle_size
+
+        # set the rotators
+        if model.rotators is not None:
+            for rotator in model.rotators:
+                rotator.handle_size = handle_size
+
+        # update the visual data
+        self._backend.vispy_visual_data.update_from_manipulator(model)
+
+        # trigger a redraw
+        self._backend.vispy_visual.update_visuals_from_manipulator_visual_data()
+
+    
     @property
     def rotation_matrix(self) -> np.ndarray:
         """(3, 3) array containing the rotation matrix of the manipulator."""
@@ -225,10 +292,15 @@ class BaseManipulator(N3dComponent, ABC):
 
     def _disable_and_remove(self):
         self.enabled = False
-        self._backend.vispy_visual.parent.children.remove(self._backend.vispy_visual)
+        self._backend.vispy_visual.parent = None
+        self._disconnect_events()
+        self._backend._disconnect_ndisplay_event()
+        self._viewer.dims.events.ndisplay.disconnect(self._on_ndisplay_change)
 
-    def _on_ndisplay_change(self, event=None):
-        if self._viewer.dims.ndisplay == 2:
+
+    def _on_ndisplay_change(self, event):
+        new_ndisplay = event.value
+        if new_ndisplay == 2:
             self.enabled = False
         else:
             self.enabled = True
