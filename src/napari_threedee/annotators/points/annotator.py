@@ -70,4 +70,5 @@ class PointAnnotator(N3dComponent):
             remove_mouse_callback_safe(
                 self.image_layer.mouse_drag_callbacks, self._add_point_on_mouse_alt_click
             )
+        if self.image_layer is not None:
             self.image_layer.bind_key(ADD_POINT_KEY, None, overwrite=True)

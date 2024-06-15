@@ -116,7 +116,8 @@ class PathAnnotator(N3dComponent):
             self.points_layer.events.data.disconnect(
                 self._on_point_data_changed
             )
-        self.image_layer.bind_key(ADD_POINT_KEY, None, overwrite=True)
+        if self.image_layer is not None:
+            self.image_layer.bind_key(ADD_POINT_KEY, None, overwrite=True)
         self.viewer.bind_key('n', None, overwrite=True)
 
     def _on_point_data_changed(self, event=None):

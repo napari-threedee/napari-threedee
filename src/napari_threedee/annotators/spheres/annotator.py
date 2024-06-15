@@ -220,7 +220,8 @@ class SphereAnnotator(N3dComponent):
         )
         if self.points_layer is not None:
             self.points_layer.events.data.disconnect(self._on_point_data_changed)
-        self.image_layer.bind_key(ADD_POINT_KEY, None, overwrite=True)
+        if self.image_layer is not None:
+            self.image_layer.bind_key(ADD_POINT_KEY, None, overwrite=True)
         self.viewer.bind_key('n', None, overwrite=True)
         self.viewer.bind_key('r', None, overwrite=True)
 
