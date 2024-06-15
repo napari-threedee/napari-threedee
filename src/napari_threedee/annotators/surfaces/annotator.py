@@ -25,6 +25,7 @@ from .constants import (
     SPLINE_COLOR_FEATURES_KEY,
     COLOR_CYCLE,
 )
+from ...manipulators.constants import ADD_POINT_KEY
 
 
 class _NDimensionalFilament(EventedModel):
@@ -263,7 +264,7 @@ class SurfaceAnnotator(N3dComponent):
             add_mouse_callback_safe(
                 self.viewer.mouse_drag_callbacks, self._add_point_on_mouse_alt_click
             )
-            self.image_layer.bind_key('a', self._add_point_on_key_press)
+            self.image_layer.bind_key(ADD_POINT_KEY, self._add_point_on_key_press, overwrite=True)
             self.points_layer.events.data.connect(self._on_point_data_changed)
             self.viewer.bind_key('n', self.next_spline, overwrite=True)
             self.viewer.layers.selection.active = self.image_layer
@@ -276,6 +277,7 @@ class SurfaceAnnotator(N3dComponent):
             self.points_layer.events.data.disconnect(
                 self._on_point_data_changed
             )
+        self.image_layer.bind_key(ADD_POINT_KEY, None, overwrite=True)
         self.viewer.bind_key('n', None, overwrite=True)
 
     def _on_point_data_changed(self, event=None):

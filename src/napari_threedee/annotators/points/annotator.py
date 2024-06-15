@@ -5,6 +5,7 @@ import napari.types
 import numpy as np
 
 from napari_threedee._backend.threedee_model import N3dComponent
+from napari_threedee.manipulators.constants import ADD_POINT_KEY
 from napari_threedee.utils.mouse_callbacks import on_mouse_alt_click_add_point_on_plane
 from napari_threedee.utils.napari_utils import add_mouse_callback_safe, \
     remove_mouse_callback_safe, add_point_on_plane
@@ -62,10 +63,11 @@ class PointAnnotator(N3dComponent):
             add_mouse_callback_safe(
                 self.image_layer.mouse_drag_callbacks, self._add_point_on_mouse_alt_click, index=0
             )
-            self.image_layer.bind_key('a', self._add_point_on_key_press)
+            self.image_layer.bind_key(ADD_POINT_KEY, self._add_point_on_key_press, overwrite=True)
 
     def _on_disable(self):
         if self.image_layer is not None:
             remove_mouse_callback_safe(
                 self.image_layer.mouse_drag_callbacks, self._add_point_on_mouse_alt_click
             )
+            self.image_layer.bind_key(ADD_POINT_KEY, None, overwrite=True)
