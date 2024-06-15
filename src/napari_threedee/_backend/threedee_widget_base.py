@@ -3,6 +3,7 @@ from typing import Type
 import napari
 from qtpy.QtWidgets import QWidget, QPushButton, QVBoxLayout
 from napari.utils.events import Event
+from napari.utils.notifications import show_info
 
 from napari_threedee._backend.threedee_model import N3dComponent
 from ..utils.napari_utils import generate_populated_layer_selection_widget
@@ -34,6 +35,7 @@ class QtThreeDeeWidgetBase(QWidget):
 
         self.viewer.dims.events.ndisplay.connect(self._on_ndisplay_change)
         if viewer.dims.ndisplay == 2:
+            show_info("Viewer needs to be in 3D mode.")
             self.activate_button.setEnabled(False)
             self.activate_button.setText('2D, disabled')
         
@@ -58,4 +60,6 @@ class QtThreeDeeWidgetBase(QWidget):
             self.activate_button.setText('2D, disabled')
         else:
             self.activate_button.setEnabled(True)
-            self.activate_button.setText('activate')
+            self.model.enabled = True
+            self.activate_button.setChecked(True)
+            self.activate_button.setText('deactivate')
