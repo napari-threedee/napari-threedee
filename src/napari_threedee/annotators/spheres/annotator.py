@@ -11,6 +11,7 @@ from napari.layers.utils.layer_utils import features_to_pandas_dataframe
 from napari_threedee._backend import N3dComponent
 from napari_threedee.annotators.spheres.constants import SPHERE_ID_FEATURES_KEY, \
     SPHERE_RADIUS_FEATURES_KEY, SPHERE_MESH_METADATA_KEY
+from napari_threedee.manipulators.constants import ADD_POINT_KEY
 from napari_threedee.utils.mouse_callbacks import on_mouse_alt_click_add_point_on_plane
 from napari_threedee.utils.napari_utils import add_mouse_callback_safe, \
     remove_mouse_callback_safe, add_point_on_plane
@@ -201,7 +202,7 @@ class SphereAnnotator(N3dComponent):
                 callback_list=self.viewer.mouse_drag_callbacks,
                 callback=self._add_point_on_mouse_alt_click
             )
-            self.image_layer.bind_key('a', self._add_point_on_key_press)
+            self.image_layer.bind_key(ADD_POINT_KEY, self._add_point_on_key_press, overwrite=True)
             self.points_layer.events.data.connect(self._on_point_data_changed)
             self.points_layer.events.highlight.connect(self._on_highlight_change)
             self.viewer.bind_key(
@@ -219,6 +220,8 @@ class SphereAnnotator(N3dComponent):
         )
         if self.points_layer is not None:
             self.points_layer.events.data.disconnect(self._on_point_data_changed)
+        if self.image_layer is not None:
+            self.image_layer.bind_key(ADD_POINT_KEY, None, overwrite=True)
         self.viewer.bind_key('n', None, overwrite=True)
         self.viewer.bind_key('r', None, overwrite=True)
 
