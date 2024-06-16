@@ -60,6 +60,4 @@ class QtThreeDeeWidgetBase(QWidget):
             self.activate_button.setText('2D, disabled')
         else:
             self.activate_button.setEnabled(True)
-            self.model.enabled = True
-            self.activate_button.setChecked(True)
-            self.activate_button.setText('deactivate')
+            self.activate_button.setText('activate')

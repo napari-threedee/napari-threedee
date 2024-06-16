@@ -60,7 +60,6 @@ class BaseManipulator(N3dComponent, ABC):
         self.layer = layer
         if self.enabled:
             self._on_enable()
-        self._viewer.dims.events.ndisplay.connect(self._on_ndisplay_change)
 
     @property
     def origin(self) -> np.ndarray:
@@ -272,7 +271,7 @@ class BaseManipulator(N3dComponent, ABC):
         if self._viewer.dims.ndisplay == 2:
             show_info("3D manipulators are not available in 2D mode.")
             self._enabled = False
-        if self.layer is not None:
+        elif self.layer is not None:
             self.visible = True
             self._initialize_transform()
             self._backend._on_transformation_changed()
@@ -281,6 +280,7 @@ class BaseManipulator(N3dComponent, ABC):
                 callback=self._mouse_callback,
                 index=1
             )
+            self._viewer.dims.events.ndisplay.connect(self._on_ndisplay_change)
 
     def _on_disable(self):
         if self.layer is not None:
