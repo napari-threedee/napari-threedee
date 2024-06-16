@@ -289,6 +289,7 @@ class BaseManipulator(N3dComponent, ABC):
                 self.layer.mouse_drag_callbacks,
                 self._mouse_callback
             )
+            self._viewer.dims.events.ndisplay.disconnect(self._on_ndisplay_change)
 
     def _disable_and_remove(self):
         self.enabled = False
