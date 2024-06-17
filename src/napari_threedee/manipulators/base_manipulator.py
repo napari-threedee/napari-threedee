@@ -245,7 +245,6 @@ class BaseManipulator(N3dComponent, ABC):
             self._on_enable()
         else:
             self._on_disable()
-        self._connect_events()
 
     @property
     def visible(self) -> bool:
@@ -280,6 +279,7 @@ class BaseManipulator(N3dComponent, ABC):
                 callback=self._mouse_callback,
                 index=1
             )
+            self._connect_events()
             self._viewer.dims.events.ndisplay.connect(self._on_ndisplay_change)
 
     def _on_disable(self):
@@ -289,7 +289,7 @@ class BaseManipulator(N3dComponent, ABC):
                 self.layer.mouse_drag_callbacks,
                 self._mouse_callback
             )
-            self._viewer.dims.events.ndisplay.disconnect(self._on_ndisplay_change)
+            self._disconnect_events()
 
     def _disable_and_remove(self):
         self.enabled = False
