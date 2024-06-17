@@ -15,7 +15,7 @@ class QtThreeDeeWidgetBase(QWidget):
     def __init__(self, model_class: Type[N3dComponent], viewer: napari.Viewer, flags=None, *args,
                  **kwargs):
         super().__init__(flags, *args, **kwargs)
-        self.model: N3dComponent = model_class(viewer)
+        self.model: N3dComponent = model_class(viewer, enabled=False)
         self.viewer = viewer
 
         self._layer_selection_widget = generate_populated_layer_selection_widget(
