@@ -15,6 +15,7 @@ class QtThreeDeeWidgetBase(QWidget):
     def __init__(self, model_class: Type[N3dComponent], viewer: napari.Viewer, flags=None, *args,
                  **kwargs):
         super().__init__(flags, *args, **kwargs)
+        # initialize the model disabled
         self.model: N3dComponent = model_class(viewer, enabled=False)
         self.viewer = viewer
 
@@ -24,7 +25,6 @@ class QtThreeDeeWidgetBase(QWidget):
         self._layer_selection_widget()
 
         # start in the disabled state
-        self.model.enabled = False
         self.activate_button = QPushButton('activate')
         self.activate_button.setCheckable(True)
         self.activate_button.setChecked(False)
@@ -72,7 +72,6 @@ class QtThreeDeeWidgetBase(QWidget):
                 self.activate_button.setChecked(False)
                 self.activate_button.setEnabled(True)
                 self.activate_button.setText('activate')
-                self.model.enabled = False
             # otherwise assume was activated, so enable deactivation
             else:
                 self.activate_button.setEnabled(True)
