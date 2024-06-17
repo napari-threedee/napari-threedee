@@ -9,8 +9,8 @@ from napari_threedee.utils.napari_utils import data_to_world_normal, world_to_da
 class RenderPlaneManipulator(BaseManipulator):
     """A manipulator for moving and orienting an image layer rendering plane."""
 
-    def __init__(self, viewer, layer=None):
-        super().__init__(viewer, layer, rotator_axes='xyz', translator_axes='z')
+    def __init__(self, viewer, layer=None, enabled=True):
+        super().__init__(viewer, layer, rotator_axes='xyz', translator_axes='z', enabled=enabled)
 
     def set_layers(self, layers: napari.layers.Image):
         super().set_layers(layers)
