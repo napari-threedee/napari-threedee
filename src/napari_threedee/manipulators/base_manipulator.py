@@ -267,7 +267,7 @@ class BaseManipulator(N3dComponent, ABC):
         self._on_enable() if self._enabled is True else self._on_disable()
 
     def _on_enable(self):
-        if self._viewer.dims.ndisplay == 2:
+        if self._viewer.dims.ndisplay == 2 or self._viewer.dims.ndim < 3:
             show_info("3D manipulators are not available in 2D mode.")
             self._enabled = False
         elif self.layer is not None:
