@@ -21,10 +21,12 @@ class RenderPlaneManipulator(BaseManipulator):
         self.layer.events.visible.connect(self._on_visibility_change)
         self.layer.events.depiction.connect(self._on_depiction_change)
         self._viewer.layers.events.removed.connect(self._disable_and_remove)
+        self._viewer.camera.events.connect(self._update_transform)
 
     def _disconnect_events(self):
         self.layer.plane.events.position.disconnect(self._update_transform)
         self.layer.plane.events.normal.disconnect(self._update_transform)
+        self._viewer.camera.events.disconnect(self._update_transform)
 
     def _update_transform(self):
         # ensure the manipulator is clamped to the layer extent
@@ -40,7 +42,11 @@ class RenderPlaneManipulator(BaseManipulator):
         self.origin = np.array(origin_world)
         plane_normal_data = self.layer.plane.normal
         plane_normal_world = data_to_world_normal(vector=plane_normal_data, layer=self.layer)
-        manipulator_normal = -1 * plane_normal_world
+        manipulator_normal = plane_normal_world
+
+        # flip the manipulator so it's always visible
+        if np.dot(manipulator_normal, self._viewer.camera.up_direction) < 0:
+            manipulator_normal *= -1
         self.rotation_matrix = rotation_matrix_from_vectors_3d([1, 0, 0], manipulator_normal)
 
 

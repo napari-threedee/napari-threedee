@@ -20,7 +20,6 @@ class LayerManipulator(BaseManipulator):
 
     def _initialize_transform(self):
         self.origin = np.asarray(self.layer.data_to_world((0, 0, 0)))
-        print(self.origin)
 
     def _pre_drag(self):
         self.translate_start = self.origin.copy()
