@@ -9,12 +9,13 @@ from napari_threedee.utils.napari_utils import remove_mouse_callback_safe, add_m
 
 class PointManipulator(BaseManipulator):
 
-    def __init__(self, viewer, layer=None):
+    def __init__(self, viewer, layer=None, enabled=True):
         super().__init__(
             viewer,
             layer=layer,
             translator_axes='xyz',
-            rotator_axes='xyz'
+            rotator_axes='xyz',
+            enabled=enabled
         )
 
     def set_layers(self, layer: napari.layers.Points):

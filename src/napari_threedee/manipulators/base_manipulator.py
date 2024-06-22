@@ -4,6 +4,7 @@ from typing import Optional, Type
 import napari
 import numpy as np
 from napari.viewer import Viewer
+from napari.utils.notifications import show_info
 
 from napari_threedee._backend.threedee_model import N3dComponent
 from .._backend.manipulator.axis_model import AxisModel
@@ -59,7 +60,6 @@ class BaseManipulator(N3dComponent, ABC):
         self.layer = layer
         if self.enabled:
             self._on_enable()
-        self._viewer.dims.events.ndisplay.connect(self._on_ndisplay_change)
 
     @property
     def origin(self) -> np.ndarray:
@@ -241,12 +241,10 @@ class BaseManipulator(N3dComponent, ABC):
         if self.layer is not None:
             self._disconnect_events()
         self._backend.layer = layer
-        self._initialize_transform()
         if self.enabled:
             self._on_enable()
         else:
             self._on_disable()
-        self._connect_events()
 
     @property
     def visible(self) -> bool:
@@ -269,14 +267,20 @@ class BaseManipulator(N3dComponent, ABC):
         self._on_enable() if self._enabled is True else self._on_disable()
 
     def _on_enable(self):
-        if self.layer is not None:
+        if self._viewer.dims.ndisplay == 2 or self._viewer.dims.ndim < 3:
+            show_info("3D manipulators are not available in 2D mode.")
+            self._enabled = False
+        elif self.layer is not None:
             self.visible = True
+            self._initialize_transform()
             self._backend._on_transformation_changed()
             add_mouse_callback_safe(
                 callback_list=self.layer.mouse_drag_callbacks,
                 callback=self._mouse_callback,
                 index=1
             )
+            self._connect_events()
+            self._viewer.dims.events.ndisplay.connect(self._on_ndisplay_change)
 
     def _on_disable(self):
         if self.layer is not None:
@@ -285,6 +289,7 @@ class BaseManipulator(N3dComponent, ABC):
                 self.layer.mouse_drag_callbacks,
                 self._mouse_callback
             )
+            self._disconnect_events()
 
     def _disable_and_remove(self):
         self.enabled = False
