@@ -1,0 +1,1 @@
+ADD_POINT_KEY = 'a'

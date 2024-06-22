@@ -17,7 +17,7 @@ blobs = data.binary_blobs(length=64, volume_fraction=0.1, n_dim=3).astype(float)
 # add two image layers to viewer
 viewer.add_image(
     blobs,
-    name='orange plane',
+    name='plane',
     rendering='average',
     colormap='bop orange',
     blending='translucent',
@@ -26,20 +26,6 @@ viewer.add_image(
     plane={
     'position': (32, 32, 32),
     'normal': (1, 0, 0),
-    'thickness': 10,
-})
-
-viewer.add_image(
-    blobs,
-    name='blue plane',
-    rendering='average',
-    colormap='bop blue',
-    blending='additive',
-    opacity=0.5,
-    depiction='plane',
-    plane={
-    'position': (32, 32, 32),
-    'normal': (0, 1, 0),
     'thickness': 10,
 })
 

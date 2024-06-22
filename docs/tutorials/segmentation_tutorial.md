@@ -13,12 +13,12 @@ To perform this tutorial, you need the following:
 2. A computer with a working conda/mamba installation. We will use conda/mamba to manage the environment we install the dependencies into.  
 
 ## Setup
-Before trying the tutorial, please initialize your python environment as described below. Note that we recommend using `mamba` to install/manage dependencies. If you are using `conda`, you can simply replace `mamba` with `conda` in the commands below
+Before trying the tutorial, please initialize your python environment as described below. Note that we recommend using `mamba` to install/manage dependencies. If you are using `conda`, you can simply replace `mamba` with `conda` in the commands below, but we recommend you that the conda version is >23.10
 
 1. Create a new environment called `seg-env` with python 3.9. In your terminal, enter the following command.
 
 	```bash
-	mamba create -n seg-env python=3.9
+	mamba create -n seg-env -c conda-forge python=3.9
 	```
 
 2. Activate your new environment. If you successfully activated the environment, you should see the name of your environment (`(seg-env)`) to the left of your prompt.
@@ -30,17 +30,20 @@ Before trying the tutorial, please initialize your python environment as describ
 3. Install the dependencies.
 
 	```bash
-	mamba install -c conda-forge napari pyopencl
-	pip install napari-accelerated-pixel-and-object-classification
+	mamba install -c conda-forge napari pyqt napari-threedee napari-accelerated-pixel-and-object-classification
 	```
 
-4. If your are on Mac OS, install this openCL wrapper (used by APOC for GPU acceleration).
+4. If your are on Mac OS, install this openCL wrapper (used by APOC for GPU acceleration):
 
 	```bash
 	mamba install -c conda-forge ocl_icd_wrapper_apple
 	```
 
-5. If you are on linux, install this openCL wrapper (used by APOC for GPU acceleration).
+5. If you are on linux, install this openCL wrapper (used by APOC for GPU acceleration):
+	
+	```bash
+	mamba install -c conda-forge ocl-icd-system
+	```
 
 
 ## Instructions
@@ -59,7 +62,7 @@ Before trying the tutorial, please initialize your python environment as describ
 	
 	![napari opened](https://github.com/napari-threedee/napari-threedee/assets/1120672/7e59814f-b9ee-40b1-88f6-03ed5ae7adb0)
 
-3. Open the 3D cells sample image from the File menu. File -> Open sample -> napari -> Cells (3D + 2 Ch). This will load two image layers: DAPI-stained nuclei and the cell membranes.
+3. Open the 3D cells sample image from the File menu. **File -> Open Sample -> napari builtins -> Cells (3D+2Ch)**. This will load two image layers: DAPI-stained nuclei and the cell membranes.
 
 	![sample data](https://github.com/napari-threedee/napari-threedee/assets/1120672/cd954faf-50d2-4f5c-a38d-f87868ed5e8c)
 
@@ -79,12 +82,12 @@ Before trying the tutorial, please initialize your python environment as describ
 
 	![plane depiction](https://github.com/napari-threedee/napari-threedee/assets/1120672/22d3290b-5afc-42f0-b566-e3b01249a1d8)
 
-8. Use the napari-threedee render plane manipulator to move the rendering plane and explore the image. Open the render plane manipulator from the plugin menu: Plugins -> napari-threedee -> render plane manipulator. Click the "activate" button the start the manipulator. Then use it to rotate the rendering plane to find a plane of interest.
+8. Use the napari-threedee render plane manipulator to move the rendering plane and explore the image. Open the render plane manipulator from the plugin menu: **Plugins -> napari-threedee -> render plane manipulator**. Click the "activate" button the start the manipulator. Then use it to rotate the rendering plane to find a plane of interest. Note: you can double-click with the mouse to re-position the manipulator on the plane.
 
 	![plane manipulator](https://github.com/napari-threedee/napari-threedee/assets/1120672/db651930-a6f3-4329-8ec7-50a01b701093)
 	![type:video](https://github.com/napari-threedee/napari-threedee/assets/1120672/2f0b7490-9281-4a19-b59f-7c189975ad37)
 
-9. Next, we will use the label annotator to paint labels directly on the rendering plane. We will use these labels to train a random forest classifier to segment the nuclei. Open the label annotator plugin from the plugins menu: Plugins -> napari-threedee -> label annotator. Activate the label annotator by clicking the "activate" button.
+9. Next, we will use the label annotator to paint labels directly on the rendering plane. We will use these labels to train a random forest classifier to segment the nuclei. Open the label annotator plugin from the plugins menu: **Plugins -> napari-threedee -> label annotator**. Activate the label annotator by clicking the "activate" button.
 
 	![label annotator](https://github.com/napari-threedee/napari-threedee/assets/1120672/58ccdf39-97ef-4f1a-af1f-9d86dac402e8)
 	
@@ -104,7 +107,7 @@ Before trying the tutorial, please initialize your python environment as describ
 
 	![type:video](https://github.com/napari-threedee/napari-threedee/assets/1120672/1d75bd05-ca03-4ba9-a0f6-2608442e5939)
 
-14. Finally, we can train the random forest classifier. Open the napari-APOC semantic segmentation plugin: Plugins -> napari-accelerated-object-and-pixel-classification -> Semantic Segmentation. First, select the "nuclei" layer in the "Select images..." box. Then select the "Label" layer in the "ground truth" combobox. Finally, click the "Train" button. When the training has completed, the result will be added as a new layer called "Result of PixelClassifier". Notice that it is hard to see the segmented nuclei because both the background and nuclei predictions are shown together.
+14. Finally, we can train the random forest classifier. Open the napari-APOC semantic segmentation plugin: **Plugins -> napari-accelerated-object-and-pixel-classification -> Semantic Segmentation**. Note: for the other two widgets, you can click the middle, eye icon to hide them. First, select the "nuclei" layer in the "Select images (channels) used for training" box at the top. Then select the "Label" layer in the "Select ground truth annotation" combobox in the lower portion of the widget. Finally, click the "Train" button—we will leave the other parameters as defaults. When the training has completed, the result will be added as a new layer called "Result of PixelClassifier". Notice that it is hard to see the segmented nuclei because both the background and nuclei predictions are shown together.
 
 	![semantic segmentation](https://github.com/napari-threedee/napari-threedee/assets/1120672/11c953d5-aa55-443a-a5ce-26b1b65a4204)
 	![segmentation result](https://github.com/napari-threedee/napari-threedee/assets/1120672/8f7ed183-99a1-4e48-bec0-3422211bd449)
