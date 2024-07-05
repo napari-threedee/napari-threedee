@@ -1,4 +1,5 @@
 from ..constants import N3D_METADATA_KEY, ANNOTATION_TYPE_KEY
+
 SPHERE_ANNOTATION_TYPE_KEY = "spheres"
 SPHERE_ID_FEATURES_KEY: str = "sphere_id"
 SPHERE_RADIUS_FEATURES_KEY: str = "radius"

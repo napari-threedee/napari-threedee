@@ -1,0 +1,6 @@
+from ..constants import N3D_METADATA_KEY, ANNOTATION_TYPE_KEY
+
+DIPOLE_ANNOTATION_TYPE_KEY = "dipoles"
+DIPOLE_DIRECTION_X_FEATURES_KEY: str = "direction_x"
+DIPOLE_DIRECTION_Y_FEATURES_KEY: str = "direction_y"
+DIPOLE_DIRECTION_Z_FEATURES_KEY: str = "direction_z"
