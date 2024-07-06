@@ -37,10 +37,14 @@ class N3dDipoles(N3dDataModel):
 
     @property
     def centers(self) -> np.ndarray:
+        if not self.data:
+            return np.empty((0, 3))
         return np.stack([dipole.center for dipole in self.data], axis=0)
 
     @property
     def directions(self) -> np.ndarray:
+        if not self.data:
+            return np.empty((0, 3))
         return np.stack([dipole.direction for dipole in self.data], axis=0)
 
     @property
@@ -64,6 +68,10 @@ class N3dDipoles(N3dDataModel):
        return cls.from_centers_and_directions(centers=centers, directions=directions)
 
     def as_layer(self) -> napari.layers.Points:
+
+        if not self.data:
+            return N3dDipoles.create_empty_layer()
+
         #if len(self) == 0:  # workaround for napari/napari#4213
         #    cls = type(self)
         #    n3d_paths = cls(data=[N3dPath(data=[0, 0, 0])])
@@ -110,7 +118,7 @@ class N3dDipoles(N3dDataModel):
     def to_n3d_zarr(self, path: os.PathLike) -> None:
         n3d_zarr = zarr.open_array(
             store=path,
-            shape=(len(self), 3),
+            shape=(len(self), 2, 3), # vectors shape: (n, 2, 3)
             dtype=np.float32,
             mode="w",
         )
@@ -126,14 +134,24 @@ class N3dDipoles(N3dDataModel):
         layer : napari.layers.Points
             The napari Points layer initialized for dipole annotation.
         """
-        # workaround for napari/napari#4213
-        dummy_data = (0, 0, 0)
-        n3d_dipoles = cls(data=[N3dDipole(center=dummy_data, direction=dummy_data)])
-        layer = n3d_dipoles.as_layer()
-        layer.selected_data = {0}
-        layer.remove_selected()
-        return layer
 
+        features = {
+            DIPOLE_DIRECTION_X_FEATURES_KEY: np.empty(0),
+            DIPOLE_DIRECTION_Y_FEATURES_KEY: np.empty(0),
+            DIPOLE_DIRECTION_Z_FEATURES_KEY: np.empty(0),
+        }
+        metadata = {N3D_METADATA_KEY: {ANNOTATION_TYPE_KEY: DIPOLE_ANNOTATION_TYPE_KEY}}
+
+        # workaround for napari/napari#4213
+        dummy_data = np.zeros((0, 3))
+        layer = napari.layers.Points(
+            data=dummy_data,
+            features=features,
+            metadata=metadata,
+            name='n3d dipoles',
+            ndim=dummy_data.shape[-1],
+        )
+        return layer
 
     def __getitem__(self, idx: int) -> N3dDipole:
         return self.data[idx]
