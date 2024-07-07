@@ -75,7 +75,7 @@ class N3dDipoles(N3dDataModel):
 
     def as_layer(self) -> napari.layers.Points:
 
-        if not self.data:
+        if len(self.data) == 0:
             return N3dDipoles.create_empty_layer()
 
         #if len(self) == 0:  # workaround for napari/napari#4213
