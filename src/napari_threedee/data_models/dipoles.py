@@ -64,6 +64,7 @@ class N3dDipoles(N3dDataModel):
             in zip(centers, directions)
         ]
         return cls(data=dipoles)
+
     @classmethod
     def from_layer(cls, layer: napari.layers.Layer):
        centers = np.array(layer.data)
