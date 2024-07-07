@@ -77,14 +77,6 @@ class N3dDipoles(N3dDataModel):
         if len(self.data) == 0:
             return N3dDipoles.create_empty_layer()
 
-        #if len(self) == 0:  # workaround for napari/napari#4213
-        #    cls = type(self)
-        #    n3d_paths = cls(data=[N3dPath(data=[0, 0, 0])])
-        #    layer = n3d_paths.as_layer()
-        #    layer.selected_data = {0}
-        #    layer.remove_selected()
-        #    return layer
-
         directions = self.directions
         features = {
             DIPOLE_DIRECTION_X_FEATURES_KEY: directions[:, -1],
