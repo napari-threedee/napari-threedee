@@ -37,7 +37,7 @@ class N3dDipoles(N3dDataModel):
 
     @property
     def centers(self) -> np.ndarray:
-        if not self.data:
+        if len(self.data) == 0:
             return np.empty((0, 3))
         return np.stack([dipole.center for dipole in self.data], axis=0)
 
