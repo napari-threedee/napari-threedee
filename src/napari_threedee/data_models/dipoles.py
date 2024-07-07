@@ -49,6 +49,11 @@ class N3dDipoles(N3dDataModel):
 
     @property
     def napari_vectors(self) -> np.ndarray:
+        """Generate an (n, 2, 3) array containing vectors for napari.
+        
+        - arr[:, 0, :] contains start points for depicted vectors
+        - arr[:, 1, :] contains directions of depicted vectors
+        """
         return np.stack([self.centers, self.directions], axis=-2)
 
     @classmethod
