@@ -1,5 +1,5 @@
 import os
-from typing import List, Tuple
+from typing import List
 
 import napari
 import numpy as np
@@ -8,7 +8,6 @@ from pydantic import BaseModel, validator
 
 from napari_threedee.annotators.base import N3dDataModel
 from napari_threedee.annotators.constants import N3D_METADATA_KEY, ANNOTATION_TYPE_KEY
-from napari_threedee.data_models.spline_sampler import SplineSampler
 from napari_threedee.annotators.dipoles.validation import validate_layer, validate_n3d_zarr
 
 from napari_threedee.annotators.dipoles.constants import (
@@ -47,8 +46,7 @@ class N3dDipoles(N3dDataModel):
             return np.empty((0, 3))
         return np.stack([dipole.direction for dipole in self.data], axis=0)
 
-    @property
-    def napari_vectors(self) -> np.ndarray:
+    def as_napari_vectors(self) -> np.ndarray:
         """Generate an (n, 2, 3) array containing vectors for napari.
         
         - arr[:, 0, :] contains start points for depicted vectors
@@ -67,10 +65,10 @@ class N3dDipoles(N3dDataModel):
 
     @classmethod
     def from_layer(cls, layer: napari.layers.Layer):
-       centers = np.array(layer.data)
-       directions = np.array([layer.features[DIPOLE_DIRECTION_Z_FEATURES_KEY],
+       centers = np.asarray(layer.data)
+       directions = np.stack([layer.features[DIPOLE_DIRECTION_Z_FEATURES_KEY],
                              layer.features[DIPOLE_DIRECTION_Y_FEATURES_KEY],
-                             layer.features[DIPOLE_DIRECTION_X_FEATURES_KEY]])
+                             layer.features[DIPOLE_DIRECTION_X_FEATURES_KEY]], axis=-1)
        return cls.from_centers_and_directions(centers=centers, directions=directions)
 
     def as_layer(self) -> napari.layers.Points:
@@ -119,7 +117,7 @@ class N3dDipoles(N3dDataModel):
             dtype=np.float32,
             mode="w",
         )
-        n3d_zarr[...] = self.napari_vectors
+        n3d_zarr[...] = self.as_napari_vectors()
         n3d_zarr.attrs[ANNOTATION_TYPE_KEY] = DIPOLE_ANNOTATION_TYPE_KEY
 
     @classmethod
