@@ -117,7 +117,7 @@ class N3dDipoles(N3dDataModel):
             dtype=np.float32,
             mode="w",
         )
-        n3d_zarr[...] = self.as_napari_vectors
+        n3d_zarr[...] = self.as_napari_vectors()
         n3d_zarr.attrs[ANNOTATION_TYPE_KEY] = DIPOLE_ANNOTATION_TYPE_KEY
 
     @classmethod
