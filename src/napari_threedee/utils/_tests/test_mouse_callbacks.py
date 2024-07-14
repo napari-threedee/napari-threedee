@@ -67,23 +67,23 @@ def test_add_point_on_plane_4d(viewer_with_plane_and_points_4d):
 
 
 def test_add_point_on_plane_same_scale_3d(viewer_with_plane_and_points_3d):
-    """Test adding points on a plane when the layers have same non-[1, 1, 1] scale"""
+    """Test adding points on a plane when the image layer has a non-[1, 1, 1] scale"""
     viewer = viewer_with_plane_and_points_3d
-    scale = (2, .5, .5)
     points_layer = viewer.layers['Points']
-    points_layer.scale = scale
     plane_layer = viewer.layers['blobs_3d']
-    plane_layer.scale = scale
+    plane_layer.scale = (2, .5, .5)
     viewer.dims.ndisplay = 3
 
     # the event is in world (scaled) coordinates
     event = MockMouseEvent(
         modifiers = ['Alt']
     )
-    viewer.cursor.position = (14, 14, 14)
+    viewer.cursor.position = (28, 7, 7)
     viewer.camera.set_view_direction((1, 0, 0))
 
-    # plane position is (14, 14, 14), in data coordinates 
+    # plane intersection should be
+    # - (14, 14, 14), in data coordinates
+    # - (28, 7, 7) in world coordinates
     on_mouse_alt_click_add_point_on_plane(
         viewer=viewer_with_plane_and_points_3d,
         event=event,
@@ -92,22 +92,18 @@ def test_add_point_on_plane_same_scale_3d(viewer_with_plane_and_points_3d):
     )
     assert len(points_layer.data) == 1
 
-    # check the point, it should be in Point data coordinates
-    # because scales are the same, the Point will be located at
-    # plane.position z-slice and de-scaled even.position y, x
-    expected_point = np.array([[14, 28, 28]])
+    # check the point, it should be in world coordinates
+    expected_point = np.array([[28, 7, 7]])
     actual_points = points_layer.data
     np.testing.assert_array_equal(actual_points, expected_point)
 
 
 def test_add_point_on_plane_same_scale_4d(viewer_with_plane_and_points_4d):
-    """Test adding points on a plane when the layers have same non-[1, 1, 1] scale"""
+    """Test adding points on a plane when the image layer has same non-[1, 1, 1] scale"""
     viewer = viewer_with_plane_and_points_4d
-    scale = (1, 2, .5, .5)
     points_layer = viewer.layers['Points']
-    points_layer.scale = scale
     plane_layer = viewer.layers['blobs_4d']
-    plane_layer.scale = scale
+    plane_layer.scale = (1, 2, .5, .5)
     viewer.dims.ndisplay = 3
 
     # set the dims point
@@ -116,9 +112,9 @@ def test_add_point_on_plane_same_scale_4d(viewer_with_plane_and_points_4d):
 
     # the event is in world (scaled) coordinates
     event = MockMouseEvent(
-        modifiers = ['Alt']
+        modifiers=['Alt']
     )
-    viewer.cursor.position = (0, 14, 14, 14)
+    viewer.cursor.position = (0, 28, 7, 7)
     viewer.camera.set_view_direction((1, 0, 0))
 
     # plane position is (14, 14, 14), in data coordinates 
@@ -133,7 +129,7 @@ def test_add_point_on_plane_same_scale_4d(viewer_with_plane_and_points_4d):
     # check the point, it should be in Point data coordinates
     # because scales are the same, the Point will be located at
     # plane.position z-slice and de-scaled even.position y, x
-    expected_point = np.array([[12, 14, 28, 28]])
+    expected_point = np.array([[12, 28, 7, 7]])
     actual_points = points_layer.data
     np.testing.assert_array_equal(actual_points, expected_point)
 
