@@ -12,6 +12,7 @@ from napari_threedee.annotators.dipoles.validation import validate_layer, valida
 
 from napari_threedee.annotators.dipoles.constants import (
     DIPOLE_ANNOTATION_TYPE_KEY,
+    DIPOLE_ID_FEATURES_KEY,
     DIPOLE_DIRECTION_X_FEATURES_KEY,
     DIPOLE_DIRECTION_Y_FEATURES_KEY,
     DIPOLE_DIRECTION_Z_FEATURES_KEY,
@@ -77,6 +78,7 @@ class N3dDipoles(N3dDataModel):
 
         directions = self.directions
         features = {
+            DIPOLE_ID_FEATURES_KEY: np.arange(len(directions)),
             DIPOLE_DIRECTION_X_FEATURES_KEY: directions[:, -1],
             DIPOLE_DIRECTION_Y_FEATURES_KEY: directions[:, -2],
             DIPOLE_DIRECTION_Z_FEATURES_KEY: directions[:, -3],
@@ -130,15 +132,17 @@ class N3dDipoles(N3dDataModel):
             The napari Points layer initialized for dipole annotation.
         """
 
+        dummy_data = np.array([[0, 0, 0]])
+
         features = {
-            DIPOLE_DIRECTION_X_FEATURES_KEY: np.empty(0),
-            DIPOLE_DIRECTION_Y_FEATURES_KEY: np.empty(0),
-            DIPOLE_DIRECTION_Z_FEATURES_KEY: np.empty(0),
+            DIPOLE_ID_FEATURES_KEY: np.array([0]),
+            DIPOLE_DIRECTION_X_FEATURES_KEY: np.array([0]),
+            DIPOLE_DIRECTION_Y_FEATURES_KEY: np.array([0]),
+            DIPOLE_DIRECTION_Z_FEATURES_KEY: np.array([0]),
         }
         metadata = {N3D_METADATA_KEY: {ANNOTATION_TYPE_KEY: DIPOLE_ANNOTATION_TYPE_KEY}}
 
         # workaround for napari/napari#4213
-        dummy_data = np.zeros((0, 3))
         layer = napari.layers.Points(
             data=dummy_data,
             features=features,
@@ -146,7 +150,10 @@ class N3dDipoles(N3dDataModel):
             name='n3d dipoles',
             ndim=dummy_data.shape[-1],
         )
+        layer.selected_data = {0}
+        layer.remove_selected()
         return layer
+
 
     def __getitem__(self, idx: int) -> N3dDipole:
         return self.data[idx]
