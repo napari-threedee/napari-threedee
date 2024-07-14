@@ -32,11 +32,11 @@ class DipoleAnnotatorMode(Enum):
 
 class DipoleAnnotator(N3dComponent):
     def __init__(
-            self,
-            viewer: napari.Viewer,
-            image_layer: Optional[Image] = None,
-            points_layer: Optional[Points] = None,
-            enabled: bool = False
+        self,
+        viewer: napari.Viewer,
+        image_layer: Optional[Image] = None,
+        points_layer: Optional[Points] = None,
+        enabled: bool = False
     ):
         self.events = EmitterGroup(
             source=self,
@@ -128,10 +128,12 @@ class DipoleAnnotator(N3dComponent):
     def _add_point_on_key_press(self, *args):
         if (self.image_layer is None) or (self.points_layer is None):
             return
+        replace_selected = True if self.mode == DipoleAnnotatorMode.EDIT else False
         add_point_on_plane(
             viewer=self.viewer,
             image_layer=self.image_layer,
             points_layer=self.points_layer,
+            replace_selected=replace_selected,
         )
 
     def _set_direction_from_mouse_event(self, event: Event = None):
@@ -166,9 +168,9 @@ class DipoleAnnotator(N3dComponent):
             self.points_layer.features[DIPOLE_DIRECTION_Z_FEATURES_KEY].iloc[self._active_dipole_index] = direction[-3]
 
     def _update_current_properties(
-            self,
-            dipole_id: Optional[int] = None,
-            direction: Optional[np.ndarray] = None
+        self,
+        dipole_id: Optional[int] = None,
+        direction: Optional[np.ndarray] = None
     ):
         if self.points_layer is None:
             return
@@ -194,7 +196,8 @@ class DipoleAnnotator(N3dComponent):
     def _create_points_layer(self) -> Optional[Points]:
         from napari_threedee.data_models.dipoles import N3dDipoles
         ndim = self.image_layer.data.ndim if self.image_layer is not None else 3
-        layer = N3dDipoles.from_centers_and_directions(centers=np.zeros((ndim, 3)), directions=np.zeros((ndim, 3))).as_layer()
+        layer = N3dDipoles.from_centers_and_directions(centers=np.zeros((ndim, 3)),
+                                                       directions=np.zeros((ndim, 3))).as_layer()
         layer.selected_data = {0}
         layer.remove_selected()
         return layer
@@ -244,7 +247,7 @@ class DipoleAnnotator(N3dComponent):
         if self.image_layer is not None:
             self.image_layer.bind_key(ADD_POINT_KEY, None, overwrite=True)
         self.viewer.bind_key('n', None, overwrite=True)
-        self.viewer.bind_key('r', None, overwrite=True)
+        self.viewer.bind_key('v', None, overwrite=True)
 
     def _on_point_data_changed(self, event=None):
         self._update_dipoles()

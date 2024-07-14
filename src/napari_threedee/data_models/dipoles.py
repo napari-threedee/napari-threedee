@@ -12,6 +12,7 @@ from napari_threedee.annotators.dipoles.validation import validate_layer, valida
 
 from napari_threedee.annotators.dipoles.constants import (
     DIPOLE_ANNOTATION_TYPE_KEY,
+    DIPOLE_ID_FEATURES_KEY,
     DIPOLE_DIRECTION_X_FEATURES_KEY,
     DIPOLE_DIRECTION_Y_FEATURES_KEY,
     DIPOLE_DIRECTION_Z_FEATURES_KEY,
@@ -77,6 +78,7 @@ class N3dDipoles(N3dDataModel):
 
         directions = self.directions
         features = {
+            DIPOLE_ID_FEATURES_KEY: np.arange(len(self.data)),
             DIPOLE_DIRECTION_X_FEATURES_KEY: directions[:, -1],
             DIPOLE_DIRECTION_Y_FEATURES_KEY: directions[:, -2],
             DIPOLE_DIRECTION_Z_FEATURES_KEY: directions[:, -3],
@@ -131,6 +133,7 @@ class N3dDipoles(N3dDataModel):
         """
 
         features = {
+            DIPOLE_ID_FEATURES_KEY: np.empty(0),
             DIPOLE_DIRECTION_X_FEATURES_KEY: np.empty(0),
             DIPOLE_DIRECTION_Y_FEATURES_KEY: np.empty(0),
             DIPOLE_DIRECTION_Z_FEATURES_KEY: np.empty(0),
