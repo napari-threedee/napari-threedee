@@ -133,15 +133,15 @@ class N3dDipoles(N3dDataModel):
         """
 
         features = {
-            DIPOLE_ID_FEATURES_KEY: np.empty(0),
-            DIPOLE_DIRECTION_X_FEATURES_KEY: np.empty(0),
-            DIPOLE_DIRECTION_Y_FEATURES_KEY: np.empty(0),
-            DIPOLE_DIRECTION_Z_FEATURES_KEY: np.empty(0),
+            DIPOLE_ID_FEATURES_KEY: np.array([0]),
+            DIPOLE_DIRECTION_X_FEATURES_KEY: np.array([0]),
+            DIPOLE_DIRECTION_Y_FEATURES_KEY: np.array([0]),
+            DIPOLE_DIRECTION_Z_FEATURES_KEY: np.array([0]),
         }
         metadata = {N3D_METADATA_KEY: {ANNOTATION_TYPE_KEY: DIPOLE_ANNOTATION_TYPE_KEY}}
 
         # workaround for napari/napari#4213
-        dummy_data = np.zeros((0, 3))
+        dummy_data = np.array([[0, 0, 0]])
         layer = napari.layers.Points(
             data=dummy_data,
             features=features,
