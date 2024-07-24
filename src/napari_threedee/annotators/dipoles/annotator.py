@@ -155,7 +155,10 @@ class DipoleAnnotator(N3dComponent):
         )
         dipole_position_3d = self.active_dipole_position[displayed_dims]
         direction = dipole_north_position_3d - dipole_position_3d
-        direction = direction / np.linalg.norm(direction)
+        norm = np.linalg.norm(direction)
+        if np.abs(norm) < 1e-10:
+            return
+        direction = direction / norm
         self._update_active_dipole_direction(direction=direction)
         self._update_current_properties(direction=direction)
         self._update_dipoles()
