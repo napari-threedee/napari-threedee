@@ -64,6 +64,7 @@ jobs:
           PLATFORM: ${{ matrix.platform }}
 
       - name: Coverage
+        if: runner.os != 'macOS'
         uses: codecov/codecov-action@v3
 
   docs:
