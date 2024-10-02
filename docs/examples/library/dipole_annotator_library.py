@@ -1,8 +1,8 @@
 """
-Sphere annotator (library)
+Dipole annotator (library)
 ==================================
 
-An example controlling the sphere annotator,
+An example controlling the dipole annotator,
 using napari-threedee as a library.
 """
 import napari
