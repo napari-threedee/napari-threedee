@@ -149,6 +149,8 @@ class N3dDipoles(N3dDataModel):
             name='n3d dipoles',
             ndim=dummy_data.shape[-1],
         )
+        layer.selected_data = {0}
+        layer.remove_selected()
         return layer
 
     def __getitem__(self, idx: int) -> N3dDipole:

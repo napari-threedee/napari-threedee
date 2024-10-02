@@ -209,8 +209,8 @@ class DipoleAnnotator(N3dComponent):
         return Vectors(
             data=np.zeros(shape=(0, 2, 3)),
             name="dipoles",
-            edge_width=2,
-            length=10,
+            edge_width=5,
+            length=20,
             opacity=0.7,
         )
 
@@ -261,6 +261,7 @@ class DipoleAnnotator(N3dComponent):
         n3d_metadata = self.points_layer.metadata[N3D_METADATA_KEY]
         if len(vectors) > 0:
             self._draw_dipoles(vectors)
+
 
     def _draw_dipoles(self, vectors: np.ndarray):
         if self.vectors_layer is None:
