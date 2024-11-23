@@ -1,7 +1,8 @@
 import numpy as np
 import pytest
 from napari_threedee._backend.manipulator.manipulator_model import ManipulatorModel
-from napari_threedee.manipulators import RenderPlaneManipulator
+from napari_threedee.manipulators import RenderPlaneManipulator, ClippingPlaneManipulator
+from src.napari_threedee._backend import manipulator
 
 
 def test_instantiation():
@@ -109,3 +110,21 @@ def test_handle_size_setter(viewer_with_plane_3d):
         assert translator.handle_size == 20
     for rotator in manipulator._backend.manipulator_model.rotators:
         assert rotator.handle_size == 20
+
+def test_clipping_plane_instantiation(viewer_with_plane_3d):
+    viewer = viewer_with_plane_3d
+    ClippingPlaneManipulator(viewer=viewer, layer=viewer.layers[0])
+
+    assert len(viewer.layers[0].experimental_clipping_planes) == 1
+    assert viewer.layers[0].experimental_clipping_planes[0].enabled
+
+def test_clipping_plane_position(viewer_with_plane_3d):
+    viewer = viewer_with_plane_3d
+    manipulator = ClippingPlaneManipulator(viewer=viewer, layer=viewer.layers[0])
+
+    assert manipulator.enabled
+    assert manipulator.origin == np.array([0, 0, 0])
+    assert np.allclose(manipulator.origin, np.array(viewer.layers[0].experimental_clipping_planes[0].position))
+
+    manipulator.origin = np.array([1, 1, 1])
+    assert viewer.layers[0].experimental_clipping_planes[0].position == (1, 1, 1) 
