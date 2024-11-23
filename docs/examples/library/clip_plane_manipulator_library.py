@@ -7,7 +7,6 @@ using napari-threedee as a library.
 """
 
 import napari
-from skimage import data
 
 from napari_threedee.manipulators import ClippingPlaneManipulator
 
