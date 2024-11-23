@@ -126,5 +126,5 @@ def test_clipping_plane_position(viewer_with_plane_3d):
     assert np.allclose(manipulator.origin, np.array([0, 0, 0]))
     assert np.allclose(manipulator.origin, np.array(viewer.layers[0].experimental_clipping_planes[0].position))
 
-    manipulator.origin = np.array([1, 1, 1])
-    assert viewer.layers[0].experimental_clipping_planes[0].position == (1, 1, 1) 
+    viewer.layers[0].experimental_clipping_planes[0].position = (1, 1, 1)
+    assert manipulator.origin == np.array([1, 1, 1]) 
