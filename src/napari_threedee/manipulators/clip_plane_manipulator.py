@@ -1,5 +1,4 @@
 import napari.layers
-from napari.utils.events.event import EventBlocker
 from napari.utils.geometry import rotation_matrix_from_vectors_3d
 from napari.layers.utils.plane import ClippingPlane
 import numpy as np
@@ -11,10 +10,12 @@ from napari_threedee.utils.napari_utils import add_mouse_callback_safe, remove_m
 class ClippingPlaneManipulator(BaseManipulator):
     """A manipulator for moving and orienting a layer clipping plane."""
 
-    def __init__(self, viewer, layer=None, clipping_plane_idx: int = None):
-        if len(layer.experimental_clipping_planes) == 0:
+    def __init__(self, viewer, layer, clipping_plane_idx = None):
+        # if a clipping plane is not provided, append a new clipping plane and use that
+        if clipping_plane_idx is None:
             layer.experimental_clipping_planes.append(ClippingPlane(enabled=True))
-            self.clipping_plane = layer.experimental_clipping_planes[0]
+            self.clipping_plane = layer.experimental_clipping_planes[-1]
+        # if a clipping plane index is provided, use that
         elif clipping_plane_idx <= len(layer.experimental_clipping_planes) -1:
             self.clipping_plane = layer.experimental_clipping_planes[clipping_plane_idx]
         else:
