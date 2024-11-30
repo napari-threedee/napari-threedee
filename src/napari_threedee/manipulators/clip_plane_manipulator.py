@@ -10,21 +10,12 @@ from napari_threedee.utils.napari_utils import add_mouse_callback_safe, remove_m
 class ClippingPlaneManipulator(BaseManipulator):
     """A manipulator for moving and orienting a layer clipping plane."""
 
-    def __init__(self, viewer, layer, clipping_plane_idx = None):
-        # if a clipping plane is not provided, append a new clipping plane and use that
-        if clipping_plane_idx is None:
-            layer.experimental_clipping_planes.append(ClippingPlane(enabled=True))
-            self.clipping_plane = layer.experimental_clipping_planes[-1]
-        # if a clipping plane index is provided, use that
-        elif clipping_plane_idx <= len(layer.experimental_clipping_planes) -1:
-            self.clipping_plane = layer.experimental_clipping_planes[clipping_plane_idx]
-        else:
-            raise ValueError("Clipping plane index out of bounds")
-
+    def __init__(self, viewer, layer=None, clipping_plane_idx = None):
+        self.clipping_plane = invoke_clipping_plane(layer, clipping_plane_idx)
         super().__init__(viewer, layer, rotator_axes='xyz', translator_axes='z')
 
-
-    def set_layers(self, layers: napari.layers.Layer):
+    def set_layers(self, layers: napari.layers.Layer, clipping_plane_idx = None):
+        self.clipping_plane = invoke_clipping_plane(layers, clipping_plane_idx)
         super().set_layers(layers)
 
     def _connect_events(self):
@@ -85,3 +76,17 @@ class ClippingPlaneManipulator(BaseManipulator):
         with self.clipping_plane.events.normal.blocker(self._update_transform):
             z_vector_data = world_to_data_normal(vector=self.z_vector, layer=self.layer)
             self.clipping_plane.normal = -1 * z_vector_data
+
+def invoke_clipping_plane(layer: napari.layers.Layer, clipping_plane_idx: int = None) -> ClippingPlane:
+    """Helper function to get a clipping plane for a layer or create one"""
+    # if a clipping plane is not provided, append a new clipping plane and use that
+    if clipping_plane_idx is None:
+        layer.experimental_clipping_planes.append(ClippingPlane(enabled=True))
+        clipping_plane = layer.experimental_clipping_planes[-1]
+    # if a clipping plane index is provided, use that
+    elif clipping_plane_idx <= len(layer.experimental_clipping_planes) -1:
+        clipping_plane = layer.experimental_clipping_planes[clipping_plane_idx]
+    else:
+        raise ValueError("Clipping plane index out of bounds")
+
+    return clipping_plane
