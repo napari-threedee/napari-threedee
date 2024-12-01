@@ -1,5 +1,5 @@
 """
-Clip plane manipulator (library)
+Clipping plane manipulator (library)
 ==========================================
 
 An example controlling the clipping plane manipulator,
