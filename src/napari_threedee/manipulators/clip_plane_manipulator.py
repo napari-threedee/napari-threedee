@@ -10,10 +10,10 @@ from napari_threedee.utils.napari_utils import add_mouse_callback_safe, remove_m
 class ClippingPlaneManipulator(BaseManipulator):
     """A manipulator for moving and orienting a layer clipping plane."""
 
-    def __init__(self, viewer, layer=None, clipping_plane_idx = None):
+    def __init__(self, viewer, layer=None, clipping_plane_idx = None, enabled=True):
         if layer:
             self.clipping_plane = invoke_clipping_plane(layer, clipping_plane_idx)
-        super().__init__(viewer, layer, rotator_axes='xyz', translator_axes='z')
+        super().__init__(viewer, layer, rotator_axes='xyz', translator_axes='z', enabled=enabled)
 
     def set_layers(self, layers: napari.layers.Layer, clipping_plane_idx = None):
         self.clipping_plane = invoke_clipping_plane(layers, clipping_plane_idx)
