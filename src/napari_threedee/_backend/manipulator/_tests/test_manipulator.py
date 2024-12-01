@@ -151,3 +151,13 @@ def test_clipping_plane_position(viewer_with_plane_3d):
 
     viewer.layers[0].experimental_clipping_planes[0].position = (1, 1, 1)
     assert np.allclose(manipulator.origin, np.array([1, 1, 1]))
+
+def test_clipping_plane_set_layers(viewer_with_plane_3d):
+    """Ensure that the manipulator can be set a layer, invoking a plane"""
+    viewer = viewer_with_plane_3d
+    manipulator = ClippingPlaneManipulator(viewer=viewer)
+
+    manipulator.set_layers(viewer.layers[0])
+
+    assert viewer.layers[0].experimental_clipping_planes[0].enabled
+    assert manipulator.enabled
