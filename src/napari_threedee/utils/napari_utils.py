@@ -59,10 +59,8 @@ def get_vispy_root_node(viewer: napari.Viewer, layer):
 
     This is the node that layers are added to.
     """
-    # this will need to be updated in napari 0.5.0
-    # viewer.window._qt_window._qt_viewer.canvas.view.scene
     qt_viewer = viewer.window._qt_window._qt_viewer
-    return qt_viewer.view.scene
+    return qt_viewer.canvas.view.scene
 
 
 def remove_mouse_callback_safe(callback_list, callback):
