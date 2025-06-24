@@ -117,12 +117,11 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          import:
+          inventories:
             - https://docs.python.org/3/objects.inv
-          selection:
+          options:
             docstring_style: numpy
             filters: [ "!^_" ]
-          rendering:
             show_root_heading: true
             show_root_toc_entry: true
             show_root_full_path: true
