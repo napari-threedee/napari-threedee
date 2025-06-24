@@ -15,10 +15,10 @@ To perform this tutorial, you need the following:
 ## Setup
 Before trying the tutorial, please initialize your python environment as described below. Note that we recommend using `mamba` to install/manage dependencies. If you are using `conda`, you can simply replace `mamba` with `conda` in the commands below, but we recommend you that the conda version is >23.10
 
-1. Create a new environment called `seg-env` with python 3.9. In your terminal, enter the following command.
+1. Create a new environment called `seg-env` with python 3.11. In your terminal, enter the following command.
 
 	```bash
-	mamba create -n seg-env -c conda-forge python=3.9
+	mamba create -n seg-env -c conda-forge python=3.11
 	```
 
 2. Activate your new environment. If you successfully activated the environment, you should see the name of your environment (`(seg-env)`) to the left of your prompt.
