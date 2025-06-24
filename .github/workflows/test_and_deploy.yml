@@ -80,8 +80,7 @@ jobs:
         python-version: 3.11
     - name: Install dependencies
       run: |
-        pip install "PyOpenGL<3.1.7"
-        pip install -r requirements.txt
+        pip install -e ".[dev]" pyqt5
         pip list
     # Build the book
     - name: Build the book
