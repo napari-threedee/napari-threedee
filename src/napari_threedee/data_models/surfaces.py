@@ -5,7 +5,7 @@ import napari
 import numpy as np
 import pandas as pd
 import zarr
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 
 from napari_threedee.annotators.base import N3dDataModel
 from napari_threedee.annotators.constants import N3D_METADATA_KEY, ANNOTATION_TYPE_KEY
@@ -25,7 +25,7 @@ class N3dSurface(BaseModel):
     def ndim(self) -> int:
         return self.data[0].shape[-1]
 
-    @validator('data', pre=True)
+    @field_validator('data', mode='before')
     def ensure_float32_ndarray_list(cls, value):
         data = [
             np.asarray(arr, dtype=np.float32)

@@ -3,7 +3,7 @@ from typing import Tuple, Union
 import einops
 import numpy as np
 from psygnal import EventedModel
-from pydantic import PrivateAttr, validator
+from pydantic import PrivateAttr, field_validator
 from scipy.interpolate import splprep, splev
 
 
@@ -33,7 +33,7 @@ class SplineSampler(EventedModel):
     def _ndim(self) -> int:
         return self.points.shape[-1]
 
-    @validator('points')
+    @field_validator('points')
     def is_coordinate_array(cls, v):
         points = np.atleast_2d(np.array(v))
         if points.ndim != 2:

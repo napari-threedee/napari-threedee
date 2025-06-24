@@ -3,7 +3,7 @@ import os
 import napari.layers
 import numpy as np
 import zarr
-from pydantic import validator
+from pydantic import field_validator
 
 from napari_threedee.annotators.base import N3dDataModel
 from napari_threedee.annotators.constants import N3D_METADATA_KEY, ANNOTATION_TYPE_KEY
@@ -55,7 +55,7 @@ class N3dPoints(N3dDataModel):
         n3d_zarr[...] = self.data
         n3d_zarr.attrs[ANNOTATION_TYPE_KEY] = POINT_ANNOTATION_TYPE_KEY
 
-    @validator('data', pre=True)
+    @field_validator('data', mode='before')
     def ensure_2d_float32_array(cls, value):
         data = np.atleast_2d(np.asarray(value, dtype=np.float32))
         if data.shape[-1] == 0:

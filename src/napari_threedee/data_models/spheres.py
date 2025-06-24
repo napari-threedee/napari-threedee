@@ -4,7 +4,7 @@ from typing import Tuple
 import napari
 import numpy as np
 import zarr
-from pydantic import validator
+from pydantic import field_validator
 
 from napari_threedee.annotators.base import N3dDataModel
 from napari_threedee.annotators.spheres.validation import (
@@ -73,11 +73,11 @@ class N3dSpheres(N3dDataModel):
         n3d_zarr.attrs[ANNOTATION_TYPE_KEY] = SPHERE_ANNOTATION_TYPE_KEY
         n3d_zarr.attrs[SPHERE_RADIUS_FEATURES_KEY] = list(self.radii)
 
-    @validator('centers', 'radii', pre=True)
+    @field_validator('centers', 'radii', mode='before')
     def ensure_float32_ndarray(cls, value):
         return np.asarray(value, dtype=np.float32)
 
-    @validator('centers', pre=True)
+    @field_validator('centers', mode='before')
     def ensure_at_least_2d(cls, value):
         data = np.atleast_2d(value)
         if data.shape[-1] == 0:

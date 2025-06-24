@@ -4,7 +4,7 @@ from typing import List
 import napari
 import numpy as np
 import zarr
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 
 from napari_threedee.annotators.base import N3dDataModel
 from napari_threedee.annotators.constants import N3D_METADATA_KEY, ANNOTATION_TYPE_KEY
@@ -40,7 +40,7 @@ class N3dPath(BaseModel):
         sampler = SplineSampler(points=self.data)
         return sampler(u=np.linspace(0, 1, num=n), derivative=derivative)
 
-    @validator('data', pre=True)
+    @field_validator('data', mode='before')
     def ensure_float32_ndarray(cls, value):
         data = np.atleast_2d(np.asarray(value, dtype=np.float32))
         if data.shape[-1] == 0:

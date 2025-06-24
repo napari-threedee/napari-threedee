@@ -1,7 +1,7 @@
-from typing import Tuple, List
+from typing import List
 
 import numpy as np
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 
 
 class AxisModel(BaseModel):
@@ -14,7 +14,7 @@ class AxisModel(BaseModel):
     class Config:
         arbitrary_types_allowed = True
 
-    @validator('name')
+    @field_validator('name')
     def lowercase(cls, v: str):
         return v.lower()
 

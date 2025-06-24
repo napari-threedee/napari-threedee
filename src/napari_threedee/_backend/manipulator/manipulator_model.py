@@ -2,7 +2,7 @@ from typing import Tuple, Optional, Literal, Union, Any
 
 import numpy as np
 from psygnal import EventedModel
-from pydantic import validator, Field
+from pydantic import field_validator, Field
 
 from .central_axis import CentralAxisSet
 from .rotator import RotatorSet, Rotator
@@ -48,19 +48,19 @@ class ManipulatorModel(EventedModel):
         if name == 'selected_axis_id' and value is None:
             self.selected_object_type = None
 
-    @validator('central_axes', pre=True)
+    @field_validator('central_axes', mode='before')
     def central_axes_from_string(cls, v):
         if isinstance(v, str):
             v = CentralAxisSet.from_string(v)
         return v
 
-    @validator('translators', pre=True)
+    @field_validator('translators', mode='before')
     def translators_from_string(cls, v):
         if isinstance(v, str):
             v = TranslatorSet.from_string(v)
         return v
 
-    @validator('rotators', pre=True)
+    @field_validator('rotators', mode='before')
     def rotators_from_string(cls, v):
         if isinstance(v, str):
             v = RotatorSet.from_string(v)

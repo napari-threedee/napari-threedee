@@ -1,7 +1,5 @@
 import numpy as np
 
-from napari_threedee.utils.napari_utils import get_dims_displayed
-
 
 def signed_angle_between_vectors(vector_0, vector_1,
                                  rotation_axis: np.ndarray) -> float:
