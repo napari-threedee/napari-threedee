@@ -1,0 +1,81 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+only-include = ["src"]
+sources = ["src"]
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/napari_threedee/_version.py"
+
+[project]
+name = "napari-threedee"
+dynamic = ["version"]
+description = "A suite of useful tools based on 3D interactivity in napari"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "BSD-3-Clause" }
+authors = [
+    { name = "napari team", email = "napari-steering-council@googlegroups.com" }
+]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "Framework :: napari",
+    "Topic :: Software Development :: Testing",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "License :: OSI Approved :: BSD License",
+]
+dependencies = [
+    "einops",
+    "imageio>=2.5.0,!=2.11.0,!=2.22.1",
+    "libigl",
+    "magicgui",
+    "morphosamplers",
+    "mrcfile",
+    "napari>=0.5.0",
+    "numpy",
+    "pandas",
+    "pooch",
+    "psygnal",
+    "pydantic",
+    "qtpy",
+    "scipy",
+    "superqt",
+    "vispy",
+    "zarr<3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "lxml[html_clean]>5",
+    "mkdocs",
+    "mkdocs-gallery>0.7.6",
+    "mkdocs-material",
+    "mkdocstrings[python]",
+    "mkdocs-video",
+    "pytest",
+    "pytest-qt",
+    "qtgallery",
+    "scikit-image[data]",
+]
+
+[project.urls]
+homepage = "https://github.com/alisterburt/napari-threedee"
+repository = "https://github.com/napari-threedee/napari-threedee"
+"Bug Tracker" = "https://github.com/napari-threedee/napari-threedee/issues"
+Documentation = "https://github.com/napari-threedee/napari-threedee#README.md"
+"Source Code" = "https://github.com/napari-threedee/napari-threedee"
+"User Support" = "https://github.com/napari-threedee/napari-threedee/issues"
+
+[project.entry-points."napari.manifest"]
+napari-threedee = "napari_threedee:napari.yaml"
