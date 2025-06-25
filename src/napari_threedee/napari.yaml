@@ -28,6 +28,10 @@ contributions:
     - id: napari-threedee.QtRenderPlaneManipulatorWidget
       title: Create render plane manipulator
       python_name: napari_threedee.dock_widgets:QtRenderPlaneManipulatorWidget
+    
+    - id: napari-threedee.QtClippingPlaneManipulatorWidget
+      title: Create clipping plane manipulator
+      python_name: napari_threedee.dock_widgets:QtClippingPlaneManipulatorWidget
 
     - id: napari-threedee.QtPointManipulatorWidget
       title: Create point manipulator
@@ -86,6 +90,9 @@ contributions:
     # Manipulators
     - command: napari-threedee.QtRenderPlaneManipulatorWidget
       display_name: render plane manipulator
+
+    - command: napari-threedee.QtClippingPlaneManipulatorWidget
+      display_name: clipping plane manipulator
 
     - command: napari-threedee.QtPointManipulatorWidget
       display_name: point manipulator

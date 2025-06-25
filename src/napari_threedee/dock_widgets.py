@@ -1,7 +1,8 @@
 from .manipulators._qt import (
     QtLayerManipulatorWidget,
     QtPointManipulatorWidget,
-    QtRenderPlaneManipulatorWidget
+    QtRenderPlaneManipulatorWidget,
+    QtClippingPlaneManipulatorWidget,
 )
 
 from .annotators._qt import (
