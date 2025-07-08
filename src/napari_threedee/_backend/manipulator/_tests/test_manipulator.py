@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
 from napari_threedee._backend.manipulator.manipulator_model import ManipulatorModel
-from napari_threedee.manipulators import RenderPlaneManipulator
-
+from napari_threedee.manipulators import RenderPlaneManipulator, ClippingPlaneManipulator
+from napari.layers.utils.plane import ClippingPlane
 
 def test_instantiation():
     manipulator = ManipulatorModel(
@@ -109,3 +109,55 @@ def test_handle_size_setter(viewer_with_plane_3d):
         assert translator.handle_size == 20
     for rotator in manipulator._backend.manipulator_model.rotators:
         assert rotator.handle_size == 20
+
+def test_clipping_plane_instantiation(viewer_with_plane_3d):
+    viewer = viewer_with_plane_3d
+    # instantiate a clipping plane manipulator
+    # this should add an enabled clipping_plane to the layer
+    manipulator = ClippingPlaneManipulator(viewer=viewer, layer=viewer.layers[0])
+    assert len(viewer.layers[0].experimental_clipping_planes) == 1
+    assert viewer.layers[0].experimental_clipping_planes[0].enabled
+    assert manipulator.clipping_plane is viewer.layers[0].experimental_clipping_planes[0]
+
+    # instantiate a second clipping plane manipulator
+    # this should add a second enabled clipping_plane to the layer
+    manipulator2 = ClippingPlaneManipulator(viewer=viewer, layer=viewer.layers[0])
+    assert len(viewer.layers[0].experimental_clipping_planes) == 2
+    assert viewer.layers[0].experimental_clipping_planes[1].enabled
+    assert manipulator2.clipping_plane is viewer.layers[0].experimental_clipping_planes[1]
+
+
+def test_clipping_plane_instantiation_with_index(viewer_with_plane_3d):
+    viewer = viewer_with_plane_3d
+
+    # Add two clipping planes to the base layer
+    viewer.layers[0].experimental_clipping_planes.append(ClippingPlane(enabled=True))
+    viewer.layers[0].experimental_clipping_planes.append(ClippingPlane(enabled=True))
+    assert len(viewer.layers[0].experimental_clipping_planes) == 2
+
+    # Create a manipulator for the second clipping plane only, without adding extra planes
+    manipulator = ClippingPlaneManipulator(viewer=viewer, layer=viewer.layers[0], clipping_plane_idx=1)
+    assert len(viewer.layers[0].experimental_clipping_planes) == 2
+    assert viewer.layers[0].experimental_clipping_planes[1].enabled
+    assert manipulator.clipping_plane is viewer.layers[0].experimental_clipping_planes[1]
+
+def test_clipping_plane_position(viewer_with_plane_3d):
+    viewer = viewer_with_plane_3d
+    manipulator = ClippingPlaneManipulator(viewer=viewer, layer=viewer.layers[0])
+
+    assert manipulator.enabled
+    assert np.allclose(manipulator.origin, np.array([0, 0, 0]))
+    assert np.allclose(manipulator.origin, np.array(viewer.layers[0].experimental_clipping_planes[0].position))
+
+    viewer.layers[0].experimental_clipping_planes[0].position = (1, 1, 1)
+    assert np.allclose(manipulator.origin, np.array([1, 1, 1]))
+
+def test_clipping_plane_set_layers(viewer_with_plane_3d):
+    """Ensure that the manipulator can be set a layer, invoking a plane"""
+    viewer = viewer_with_plane_3d
+    manipulator = ClippingPlaneManipulator(viewer=viewer)
+
+    manipulator.set_layers(viewer.layers[0])
+
+    assert viewer.layers[0].experimental_clipping_planes[0].enabled
+    assert manipulator.enabled
