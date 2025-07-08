@@ -109,6 +109,14 @@ jobs:
     needs: [test]
     runs-on: ubuntu-latest
     if: contains(github.ref, 'tags')
+    
+    permissions:
+      # IMPORTANT: this permission is mandatory for trusted publishing on PyPi
+      # see https://docs.pypi.org/trusted-publishers/
+      id-token: write
+      # This permission allows writing releases
+      contents: write
+    
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
